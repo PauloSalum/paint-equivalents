@@ -131,6 +131,92 @@ func Grade(de float64) string {
 	return "E"
 }
 
+// Describe names a colour the way a painter would, from its own Lab
+// coordinates: lightness band, chroma band, hue band. Every paint page needs a
+// sentence that is about that paint and not about the template, and the only
+// honest source for one is the measurement itself.
+func Describe(c Lab) string {
+	chroma := math.Hypot(c.A, c.B)
+	if chroma < 5 {
+		switch {
+		case c.L < 15:
+			return "a near-black neutral"
+		case c.L < 35:
+			return "a dark grey"
+		case c.L < 65:
+			return "a mid grey"
+		case c.L < 88:
+			return "a light grey"
+		}
+		return "an off-white"
+	}
+
+	var light string
+	switch {
+	case c.L < 25:
+		light = "very dark"
+	case c.L < 45:
+		light = "dark"
+	case c.L < 65:
+		light = "mid-toned"
+	case c.L < 82:
+		light = "light"
+	default:
+		light = "very light"
+	}
+
+	var sat string
+	switch {
+	case chroma < 18:
+		sat = "muted"
+	case chroma < 38:
+		sat = "moderately saturated"
+	case chroma < 60:
+		sat = "saturated"
+	default:
+		sat = "vivid"
+	}
+
+	return "a " + light + ", " + sat + " " + Hue(c)
+}
+
+// Hue is the colour-name band of a Lab coordinate. The boundaries follow the
+// CIELAB hue circle rather than RGB intuition: a* positive is red, b* positive
+// is yellow, and the named bands sit where painters expect the transitions.
+func Hue(c Lab) string {
+	if math.Hypot(c.A, c.B) < 5 {
+		return "neutral"
+	}
+	h := deg(math.Atan2(c.B, c.A))
+	if h < 0 {
+		h += 360
+	}
+	// The bands are placed so the sRGB primaries and secondaries land on the
+	// name a painter would use for them: red sits at 40°, orange 73°, yellow
+	// 103°, green 136°, cyan 196°, blue 306°, magenta 328°. CIELAB compresses
+	// the greens and stretches the blues, so evenly spaced bands would call
+	// pure blue violet and pure red orange.
+	switch {
+	case h < 25:
+		return "pink-red"
+	case h < 56:
+		return "red"
+	case h < 88:
+		return "orange"
+	case h < 125:
+		return "yellow"
+	case h < 170:
+		return "green"
+	case h < 250:
+		return "blue-green"
+	case h < 317:
+		return "blue"
+	case h < 345:
+		return "magenta"
+	}
+	return "pink-red"
+}
+
 // Readable picks black or white text for a swatch background, by the WCAG
 // relative luminance of the fill.
 func Readable(r, g, b int) string {

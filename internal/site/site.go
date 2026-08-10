@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	"tintaequivalente/internal/catalog"
+	"tintaequivalente/internal/color"
 	"tintaequivalente/internal/match"
 )
 
@@ -282,6 +283,7 @@ func (g *Generator) paintPages() error {
 			Buy      string
 			BuyBest  string
 			BestName string
+			Summary  string
 			Paint    catalog.Paint
 			Table    match.Table
 			Detailed []match.BrandMatches
@@ -311,12 +313,54 @@ func (g *Generator) paintPages() error {
 			},
 			Paint: p, Table: t, Detailed: detailed, Rest: rest,
 			Buy: g.buy(p.Brand, p.Name), BuyBest: buyBest, BestName: bestName,
+			Summary: summarise(p, t),
 		})
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// summarise turns the numbers already on the page into the sentence a person
+// would say about them: what the colour is, how well it is covered elsewhere,
+// and whether the ranges that miss it miss it badly. Every clause is read off
+// this paint's own measurements, so no two pages get the same paragraph.
+func summarise(p catalog.Paint, t match.Table) string {
+	lab := color.Lab{L: p.LabL, A: p.LabA, B: p.LabB}
+	s := p.Brand + " " + p.Name + " is " + color.Describe(lab) + "."
+	if len(t.Cross) == 0 {
+		return s
+	}
+
+	near, usable := 0, 0
+	for _, b := range t.Cross {
+		switch de := b.Best[0].DE; {
+		case de < 2:
+			near++
+			usable++
+		case de < 5:
+			usable++
+		}
+	}
+	first := t.Cross[0].Best[0]
+
+	switch {
+	case near > 1:
+		s += fmt.Sprintf(" %d ranges carry a near-perfect stand-in for it, the closest being %s %s at ΔE %.1f.",
+			near, t.Cross[0].Brand, first.Paint.Name, first.DE)
+	case near == 1:
+		s += fmt.Sprintf(" Only one range matches it closely enough to swap without thinking: %s %s, ΔE %.1f.",
+			t.Cross[0].Brand, first.Paint.Name, first.DE)
+	default:
+		s += fmt.Sprintf(" Nothing matches it exactly. The nearest is %s %s at ΔE %.1f — %s.",
+			t.Cross[0].Brand, first.Paint.Name, first.DE, color.Quality(first.DE))
+	}
+	if miss := len(t.Cross) - usable; miss > 0 {
+		s += fmt.Sprintf(" %d of the %d other ranges have nothing within ΔE 5, so a substitution from those will read as a different colour.",
+			miss, len(t.Cross))
+	}
+	return s
 }
 
 func (g *Generator) brandPages() error {

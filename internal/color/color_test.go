@@ -96,3 +96,29 @@ func TestReadableContrast(t *testing.T) {
 		t.Errorf("black swatch got %s, want light ink", got)
 	}
 }
+
+// Describe feeds a sentence on every paint page; a wrong hue band there is a
+// factual error about the colour, not a cosmetic one.
+func TestDescribeBands(t *testing.T) {
+	cases := []struct {
+		name string
+		lab  Lab
+		want string
+	}{
+		{"pure red", Lab{L: 53.24, A: 80.09, B: 67.20}, "a mid-toned, vivid red"},
+		{"pure orange", Lab{L: 74.93, A: 23.94, B: 78.95}, "a light, vivid orange"},
+		{"pure yellow", Lab{L: 97.14, A: -21.55, B: 94.48}, "a very light, vivid yellow"},
+		{"pure green", Lab{L: 87.73, A: -86.18, B: 83.18}, "a very light, vivid green"},
+		{"pure cyan", Lab{L: 91.11, A: -48.09, B: -14.13}, "a very light, saturated blue-green"},
+		{"pure blue", Lab{L: 32.30, A: 79.19, B: -107.86}, "a dark, vivid blue"},
+		{"pure magenta", Lab{L: 60.32, A: 98.25, B: -60.84}, "a mid-toned, vivid magenta"},
+		{"mid grey", Lab{L: 53.59, A: 0, B: 0}, "a mid grey"},
+		{"black", Lab{L: 0, A: 0, B: 0}, "a near-black neutral"},
+		{"white", Lab{L: 100, A: 0, B: 0}, "an off-white"},
+	}
+	for _, c := range cases {
+		if got := Describe(c.lab); got != c.want {
+			t.Errorf("Describe(%s) = %q, want %q", c.name, got, c.want)
+		}
+	}
+}
