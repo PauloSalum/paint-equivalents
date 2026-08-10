@@ -32,6 +32,7 @@ type Config struct {
 	BaseURL       string
 	Out           string
 	AdsenseClient string
+	AdsenseSlot   string
 	AmazonTag     string
 	Domain        string
 	IndexNowKey   string
@@ -50,6 +51,7 @@ type Config struct {
 type Meta struct {
 	BaseURL       string
 	AdsenseClient string
+	AdsenseSlot   string
 	AmazonTag     string
 	PaintCount    int
 	BrandCount    int
@@ -110,6 +112,7 @@ func New(cfg Config, paints []catalog.Paint, tables []match.Table) (*Generator, 
 		meta: Meta{
 			BaseURL:       cfg.BaseURL,
 			AdsenseClient: cfg.AdsenseClient,
+			AdsenseSlot:   cfg.AdsenseSlot,
 			AmazonTag:     cfg.AmazonTag,
 			PaintCount:    len(paints),
 			BrandCount:    len(brands),

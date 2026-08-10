@@ -34,6 +34,7 @@ jobs:
             -indexnow ebf1b4edc3967fa10083e575236c6da286399aff657e422b0670f3ffc0d36c46 \
             -domain paints.paulosalum.com \
             -adsense ca-pub-0047717629819717 \
+            -adsense-slot 5507676182 \
             -base "${SITE_BASE:-https://paints.paulosalum.com}"
       - uses: actions/upload-pages-artifact@v3
         with:

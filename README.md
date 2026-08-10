@@ -69,6 +69,7 @@ Flags worth knowing:
 | `-detail-brands` | 12 | ranges given a full block before the rest are summarised |
 | `-chart-min` | 60 | paints a range needs before it gets conversion charts |
 | `-adsense` | — | AdSense client id; injects the script and writes `ads.txt` |
+| `-adsense-slot` | — | ad unit id for the one in-content slot; needs `-adsense` |
 | `-amazon-tag` | — | Associates tracking id; adds shop links and the required disclosure |
 | `-indexnow` | — | IndexNow key, served as `<key>.txt` |
 | `-domain` | — | custom domain, written to `CNAME` |
@@ -95,6 +96,12 @@ says: the match order is the colour distance and nothing else. Set
 `-amazon-tag` and the paint pages grow two shop links plus the disclosure the
 Associates agreement requires; set `-adsense` and the layout loads the ad
 script and writes `ads.txt`.
+
+`-adsense-slot` adds one explicit in-content placement — above the table on a
+conversion chart, below the summary on a paint page. Both sit after the answer
+the visitor came for and before the long tail of the page, which is the only
+position that is worth anything without pushing the content down. Everything
+else is left to Auto ads.
 
 ## Data licence
 
