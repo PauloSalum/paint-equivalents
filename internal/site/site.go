@@ -128,6 +128,7 @@ func (g *Generator) Run() (int, error) {
 	steps := []func() error{
 		g.copyAssets, g.siteCard, g.home, g.paintPages, g.brandPages,
 		g.chartPages, g.indexes, g.about, g.privacy, g.find, g.searchIndex, g.sitemap, g.wellKnown,
+		g.verify,
 	}
 	for _, step := range steps {
 		if err := step(); err != nil {
@@ -276,8 +277,25 @@ func (g *Generator) popular() []Link {
 }
 
 func (g *Generator) paintPages() error {
+	// A range under the chart minimum never gets a chart page. Without this the
+	// blocks below still offer "full chart" links for those ranges, and every
+	// paint in a small range ships a handful of 404s.
+	charted := map[string]map[string]bool{}
+	for _, from := range g.brands {
+		to := map[string]bool{}
+		for _, other := range g.brands {
+			if other.Name != from.Name && g.charted(from, other) {
+				to[other.Slug] = true
+			}
+		}
+		charted[from.Slug] = to
+	}
+
+	names := newLabels(g.paints)
+
 	for i, p := range g.paints {
 		t := g.tables[i]
+		full := names.product(p)
 		// Only the nearest ranges get a full block. The rest still appear, as
 		// one row each: a reader scrolling 28 headings finds nothing, and the
 		// page has to stay light enough to load fast on a phone.
@@ -296,11 +314,12 @@ func (g *Generator) paintPages() error {
 			Table    match.Table
 			Detailed []match.BrandMatches
 			Rest     []match.BrandMatches
+			Charts   map[string]bool
 		}
 		var buyBest, bestName string
 		if len(t.Cross) > 0 {
-			m := t.Cross[0].Best[0].Paint
-			buyBest, bestName = g.buy(m.Brand, m.Name), m.Brand+" "+m.Name
+			bestName = names.product(*t.Cross[0].Best[0].Paint)
+			buyBest = g.buy(bestName)
 		}
 		best := ""
 		if len(t.Cross) > 0 {
@@ -318,15 +337,15 @@ func (g *Generator) paintPages() error {
 
 		err := g.render("paint", strings.TrimPrefix(p.URL(), "/")+"index.html", data{
 			common: common{
-				Title: fmt.Sprintf("%s %s equivalents — closest paint in every range", p.Brand, p.Name),
-				Desc: fmt.Sprintf("Equivalents for %s %s (%s) across %d paint ranges, matched by CIEDE2000.%s",
-					p.Brand, p.Name, p.Hex, len(g.brands)-1, best),
+				Title: fmt.Sprintf("%s equivalents — closest paint in every range", full),
+				Desc: fmt.Sprintf("Equivalents for %s (%s) across %d paint ranges, matched by CIEDE2000.%s",
+					full, p.Hex, len(g.brands)-1, best),
 				Path: p.URL(), Image: g.cfg.BaseURL + p.URL() + "card.png",
 				Site: g.meta, JSONLD: template.JS(ld),
 			},
 			Paint: p, Table: t, Detailed: detailed, Rest: rest,
-			Buy: g.buy(p.Brand, p.Name), BuyBest: buyBest, BestName: bestName,
-			Summary: summarise(p, t),
+			Buy: g.buy(full), BuyBest: buyBest, BestName: bestName,
+			Summary: summarise(p, t), Charts: charted[p.BrandSlug],
 		})
 		if err != nil {
 			return err
@@ -732,14 +751,55 @@ func (g *Generator) wellKnown() error {
 // of stock, which a dead product link does not. Empty when no tag is set, so
 // the markup carries no affiliate machinery until there is an account behind
 // it.
-func (g *Generator) buy(brand, name string) string {
+func (g *Generator) buy(product string) string {
 	if g.cfg.AmazonTag == "" {
 		return ""
 	}
 	q := url.Values{}
-	q.Set("k", brand+" "+name+" paint")
+	q.Set("k", product+" paint")
 	q.Set("tag", g.cfg.AmazonTag)
 	return "https://www.amazon.com/s?" + q.Encode()
+}
+
+// labels counts how often a paint name repeats inside its brand, so a page can
+// be given exactly as much qualification as it needs to be distinct and no more.
+type labels struct{ byName, byRange map[string]int }
+
+func newLabels(paints []catalog.Paint) labels {
+	l := labels{byName: map[string]int{}, byRange: map[string]int{}}
+	for _, p := range paints {
+		l.byName[p.Brand+" "+p.Name]++
+		l.byRange[p.Brand+" "+p.Name+"|"+trimBrand(p)]++
+	}
+	return l
+}
+
+// trimBrand drops a brand name the range already repeats — Italeri's range is
+// recorded as "Italeri Acrylic Paint" — which would otherwise print it twice.
+func trimBrand(p catalog.Paint) string {
+	return strings.TrimSpace(strings.TrimPrefix(p.Range, p.Brand))
+}
+
+// product names a paint the way a shop lists it. The qualifier goes in brackets
+// after the name rather than in the middle: "Citadel Abaddon Black" is the
+// phrase people search for, and splitting it would cost the exact match to save
+// nothing. 2,437 paints share a brand and a name with another — Golden sells a
+// Naphthol Red Light in five ranges, three of them different colours — and
+// without this their pages carry the same title, which is how a search engine
+// decides to keep one and drop the rest.
+func (l labels) product(p catalog.Paint) string {
+	base := p.Brand + " " + p.Name
+	r := trimBrand(p)
+	if l.byName[base] < 2 || r == "" {
+		return base
+	}
+	// A handful of ranges carry the same name twice over. There the catalogue
+	// number is the only thing left that tells the two pots apart, and it is
+	// what a modeller searching for one would type anyway.
+	if l.byRange[base+"|"+r] > 1 && p.Code != "" {
+		return base + " (" + r + ", " + p.Code + ")"
+	}
+	return base + " (" + r + ")"
 }
 
 func chartPath(from, to string) string { return "/convert/" + from + "-to-" + to + "/" }

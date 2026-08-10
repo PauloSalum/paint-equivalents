@@ -32,7 +32,7 @@
     </li>
   {{end}}
   </ol>
-  <p class="pairlink"><a href="/convert/{{$.Paint.BrandSlug}}-to-{{.Slug}}/">Full {{$.Paint.Brand}} &rarr; {{.Brand}} chart</a></p>
+  {{if index $.Charts .Slug}}<p class="pairlink"><a href="/convert/{{$.Paint.BrandSlug}}-to-{{.Slug}}/">Full {{$.Paint.Brand}} &rarr; {{.Brand}} chart</a></p>{{end}}
 </section>
 {{end}}
 
