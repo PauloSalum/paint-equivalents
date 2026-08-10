@@ -23,12 +23,15 @@ jobs:
         with:
           go-version: 'stable'
       - run: go vet ./... && go test ./...
+      # SITE_BASE decides both the canonical URL and the path prefix the output
+      # is rebased onto, so moving to a custom domain is a one-variable change:
+      # set it to https://paints.paulosalum.com and add -domain.
       - run: |
           go run ./cmd/build \
             -paints paints.json \
             -out dist \
-            -base https://paints.paulosalum.com \
-            -domain paints.paulosalum.com
+            -per-brand 2 \
+            -base "${SITE_BASE:-https://paulosalum.github.io/paint-equivalents}"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

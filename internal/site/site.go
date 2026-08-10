@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -33,6 +34,11 @@ type Config struct {
 	SameBrand     int
 	ChartMinimum  int
 	DetailBrands  int
+
+	// Prefix is the subdirectory the site is served from, empty at a domain
+	// root. A GitHub Pages project site lives under /<repo>/, where every
+	// absolute path in the output would otherwise miss.
+	Prefix string
 }
 
 // Meta is what every template can reach through .Site.
@@ -80,6 +86,10 @@ func New(cfg Config, paints []catalog.Paint, tables []match.Table) (*Generator, 
 		cfg.DetailBrands = 12
 	}
 	cfg.BaseURL = strings.TrimSuffix(cfg.BaseURL, "/")
+	// The prefix follows from the base URL, so the two can never disagree.
+	if u, err := url.Parse(cfg.BaseURL); err == nil {
+		cfg.Prefix = strings.TrimSuffix(u.Path, "/")
+	}
 	brands := catalog.Brands(paints)
 	g := &Generator{
 		cfg: cfg, paints: paints, tables: tables, brands: brands,
@@ -119,6 +129,7 @@ func (g *Generator) Run() (int, error) {
 }
 
 func (g *Generator) write(rel string, body []byte) error {
+	body = g.rebase(body)
 	full := filepath.Join(g.cfg.Out, filepath.FromSlash(rel))
 	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
 		return err
@@ -136,6 +147,25 @@ func (g *Generator) render(name, rel string, data any) error {
 		return fmt.Errorf("%s: %w", rel, err)
 	}
 	return g.write(rel, trimIndent(buf.Bytes()))
+}
+
+// roots are the absolute paths the output can contain: every internal link,
+// plus the two files the client fetches by path. They are rewritten rather
+// than templated so a path added later cannot silently escape the prefix.
+var roots = []string{
+	"/paint/", "/brand/", "/brands/", "/charts/", "/convert/", "/about/",
+	"/style.css", "/search.js", "/search.json", "/favicon.svg", "/sitemap.xml",
+}
+
+// rebase moves every absolute path under the deployment prefix.
+func (g *Generator) rebase(body []byte) []byte {
+	if g.cfg.Prefix == "" || len(body) == 0 {
+		return body
+	}
+	for _, r := range roots {
+		body = bytes.ReplaceAll(body, []byte(`"`+r), []byte(`"`+g.cfg.Prefix+r))
+	}
+	return bytes.ReplaceAll(body, []byte(`href="/"`), []byte(`href="`+g.cfg.Prefix+`/"`))
 }
 
 // trimIndent drops template indentation, which is a third of the bytes on a
