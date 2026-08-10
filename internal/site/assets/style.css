@@ -102,3 +102,11 @@ table{border-collapse:collapse;width:100%;font-size:.92rem}
 
 footer{border-top:1px solid var(--line);padding:1.5rem 1.1rem 3rem;color:var(--dim);font-size:.85rem}
 footer p{max-width:56rem;margin:.4rem auto}
+
+.finder{display:flex;gap:.6rem;align-items:center;margin:1.2rem 0 2rem}
+#picker{width:4rem;height:3rem;padding:0;border:1px solid var(--line);border-radius:.5rem;
+  background:var(--card);cursor:pointer}
+#hex{flex:1;padding:.85rem 1rem;font:1.05rem/1 ui-monospace,monospace;color:var(--ink);
+  background:var(--card);border:1px solid var(--line);border-radius:.6rem}
+#hex:focus,#picker:focus{outline:2px solid var(--acc);outline-offset:1px}
+#foundhead .sw{margin-left:.4rem;vertical-align:middle}

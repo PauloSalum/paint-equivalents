@@ -1,0 +1,21 @@
+{{define "content"}}
+<nav class="crumbs"><a href="/">Home</a> / Find paint by colour</nav>
+<h1>What paint is this colour?</h1>
+<p class="lede">Pick a colour or paste a hex code. Every one of the {{.Site.PaintCount}} paints is ranked against it by CIEDE2000, in your browser — nothing is sent anywhere.</p>
+
+<div class="finder">
+  <input type="color" id="picker" value="#960C09" aria-label="Colour picker">
+  <input type="text" id="hex" value="#960C09" spellcheck="false" autocomplete="off" aria-label="Hex colour" placeholder="#RRGGBB">
+</div>
+
+<h2 id="foundhead">Closest paints</h2>
+<ol class="matches" id="found"></ol>
+
+<noscript><p class="warn">This tool needs JavaScript. The <a href="/brands/">range index</a> and the <a href="/charts/">conversion charts</a> work without it.</p></noscript>
+
+<section class="explain">
+  <h2>Getting the colour off a photo or a screenshot</h2>
+  <p>Any image editor has an eyedropper, and every operating system ships a colour picker: <strong>Windows</strong> has Power Toys' Color Picker, <strong>macOS</strong> has Digital Color Meter, <strong>GIMP</strong> and <strong>Krita</strong> both report hex directly. Sample a flat, evenly lit area rather than a highlight or a shadow.</p>
+  <p class="warn">A photograph carries its own white balance. A colour sampled from a lit photo of a painted model is the colour of that photo, not of the pot — expect to test two or three of the suggestions rather than trusting the first.</p>
+</section>
+{{end}}

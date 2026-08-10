@@ -14,7 +14,7 @@
 <body>
 <header class="top">
   <a class="brand" href="/"><span class="dot"></span> Paint Equivalents</a>
-  <nav><a href="/brands/">Brands</a><a href="/charts/">Charts</a><a href="/about/">About</a></nav>
+  <nav><a href="/find/">Find by colour</a><a href="/brands/">Brands</a><a href="/charts/">Charts</a><a href="/about/">About</a></nav>
 </header>
 <main>
 {{template "content" .}}
@@ -24,6 +24,7 @@
   <p>Paint data from <a href="https://github.com/Arcturus5404/miniature-paints" rel="noopener">Arcturus5404/miniature-paints</a>, MIT licensed, © 2022 Rick Fleuren. <a href="/about/">Full attribution</a>.</p>
 </footer>
 <script src="/search.js" defer></script>
+{{if .Finder}}<script src="/find.js" defer></script>{{end}}
 </body>
 </html>{{end}}
 

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"math"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -56,6 +57,7 @@ type common struct {
 	Path   string
 	JSONLD template.JS
 	Site   Meta
+	Finder bool
 }
 
 type Link struct {
@@ -102,7 +104,7 @@ func New(cfg Config, paints []catalog.Paint, tables []match.Table) (*Generator, 
 		},
 		tmpl: map[string]*template.Template{},
 	}
-	for _, name := range []string{"home", "paint", "brand", "chart", "list", "about"} {
+	for _, name := range []string{"home", "paint", "brand", "chart", "list", "about", "find"} {
 		t, err := template.ParseFS(tmplFS, "tmpl/layout.html", "tmpl/"+name+".html")
 		if err != nil {
 			return nil, fmt.Errorf("template %s: %w", name, err)
@@ -119,7 +121,7 @@ func (g *Generator) Run() (int, error) {
 	}
 	steps := []func() error{
 		g.copyAssets, g.home, g.paintPages, g.brandPages,
-		g.chartPages, g.indexes, g.about, g.searchIndex, g.sitemap, g.wellKnown,
+		g.chartPages, g.indexes, g.about, g.find, g.searchIndex, g.sitemap, g.wellKnown,
 	}
 	for _, step := range steps {
 		if err := step(); err != nil {
@@ -156,6 +158,7 @@ func (g *Generator) render(name, rel string, data any) error {
 var roots = []string{
 	"/paint/", "/brand/", "/brands/", "/charts/", "/convert/", "/about/",
 	"/style.css", "/search.js", "/search.json", "/favicon.svg", "/sitemap.xml",
+	"/find/", "/find.js",
 }
 
 // rebase moves every absolute path under the deployment prefix.
@@ -435,6 +438,20 @@ func (g *Generator) indexes() error {
 	})
 }
 
+// round2 keeps the search payload small; two decimals on a Lab axis is far
+// finer than the sampling error already in the colour values.
+func round2(f float64) float64 { return math.Round(f*100) / 100 }
+
+func (g *Generator) find() error {
+	type data struct{ common }
+	return g.render("find", "find/index.html", data{common{
+		Title: "What paint is this colour? Find a miniature paint from a hex code",
+		Desc: fmt.Sprintf("Pick a colour or paste a hex code and rank all %d miniature paints against it by CIEDE2000. Runs in the browser.",
+			len(g.paints)),
+		Path: "/find/", Site: g.meta, Finder: true,
+	}})
+}
+
 func (g *Generator) about() error {
 	type data struct{ common }
 	return g.render("about", "about/index.html", data{common{
@@ -446,18 +463,28 @@ func (g *Generator) about() error {
 
 // --- machine-readable output ---
 
+// searchRow is deliberately terse: it is downloaded whole by every visitor who
+// uses the search box or the colour finder. L/A/D carry the Lab value so the
+// finder can rank the whole catalogue client-side; "d" rather than "b" because
+// "b" is already the brand.
 type searchRow struct {
-	N string `json:"n"`
-	B string `json:"b"`
-	H string `json:"h"`
-	I string `json:"i"`
-	U string `json:"u"`
+	N string  `json:"n"`
+	B string  `json:"b"`
+	H string  `json:"h"`
+	I string  `json:"i"`
+	U string  `json:"u"`
+	L float64 `json:"l"`
+	A float64 `json:"a"`
+	D float64 `json:"d"`
 }
 
 func (g *Generator) searchIndex() error {
 	rows := make([]searchRow, 0, len(g.paints))
 	for _, p := range g.paints {
-		rows = append(rows, searchRow{N: p.Name, B: p.Brand, H: p.Hex, I: p.Ink(), U: p.URL()})
+		rows = append(rows, searchRow{
+			N: p.Name, B: p.Brand, H: p.Hex, I: p.Ink(), U: p.URL(),
+			L: round2(p.LabL), A: round2(p.LabA), D: round2(p.LabB),
+		})
 	}
 	b, err := json.Marshal(rows)
 	if err != nil {
@@ -475,6 +502,7 @@ func (g *Generator) sitemap() error {
 			g.cfg.BaseURL, path, priority)
 	}
 	add("/", "1.0")
+	add("/find/", "0.9")
 	add("/brands/", "0.8")
 	add("/charts/", "0.8")
 	add("/about/", "0.3")
