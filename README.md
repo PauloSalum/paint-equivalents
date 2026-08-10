@@ -1,7 +1,13 @@
 # Paint Equivalents
 
+**Live: [paints.paulosalum.com](https://paints.paulosalum.com)**
+
 A static site that answers one question: *I own this pot of paint, the recipe
 calls for a different range — what is the closest thing I can actually buy?*
+
+Start points: [conversion charts](https://paints.paulosalum.com/charts/) ·
+[find a paint from a hex code](https://paints.paulosalum.com/find/) ·
+[all 29 ranges](https://paints.paulosalum.com/brands/)
 
 9,327 miniature paints across 29 ranges, every one of them compared against
 every other by **CIEDE2000**, published as ~10,000 pre-rendered pages. No
