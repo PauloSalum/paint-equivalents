@@ -30,6 +30,7 @@ type Config struct {
 	BaseURL       string
 	Out           string
 	AdsenseClient string
+	AmazonTag     string
 	Domain        string
 	IndexNowKey   string
 	PerBrand      int
@@ -47,6 +48,7 @@ type Config struct {
 type Meta struct {
 	BaseURL       string
 	AdsenseClient string
+	AmazonTag     string
 	PaintCount    int
 	BrandCount    int
 }
@@ -99,6 +101,7 @@ func New(cfg Config, paints []catalog.Paint, tables []match.Table) (*Generator, 
 		meta: Meta{
 			BaseURL:       cfg.BaseURL,
 			AdsenseClient: cfg.AdsenseClient,
+			AmazonTag:     cfg.AmazonTag,
 			PaintCount:    len(paints),
 			BrandCount:    len(brands),
 		},
@@ -276,10 +279,18 @@ func (g *Generator) paintPages() error {
 		}
 		type data struct {
 			common
+			Buy      string
+			BuyBest  string
+			BestName string
 			Paint    catalog.Paint
 			Table    match.Table
 			Detailed []match.BrandMatches
 			Rest     []match.BrandMatches
+		}
+		var buyBest, bestName string
+		if len(t.Cross) > 0 {
+			m := t.Cross[0].Best[0].Paint
+			buyBest, bestName = g.buy(m.Brand, m.Name), m.Brand+" "+m.Name
 		}
 		best := ""
 		if len(t.Cross) > 0 {
@@ -299,6 +310,7 @@ func (g *Generator) paintPages() error {
 				Path: p.URL(), Site: g.meta, JSONLD: template.JS(ld),
 			},
 			Paint: p, Table: t, Detailed: detailed, Rest: rest,
+			Buy: g.buy(p.Brand, p.Name), BuyBest: buyBest, BestName: bestName,
 		})
 		if err != nil {
 			return err
@@ -551,6 +563,21 @@ func (g *Generator) wellKnown() error {
 		}
 	}
 	return nil
+}
+
+// buy is an Amazon search link rather than a product link: the catalogue has
+// no ASINs, and a search for the exact paint name survives a product going out
+// of stock, which a dead product link does not. Empty when no tag is set, so
+// the markup carries no affiliate machinery until there is an account behind
+// it.
+func (g *Generator) buy(brand, name string) string {
+	if g.cfg.AmazonTag == "" {
+		return ""
+	}
+	q := url.Values{}
+	q.Set("k", brand+" "+name+" paint")
+	q.Set("tag", g.cfg.AmazonTag)
+	return "https://www.amazon.com/s?" + q.Encode()
 }
 
 func chartPath(from, to string) string { return "/convert/" + from + "-to-" + to + "/" }

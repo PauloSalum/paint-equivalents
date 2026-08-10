@@ -20,6 +20,7 @@ func main() {
 		out   = flag.String("out", "dist", "output directory")
 		base  = flag.String("base", "https://example.com", "canonical base URL, no trailing slash")
 		ads   = flag.String("adsense", "", "AdSense client id, e.g. ca-pub-0000000000000000")
+		amz   = flag.String("amazon-tag", "", "Amazon Associates tracking id; adds affiliate shop links and the required disclosure")
 		dom   = flag.String("domain", "", "custom domain to write into CNAME")
 		perBr = flag.Int("per-brand", 3, "matches listed per other brand on a paint page")
 		same  = flag.Int("same-brand", 6, "nearest colours listed inside the paint's own brand")
@@ -62,6 +63,7 @@ func main() {
 		BaseURL:       *base,
 		Out:           *out,
 		AdsenseClient: *ads,
+		AmazonTag:     *amz,
 		Domain:        *dom,
 		IndexNowKey:   *ikey,
 		PerBrand:      *perBr,

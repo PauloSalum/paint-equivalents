@@ -10,6 +10,13 @@
 
 <p class="lede">The closest match to <strong>{{.Paint.Brand}} {{.Paint.Name}}</strong> in every other range, nearest first.</p>
 
+{{if .Buy}}
+<p class="buy">
+  <a href="{{.Buy}}" rel="nofollow sponsored noopener" target="_blank">Shop {{.Paint.Brand}} {{.Paint.Name}}</a>
+  {{if .BuyBest}}<a href="{{.BuyBest}}" rel="nofollow sponsored noopener" target="_blank">Shop {{.BestName}}</a>{{end}}
+</p>
+{{end}}
+
 {{range .Detailed}}
 <section class="brandblock">
   <h2>{{$.Paint.Name}} equivalent in {{.Brand}}</h2>

@@ -33,7 +33,9 @@ Flags worth knowing:
 | `-per-brand` | 3 | alternatives listed per range on a paint page |
 | `-detail-brands` | 12 | ranges given a full block before the rest are summarised |
 | `-chart-min` | 60 | paints a range needs before it gets conversion charts |
-| `-adsense` | — | AdSense client id; also writes `ads.txt` |
+| `-adsense` | — | AdSense client id; injects the script and writes `ads.txt` |
+| `-amazon-tag` | — | Associates tracking id; adds shop links and the required disclosure |
+| `-indexnow` | — | IndexNow key, served as `<key>.txt` |
 | `-domain` | — | custom domain, written to `CNAME` |
 | `-export` | — | write the publishable subset of the catalog and exit |
 
@@ -50,6 +52,14 @@ cmd/build          generator entry point
 `internal/match` compares 9,327 × 9,327 pairs. It keeps only a bounded top-N
 per range as it goes and stores pointers rather than paint copies — the naive
 version allocates 87 million structs and exhausts a 32-bit heap.
+
+## Monetisation
+
+Both channels are off until an id is passed, and neither changes what the site
+says: the match order is the colour distance and nothing else. Set
+`-amazon-tag` and the paint pages grow two shop links plus the disclosure the
+Associates agreement requires; set `-adsense` and the layout loads the ad
+script and writes `ads.txt`.
 
 ## Data licence
 

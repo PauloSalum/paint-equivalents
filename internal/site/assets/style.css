@@ -110,3 +110,8 @@ footer p{max-width:56rem;margin:.4rem auto}
   background:var(--card);border:1px solid var(--line);border-radius:.6rem}
 #hex:focus,#picker:focus{outline:2px solid var(--acc);outline-offset:1px}
 #foundhead .sw{margin-left:.4rem;vertical-align:middle}
+
+.buy{display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1.6rem}
+.buy a{display:inline-block;padding:.5rem .9rem;border-radius:.5rem;text-decoration:none;
+  font-size:.9rem;font-weight:600;color:var(--acc);border:1px solid var(--acc)}
+.buy a:hover{background:var(--acc-soft)}
