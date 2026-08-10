@@ -92,8 +92,9 @@ table{border-collapse:collapse;width:100%;font-size:.92rem}
 .chart thead th{color:var(--dim);font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
 .chart td.c{width:1%}
 .chart .sw{min-width:2.4rem}
-.de td{padding:.3rem .5rem;border-bottom:1px solid var(--line)}
-.de td:last-child{color:var(--dim)}
+.scale td{padding:.3rem .5rem;border-bottom:1px solid var(--line);vertical-align:top}
+.scale td:last-child{color:var(--dim)}
+.scale td:first-child{white-space:nowrap}
 
 .explain{margin-top:2.5rem}
 .warn{color:var(--dim);font-size:.9rem;border-left:3px solid var(--acc);padding-left:.8rem}
