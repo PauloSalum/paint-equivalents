@@ -34,6 +34,7 @@ type Config struct {
 	AdsenseClient string
 	AdsenseSlot   string
 	AmazonTag     string
+	AmazonHost    string
 	Domain        string
 	IndexNowKey   string
 	PerBrand      int
@@ -100,6 +101,9 @@ func New(cfg Config, paints []catalog.Paint, tables []match.Table) (*Generator, 
 	}
 	if cfg.DetailBrands <= 0 {
 		cfg.DetailBrands = 12
+	}
+	if cfg.AmazonHost == "" {
+		cfg.AmazonHost = "www.amazon.com.br"
 	}
 	cfg.BaseURL = strings.TrimSuffix(cfg.BaseURL, "/")
 	// The prefix follows from the base URL, so the two can never disagree.
@@ -797,10 +801,18 @@ func (g *Generator) buy(product string) string {
 	if g.cfg.AmazonTag == "" {
 		return ""
 	}
+	// A tag is issued by one marketplace and earns nothing on any other, so the
+	// store the links point at has to follow the tag. The qualifier follows the
+	// store rather than the page: the catalogue is in English either way, but
+	// "paint" matches almost nothing on the Brazilian store.
+	word := "paint"
+	if strings.HasSuffix(g.cfg.AmazonHost, ".com.br") {
+		word = "tinta"
+	}
 	q := url.Values{}
-	q.Set("k", product+" paint")
+	q.Set("k", product+" "+word)
 	q.Set("tag", g.cfg.AmazonTag)
-	return "https://www.amazon.com/s?" + q.Encode()
+	return "https://" + g.cfg.AmazonHost + "/s?" + q.Encode()
 }
 
 // labels counts how often a paint name repeats inside its brand, so a page can

@@ -22,6 +22,7 @@ func main() {
 		ads   = flag.String("adsense", "", "AdSense client id, e.g. ca-pub-0000000000000000")
 		slot  = flag.String("adsense-slot", "", "AdSense ad unit id for the in-content placement; needs -adsense")
 		amz   = flag.String("amazon-tag", "", "Amazon Associates tracking id; adds affiliate shop links and the required disclosure")
+		amzh  = flag.String("amazon-host", "www.amazon.com.br", "Amazon store the affiliate links point at; must be the marketplace that issued the tag")
 		dom   = flag.String("domain", "", "custom domain to write into CNAME")
 		perBr = flag.Int("per-brand", 3, "matches listed per other brand on a paint page")
 		same  = flag.Int("same-brand", 6, "nearest colours listed inside the paint's own brand")
@@ -66,6 +67,7 @@ func main() {
 		AdsenseClient: *ads,
 		AdsenseSlot:   *slot,
 		AmazonTag:     *amz,
+		AmazonHost:    *amzh,
 		Domain:        *dom,
 		IndexNowKey:   *ikey,
 		PerBrand:      *perBr,

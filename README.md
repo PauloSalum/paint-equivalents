@@ -71,6 +71,7 @@ Flags worth knowing:
 | `-adsense` | — | AdSense client id; injects the script and writes `ads.txt` |
 | `-adsense-slot` | — | ad unit id for the one in-content slot; needs `-adsense` |
 | `-amazon-tag` | — | Associates tracking id; adds shop links and the required disclosure |
+| `-amazon-host` | `www.amazon.com.br` | store the shop links point at; must match the marketplace that issued the tag |
 | `-indexnow` | — | IndexNow key, served as `<key>.txt` |
 | `-domain` | — | custom domain, written to `CNAME` |
 | `-export` | — | write the publishable subset of the catalog and exit |
