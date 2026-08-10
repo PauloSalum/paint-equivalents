@@ -1,0 +1,66 @@
+{{define "content"}}
+<nav class="crumbs"><a href="/">Home</a> / <a href="/brand/{{.Paint.BrandSlug}}/">{{.Paint.Brand}}</a> / {{.Paint.Name}}</nav>
+
+<article>
+<header class="paint-head" style="background:{{.Paint.Hex}};color:{{.Paint.Ink}}">
+  <h1>{{.Paint.Name}}</h1>
+  <p>{{.Paint.Brand}}{{if .Paint.Range}} &middot; {{.Paint.Range}}{{end}}{{if .Paint.Code}} &middot; {{.Paint.Code}}{{end}}</p>
+  <p class="hexline">{{.Paint.Hex}} &middot; L*{{printf "%.1f" .Paint.LabL}} a*{{printf "%.1f" .Paint.LabA}} b*{{printf "%.1f" .Paint.LabB}}</p>
+</header>
+
+<p class="lede">The closest match to <strong>{{.Paint.Brand}} {{.Paint.Name}}</strong> in every other range, nearest first.</p>
+
+{{range .Detailed}}
+<section class="brandblock">
+  <h2>{{$.Paint.Name}} equivalent in {{.Brand}}</h2>
+  <ol class="matches">
+  {{range .Best}}
+    <li>
+      <a href="{{.Paint.URL}}">
+        <span class="sw big" style="background:{{.Paint.Hex}};color:{{.Paint.Ink}}">{{.Grade}}</span>
+        <span class="mname">{{.Paint.Name}}{{if .Paint.Code}} <em>{{.Paint.Code}}</em>{{end}}</span>
+      </a>
+      <span class="de {{.Grade}}">&Delta;E {{printf "%.1f" .DE}} &middot; {{.Quality}}</span>
+    </li>
+  {{end}}
+  </ol>
+  <p class="pairlink"><a href="/convert/{{$.Paint.BrandSlug}}-to-{{.Slug}}/">Full {{$.Paint.Brand}} &rarr; {{.Brand}} chart</a></p>
+</section>
+{{end}}
+
+{{if .Rest}}
+<section class="brandblock">
+  <h2>{{.Paint.Name}} in the remaining ranges</h2>
+  <p class="warn">These ranges have nothing close. The nearest they offer is listed anyway.</p>
+  <table class="chart">
+    <thead><tr><th>Range</th><th colspan="2">Nearest paint</th><th>Distance</th></tr></thead>
+    <tbody>
+    {{range .Rest}}{{$m := index .Best 0}}<tr>
+      <td><a href="/brand/{{.Slug}}/">{{.Brand}}</a></td>
+      <td class="c"><span class="sw" style="background:{{$m.Paint.Hex}};color:{{$m.Paint.Ink}}">{{$m.Paint.Hex}}</span></td>
+      <td><a href="{{$m.Paint.URL}}">{{$m.Paint.Name}}</a></td>
+      <td class="de {{$m.Grade}}">&Delta;E {{printf "%.1f" $m.DE}}</td>
+    </tr>{{end}}
+    </tbody>
+  </table>
+</section>
+{{end}}
+
+{{if .Table.SameRow}}
+<section class="brandblock">
+  <h2>Nearest colours inside {{.Paint.Brand}}</h2>
+  <ol class="matches">
+  {{range .Table.SameRow}}
+    <li>
+      <a href="{{.Paint.URL}}">
+        <span class="sw big" style="background:{{.Paint.Hex}};color:{{.Paint.Ink}}">{{.Grade}}</span>
+        <span class="mname">{{.Paint.Name}}</span>
+      </a>
+      <span class="de {{.Grade}}">&Delta;E {{printf "%.1f" .DE}} &middot; {{.Quality}}</span>
+    </li>
+  {{end}}
+  </ol>
+</section>
+{{end}}
+</article>
+{{end}}

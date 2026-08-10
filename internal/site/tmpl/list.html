@@ -1,0 +1,8 @@
+{{define "content"}}
+<nav class="crumbs"><a href="/">Home</a> / {{.Heading}}</nav>
+<h1>{{.Heading}}</h1>
+<p class="lede">{{.Lede}}</p>
+<ul class="cards wide">
+  {{range .Links}}<li><a href="{{.URL}}"><strong>{{.From}}</strong>{{if .To}} <span>to</span> <strong>{{.To}}</strong>{{end}}{{if .Note}} <em>{{.Note}}</em>{{end}}</a></li>{{end}}
+</ul>
+{{end}}

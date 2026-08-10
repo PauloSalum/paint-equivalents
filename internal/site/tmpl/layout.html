@@ -1,0 +1,30 @@
+{{define "layout"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{.Title}}</title>
+<meta name="description" content="{{.Desc}}">
+<link rel="canonical" href="{{$.Site.BaseURL}}{{.Path}}">
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="/favicon.svg">
+{{if .Site.AdsenseClient}}<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{.Site.AdsenseClient}}" crossorigin="anonymous"></script>{{end}}
+{{if .JSONLD}}<script type="application/ld+json">{{.JSONLD}}</script>{{end}}
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/"><span class="dot"></span> Paint Equivalents</a>
+  <nav><a href="/brands/">Brands</a><a href="/charts/">Charts</a><a href="/about/">About</a></nav>
+</header>
+<main>
+{{template "content" .}}
+</main>
+<footer>
+  <p>Colour matching by CIEDE2000 (CIE 142:2001). Values are community-sampled approximations for on-screen comparison — always test on a scrap model before committing.</p>
+  <p>Paint data from <a href="https://github.com/Arcturus5404/miniature-paints" rel="noopener">Arcturus5404/miniature-paints</a>, MIT licensed, © 2022 Rick Fleuren. <a href="/about/">Full attribution</a>.</p>
+</footer>
+<script src="/search.js" defer></script>
+</body>
+</html>{{end}}
+
+{{define "swatch"}}<span class="sw" style="background:{{.Hex}};color:{{.Ink}}">{{.Hex}}</span>{{end}}

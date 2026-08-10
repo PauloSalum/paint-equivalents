@@ -1,0 +1,39 @@
+{{define "content"}}
+<section class="hero">
+  <h1>Find the equivalent of any miniature paint</h1>
+  <p class="lede">{{.Site.PaintCount}} paints across {{.Site.BrandCount}} ranges, matched by CIEDE2000 &mdash; the same colour-difference formula the printing industry uses, not a hand-typed chart.</p>
+  <div class="search">
+    <input id="q" type="search" placeholder="Type a paint name — e.g. Mephiston Red" autocomplete="off" autofocus>
+    <ul id="results" hidden></ul>
+  </div>
+</section>
+
+<section class="pop">
+  <h2>Popular conversions</h2>
+  <ul class="cards">
+    {{range .Popular}}<li><a href="{{.URL}}"><strong>{{.From}}</strong> <span>to</span> <strong>{{.To}}</strong></a></li>{{end}}
+  </ul>
+</section>
+
+<section>
+  <h2>Every range covered</h2>
+  <ul class="brandgrid">
+    {{range .Brands}}<li><a href="/brand/{{.Slug}}/">{{.Name}} <em>{{.Count}}</em></a></li>{{end}}
+  </ul>
+</section>
+
+<section class="explain">
+  <h2>How the matching works</h2>
+  <p>Each paint carries a measured sRGB value, converted to CIELAB &mdash; a colour space built so that equal numeric distances look like equal differences to the eye. Every pot is then compared to every other pot with CIEDE2000, and the nearest one in each range is what you see.</p>
+  <p>The number beside each match is &Delta;E. Read it like this:</p>
+  <table class="de">
+    <tr><td><b>&lt; 1</b></td><td>indistinguishable</td><td>you would not spot the swap on a finished model</td></tr>
+    <tr><td><b>1&ndash;2</b></td><td>near-perfect</td><td>safe for a straight substitution</td></tr>
+    <tr><td><b>2&ndash;3.5</b></td><td>very close</td><td>fine unless the two sit edge to edge</td></tr>
+    <tr><td><b>3.5&ndash;5</b></td><td>close</td><td>visible side by side, usually fine as a base</td></tr>
+    <tr><td><b>5&ndash;10</b></td><td>similar</td><td>same family, different colour</td></tr>
+    <tr><td><b>&gt; 10</b></td><td>far</td><td>the range simply has nothing like it</td></tr>
+  </table>
+  <p class="warn">These are screen approximations of physical paint. Pigment, finish and opacity are not captured by a hex value, so treat a match as a shortlist, not a promise.</p>
+</section>
+{{end}}

@@ -1,0 +1,22 @@
+{{define "content"}}
+<nav class="crumbs"><a href="/">Home</a> / <a href="/charts/">Charts</a> / {{.From.Name}} &rarr; {{.To.Name}}</nav>
+<h1>{{.From.Name}} to {{.To.Name}} paint conversion chart</h1>
+<p class="lede">Every {{.From.Name}} paint with its closest {{.To.Name}} equivalent, matched by CIEDE2000. {{.Rows | len}} rows, sorted by name.</p>
+
+<table class="chart">
+<thead><tr><th colspan="2">{{.From.Name}}</th><th colspan="2">{{.To.Name}}</th><th>&Delta;E</th></tr></thead>
+<tbody>
+{{range .Rows}}
+<tr>
+  <td class="c"><span class="sw" style="background:{{.From.Hex}}"></span></td>
+  <td><a href="{{.From.URL}}">{{.From.Name}}</a></td>
+  <td class="c"><span class="sw" style="background:{{.To.Hex}}"></span></td>
+  <td><a href="{{.To.URL}}">{{.To.Name}}</a></td>
+  <td class="c"><b>{{printf "%.1f" .DE}}</b></td>
+</tr>
+{{end}}
+</tbody>
+</table>
+
+<p class="pairlink"><a href="/convert/{{.To.Slug}}-to-{{.From.Slug}}/">Reverse: {{.To.Name}} &rarr; {{.From.Name}}</a></p>
+{{end}}

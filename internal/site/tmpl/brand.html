@@ -1,0 +1,15 @@
+{{define "content"}}
+<nav class="crumbs"><a href="/">Home</a> / <a href="/brands/">Brands</a> / {{.Brand.Name}}</nav>
+<h1>{{.Brand.Name}} paint range</h1>
+<p class="lede">{{.Brand.Count}} paints. Open any one to see its closest equivalent in every other range.</p>
+
+<h2>Convert {{.Brand.Name}} to another range</h2>
+<ul class="cards">
+  {{range .Charts}}<li><a href="{{.URL}}"><strong>{{.From}}</strong> <span>to</span> <strong>{{.To}}</strong></a></li>{{end}}
+</ul>
+
+<h2>All {{.Brand.Name}} paints</h2>
+<ul class="chips">
+  {{range .Paints}}<li><a href="{{.URL}}" style="background:{{.Hex}};color:{{.Ink}}">{{.Name}}</a></li>{{end}}
+</ul>
+{{end}}

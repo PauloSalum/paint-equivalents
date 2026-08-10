@@ -1,0 +1,37 @@
+{{define "content"}}
+<nav class="crumbs"><a href="/">Home</a> / About</nav>
+<h1>About this site, and where the data comes from</h1>
+
+<h2>What it does</h2>
+<p>It answers one question: you own a pot of paint, the recipe calls for a different range, what is the closest thing you can actually buy. {{.Site.PaintCount}} paints across {{.Site.BrandCount}} ranges are compared to each other and the nearest match is published for every one of them.</p>
+
+<h2>How the matching works</h2>
+<p>Each paint's sRGB value is converted to CIELAB under a D65 white point, then compared with <strong>CIEDE2000</strong> (CIE 142:2001) — the current standard colour-difference formula. The implementation is verified against the 34-pair acceptance set from Sharma, Wu &amp; Dalal (2005), which exists precisely to catch implementations that get the hue-band and rotation terms wrong.</p>
+<p>This matters because the obvious alternative — comparing RGB numbers directly — does not match human vision. Two greens that differ by the same RGB distance as two blues do not look equally different. CIEDE2000 corrects for that.</p>
+
+<h2>What it cannot tell you</h2>
+<p>A hex value describes a colour on a screen. A pot of paint also has pigment load, opacity, finish and behaviour under a wash, none of which survive the trip to six hex digits. Two paints that match at &Delta;E 0.8 can still behave differently on the model. Treat every match here as a shortlist to test, not a guarantee.</p>
+<p>The colour values are <strong>community-sampled approximations</strong> rather than vendor-published specifications. They are good enough to rank candidates and not good enough to reproduce a colour exactly.</p>
+
+<h2>Data attribution</h2>
+<p>Paint names, manufacturer codes, ranges and colour values come from <a href="https://github.com/Arcturus5404/miniature-paints" rel="noopener">Arcturus5404/miniature-paints</a>, licensed <strong>MIT</strong>, Copyright &copy; 2022 Rick Fleuren.</p>
+<pre class="licence">Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
+<p>Ranges whose colour data came from sources that did not grant redistribution are deliberately excluded from this site, as are harvested barcode and price records. Colour standards such as RAL and Pantone are excluded too: they are reference systems, not paints you can buy.</p>
+<p>Brand names and paint names are trademarks of their respective owners. This site is not affiliated with, endorsed by or sponsored by any paint manufacturer.</p>
+{{end}}
