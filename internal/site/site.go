@@ -107,7 +107,7 @@ func New(cfg Config, paints []catalog.Paint, tables []match.Table) (*Generator, 
 		},
 		tmpl: map[string]*template.Template{},
 	}
-	for _, name := range []string{"home", "paint", "brand", "chart", "list", "about", "find"} {
+	for _, name := range []string{"home", "paint", "brand", "chart", "list", "about", "find", "privacy"} {
 		t, err := template.ParseFS(tmplFS, "tmpl/layout.html", "tmpl/"+name+".html")
 		if err != nil {
 			return nil, fmt.Errorf("template %s: %w", name, err)
@@ -124,7 +124,7 @@ func (g *Generator) Run() (int, error) {
 	}
 	steps := []func() error{
 		g.copyAssets, g.home, g.paintPages, g.brandPages,
-		g.chartPages, g.indexes, g.about, g.find, g.searchIndex, g.sitemap, g.wellKnown,
+		g.chartPages, g.indexes, g.about, g.privacy, g.find, g.searchIndex, g.sitemap, g.wellKnown,
 	}
 	for _, step := range steps {
 		if err := step(); err != nil {
@@ -159,7 +159,7 @@ func (g *Generator) render(name, rel string, data any) error {
 // plus the two files the client fetches by path. They are rewritten rather
 // than templated so a path added later cannot silently escape the prefix.
 var roots = []string{
-	"/paint/", "/brand/", "/brands/", "/charts/", "/convert/", "/about/",
+	"/paint/", "/brand/", "/brands/", "/charts/", "/convert/", "/about/", "/privacy/",
 	"/style.css", "/search.js", "/search.json", "/favicon.svg", "/sitemap.xml",
 	"/find/", "/find.js",
 }
@@ -473,6 +473,18 @@ func (g *Generator) about() error {
 	}})
 }
 
+// privacy is a policy page, not a nicety: AdSense will not approve a site that
+// does not disclose what its advertising partners do with cookies, and the
+// affiliate disclosure is required by the Associates agreement.
+func (g *Generator) privacy() error {
+	type data struct{ common }
+	return g.render("privacy", "privacy/index.html", data{common{
+		Title: "Privacy policy",
+		Desc:  "What this site collects, who serves its ads, and how affiliate links work.",
+		Path:  "/privacy/", Site: g.meta,
+	}})
+}
+
 // --- machine-readable output ---
 
 // searchRow is deliberately terse: it is downloaded whole by every visitor who
@@ -518,6 +530,7 @@ func (g *Generator) sitemap() error {
 	add("/brands/", "0.8")
 	add("/charts/", "0.8")
 	add("/about/", "0.3")
+	add("/privacy/", "0.1")
 	for _, br := range g.brands {
 		add("/brand/"+br.Slug+"/", "0.7")
 		for _, to := range g.brands {

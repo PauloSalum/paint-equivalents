@@ -1,0 +1,29 @@
+{{define "content"}}
+<nav class="crumbs"><a href="/">Home</a> / Privacy</nav>
+<h1>Privacy policy</h1>
+
+<h2>What this site collects</h2>
+<p>Nothing directly. Every page here is a static file. There is no account, no login, no form and no server-side code, so nothing you type into the search box or the colour finder is transmitted anywhere — both run entirely in your browser against a file the page downloads.</p>
+
+<h2>Hosting</h2>
+<p>The site is served by GitHub Pages. Like any web host, GitHub receives the requests your browser makes, including your IP address and user agent, and may log them. That is described in the <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">GitHub Privacy Statement</a>.</p>
+
+{{if .Site.AdsenseClient}}
+<h2>Advertising</h2>
+<p>This site shows ads served by Google AdSense. Google and its partners use cookies and similar technologies to serve ads, and may use data about your visits to this and other sites to show ads based on your interests. You can review how Google uses this data at <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">policies.google.com/technologies/partner-sites</a> and opt out of personalised advertising in <a href="https://adssettings.google.com/" rel="noopener">Google Ad Settings</a>. Third-party vendors may also serve ads here and use their own cookies; opt-out controls for many of them are collected at <a href="https://optout.aboutads.info/" rel="noopener">optout.aboutads.info</a>.</p>
+{{end}}
+
+{{if .Site.AmazonTag}}
+<h2>Affiliate links</h2>
+<p>Some links to shops are affiliate links. If you buy through one, this site may earn a commission at no extra cost to you. As an Amazon Associate the site earns from qualifying purchases. Clicking such a link takes you to the retailer, which then applies its own privacy policy and cookies. Affiliate links never affect the match order: the ranking is colour distance and nothing else.</p>
+{{end}}
+
+<h2>Analytics</h2>
+<p>There is no analytics script on this site{{if .Site.AdsenseClient}} beyond what the advertising described above installs{{end}}.</p>
+
+<h2>Children</h2>
+<p>This site is not directed at children and does not knowingly collect information from anyone.</p>
+
+<h2>Changes and contact</h2>
+<p>If this policy changes, the new version replaces this page. The site is open source; questions and corrections can be raised at <a href="https://github.com/PauloSalum/paint-equivalents" rel="noopener">github.com/PauloSalum/paint-equivalents</a>.</p>
+{{end}}
