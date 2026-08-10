@@ -106,7 +106,7 @@ table{border-collapse:collapse;width:100%;font-size:.92rem}
 
 footer{border-top:1px solid var(--line);padding:1.5rem 1.1rem 3rem;color:var(--dim);font-size:.85rem}
 footer p{max-width:56rem;margin:.4rem auto}
-footer .disclosure{color:var(--ink);font-weight:600;font-size:.95rem}
+footer .disclosure{color:var(--ink)}
 
 .finder{display:flex;gap:.6rem;align-items:center;margin:1.2rem 0 2rem}
 #picker{width:4rem;height:3rem;padding:0;border:1px solid var(--line);border-radius:.5rem;
