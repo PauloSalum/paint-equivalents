@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	stdcolor "image/color"
 	"math"
 	"net/url"
 	"os"
@@ -58,6 +59,7 @@ type common struct {
 	Title  string
 	Desc   string
 	Path   string
+	Image  string
 	JSONLD template.JS
 	Site   Meta
 	Finder bool
@@ -124,7 +126,7 @@ func (g *Generator) Run() (int, error) {
 		return 0, err
 	}
 	steps := []func() error{
-		g.copyAssets, g.home, g.paintPages, g.brandPages,
+		g.copyAssets, g.siteCard, g.home, g.paintPages, g.brandPages,
 		g.chartPages, g.indexes, g.about, g.privacy, g.find, g.searchIndex, g.sitemap, g.wellKnown,
 	}
 	for _, step := range steps {
@@ -136,7 +138,13 @@ func (g *Generator) Run() (int, error) {
 }
 
 func (g *Generator) write(rel string, body []byte) error {
-	body = g.rebase(body)
+	return g.writeRaw(rel, g.rebase(body))
+}
+
+// writeRaw is write without the path rewrite, for bytes that are not markup.
+// Running rebase over a PNG would corrupt it the moment the site is built with
+// a prefix.
+func (g *Generator) writeRaw(rel string, body []byte) error {
 	full := filepath.Join(g.cfg.Out, filepath.FromSlash(rel))
 	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
 		return err
@@ -304,12 +312,17 @@ func (g *Generator) paintPages() error {
 			`{"@type":"ListItem","position":2,"name":%q}]}`,
 			p.Brand, g.cfg.BaseURL+"/brand/"+p.BrandSlug+"/", p.Name)
 
+		if err := g.paintCard(p, t); err != nil {
+			return err
+		}
+
 		err := g.render("paint", strings.TrimPrefix(p.URL(), "/")+"index.html", data{
 			common: common{
 				Title: fmt.Sprintf("%s %s equivalents — closest paint in every range", p.Brand, p.Name),
 				Desc: fmt.Sprintf("Equivalents for %s %s (%s) across %d paint ranges, matched by CIEDE2000.%s",
 					p.Brand, p.Name, p.Hex, len(g.brands)-1, best),
-				Path: p.URL(), Site: g.meta, JSONLD: template.JS(ld),
+				Path: p.URL(), Image: g.cfg.BaseURL + p.URL() + "card.png",
+				Site: g.meta, JSONLD: template.JS(ld),
 			},
 			Paint: p, Table: t, Detailed: detailed, Rest: rest,
 			Buy: g.buy(p.Brand, p.Name), BuyBest: buyBest, BestName: bestName,
@@ -320,6 +333,48 @@ func (g *Generator) paintPages() error {
 		}
 	}
 	return nil
+}
+
+// siteCard is the share image for every page that is not about one paint. It is
+// built from real catalog colours, one per hue band, so the card shows the
+// range the site actually covers.
+func (g *Generator) siteCard() error {
+	seen := map[string]bool{}
+	var picked []stdcolor.RGBA
+	for _, p := range g.paints {
+		h := color.Hue(p.Lab())
+		if h == "neutral" || seen[h] || len(picked) == 6 {
+			continue
+		}
+		seen[h] = true
+		picked = append(picked, stdcolor.RGBA{R: uint8(p.R), G: uint8(p.G), B: uint8(p.B), A: 0xff})
+	}
+	if len(picked) == 0 {
+		return nil
+	}
+	card, err := ogImage(picked[0], picked[1:])
+	if err != nil {
+		return err
+	}
+	return g.writeRaw("card.png", card)
+}
+
+// paintCard writes the share image next to the page it belongs to, showing the
+// paint against the five ranges that come closest to it.
+func (g *Generator) paintCard(p catalog.Paint, t match.Table) error {
+	var near []stdcolor.RGBA
+	for _, b := range t.Cross {
+		if len(near) == 5 {
+			break
+		}
+		m := b.Best[0].Paint
+		near = append(near, stdcolor.RGBA{R: uint8(m.R), G: uint8(m.G), B: uint8(m.B), A: 0xff})
+	}
+	card, err := ogImage(stdcolor.RGBA{R: uint8(p.R), G: uint8(p.G), B: uint8(p.B), A: 0xff}, near)
+	if err != nil {
+		return err
+	}
+	return g.writeRaw(strings.TrimPrefix(p.URL(), "/")+"card.png", card)
 }
 
 // summarise turns the numbers already on the page into the sentence a person

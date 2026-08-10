@@ -6,6 +6,15 @@
 <title>{{.Title}}</title>
 <meta name="description" content="{{.Desc}}">
 <link rel="canonical" href="{{$.Site.BaseURL}}{{.Path}}">
+<meta property="og:site_name" content="Paint Equivalents">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{.Title}}">
+<meta property="og:description" content="{{.Desc}}">
+<meta property="og:url" content="{{$.Site.BaseURL}}{{.Path}}">
+<meta property="og:image" content="{{if .Image}}{{.Image}}{{else}}{{$.Site.BaseURL}}/card.png{{end}}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="/style.css">
 <link rel="icon" href="/favicon.svg">
 {{if .Site.AdsenseClient}}<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{.Site.AdsenseClient}}" crossorigin="anonymous"></script>{{end}}
