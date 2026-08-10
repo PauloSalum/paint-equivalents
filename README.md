@@ -98,6 +98,13 @@ says: the match order is the colour distance and nothing else. Set
 Associates agreement requires; set `-adsense` and the layout loads the ad
 script and writes `ads.txt`.
 
+A tag is issued by one marketplace and earns nothing on any other, so
+`-amazon-host` follows the tag, and two things follow the host: the search
+qualifier (`tinta` on the Brazilian store, where `paint` matches almost
+nothing) and the disclosure sentence, because each operating agreement
+prescribes its own wording and the Brazilian one treats a departure from it as
+a material breach.
+
 `-adsense-slot` adds one explicit in-content placement — above the table on a
 conversion chart, below the summary on a paint page. Both sit after the answer
 the visitor came for and before the long tail of the page, which is the only
