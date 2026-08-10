@@ -455,6 +455,54 @@ func (g *Generator) brandPages() error {
 	return nil
 }
 
+// chartSummary says what the table underneath it adds up to: how much of one
+// range a painter can really replace with another, and where the gaps sit. The
+// hue that misses most is the useful part — it names the shelf they still have
+// to buy from, which no other page on the site can tell them.
+func chartSummary(from, to catalog.Brand, rows []match.Pair) string {
+	if len(rows) == 0 {
+		return ""
+	}
+	des := make([]float64, 0, len(rows))
+	near, usable := 0, 0
+	missed := map[string]int{}
+	for _, r := range rows {
+		des = append(des, r.DE)
+		switch {
+		case r.DE < 2:
+			near++
+			usable++
+		case r.DE < 5:
+			usable++
+		default:
+			missed[color.Hue(r.From.Lab())]++
+		}
+	}
+	sort.Float64s(des)
+
+	// "an equivalent in X" rather than "an X paint", because brands whose name
+	// carries its own article ("The Army Painter") read as nonsense otherwise.
+	s := fmt.Sprintf("%d of the %d %s colours below have an equivalent in %s within ΔE 5, the distance at which a substitution stops being obvious on a painted model. %d sit within ΔE 2 and are interchangeable outright. Across the whole range the typical distance is ΔE %.1f.",
+		usable, len(rows), from.Name, to.Name, near, des[len(des)/2])
+
+	if hue, n := commonest(missed); n > 2 {
+		s += fmt.Sprintf(" The %d gaps are not spread evenly: %d of them are %ss, so that is the corner of the %s range %s does not answer.",
+			len(rows)-usable, n, hue, from.Name, to.Name)
+	}
+	return s
+}
+
+func commonest(counts map[string]int) (string, int) {
+	best, n := "", 0
+	for k, v := range counts {
+		// Ties break on the name so the sentence is stable between builds.
+		if v > n || (v == n && k < best) {
+			best, n = k, v
+		}
+	}
+	return best, n
+}
+
 // charted keeps the chart pages to ranges with enough paints to make a table
 // worth reading; a two-colour range produces a page that says nothing.
 func (g *Generator) charted(a, b catalog.Brand) bool {
@@ -473,9 +521,10 @@ func (g *Generator) chartPages() error {
 			}
 			type data struct {
 				common
-				From catalog.Brand
-				To   catalog.Brand
-				Rows []match.Pair
+				Summary string
+				From    catalog.Brand
+				To      catalog.Brand
+				Rows    []match.Pair
 			}
 			path := chartPath(from.Slug, to.Slug)
 			err := g.render("chart", strings.TrimPrefix(path, "/")+"index.html", data{
@@ -486,6 +535,7 @@ func (g *Generator) chartPages() error {
 					Path: path, Site: g.meta,
 				},
 				From: from, To: to, Rows: rows,
+				Summary: chartSummary(from, to, rows),
 			})
 			if err != nil {
 				return err
