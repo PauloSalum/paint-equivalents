@@ -30,6 +30,7 @@ type Config struct {
 	Out           string
 	AdsenseClient string
 	Domain        string
+	IndexNowKey   string
 	PerBrand      int
 	SameBrand     int
 	ChartMinimum  int
@@ -504,6 +505,13 @@ func (g *Generator) wellKnown() error {
 	}
 	if g.cfg.Domain != "" {
 		if err := g.write("CNAME", []byte(g.cfg.Domain+"\n")); err != nil {
+			return err
+		}
+	}
+	// IndexNow proves control of the directory by serving the key from it, and
+	// is the only search-engine submission that needs no account.
+	if g.cfg.IndexNowKey != "" {
+		if err := g.write(g.cfg.IndexNowKey+".txt", []byte(g.cfg.IndexNowKey)); err != nil {
 			return err
 		}
 	}

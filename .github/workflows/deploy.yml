@@ -31,6 +31,7 @@ jobs:
             -paints paints.json \
             -out dist \
             -per-brand 2 \
+            -indexnow ebf1b4edc3967fa10083e575236c6da286399aff657e422b0670f3ffc0d36c46 \
             -base "${SITE_BASE:-https://paulosalum.github.io/paint-equivalents}"
       - uses: actions/upload-pages-artifact@v3
         with:

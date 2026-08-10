@@ -25,6 +25,7 @@ func main() {
 		same  = flag.Int("same-brand", 6, "nearest colours listed inside the paint's own brand")
 		cmin  = flag.Int("chart-min", 60, "minimum paints a brand needs before it gets chart pages")
 		det   = flag.Int("detail-brands", 12, "brands given a full block on a paint page before the rest are summarised")
+		ikey  = flag.String("indexnow", "", "IndexNow key; written as <key>.txt for search-engine verification")
 		exp   = flag.String("export", "", "write the publishable subset of the catalog here and exit")
 	)
 	flag.Parse()
@@ -62,6 +63,7 @@ func main() {
 		Out:           *out,
 		AdsenseClient: *ads,
 		Domain:        *dom,
+		IndexNowKey:   *ikey,
 		PerBrand:      *perBr,
 		SameBrand:     *same,
 		ChartMinimum:  *cmin,
