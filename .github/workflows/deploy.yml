@@ -35,6 +35,8 @@ jobs:
             -domain paints.paulosalum.com \
             -adsense ca-pub-0047717629819717 \
             -adsense-slot 5507676182 \
+            -amazon-tag paintequiv-20 \
+            -amazon-host www.amazon.com.br \
             -base "${SITE_BASE:-https://paints.paulosalum.com}"
       - uses: actions/upload-pages-artifact@v3
         with:

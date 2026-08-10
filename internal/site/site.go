@@ -54,6 +54,7 @@ type Meta struct {
 	AdsenseClient string
 	AdsenseSlot   string
 	AmazonTag     string
+	Disclosure    string
 	PaintCount    int
 	BrandCount    int
 }
@@ -118,6 +119,7 @@ func New(cfg Config, paints []catalog.Paint, tables []match.Table) (*Generator, 
 			AdsenseClient: cfg.AdsenseClient,
 			AdsenseSlot:   cfg.AdsenseSlot,
 			AmazonTag:     cfg.AmazonTag,
+			Disclosure:    disclosure(cfg.AmazonHost),
 			PaintCount:    len(paints),
 			BrandCount:    len(brands),
 		},
@@ -813,6 +815,17 @@ func (g *Generator) buy(product string) string {
 	q.Set("k", product+" "+word)
 	q.Set("tag", g.cfg.AmazonTag)
 	return "https://" + g.cfg.AmazonHost + "/s?" + q.Encode()
+}
+
+// disclosure returns the sentence the operating agreement of that marketplace
+// requires verbatim. Clause 5 of the Brazilian contract dictates its wording and
+// clause 6 makes a breach of clause 5 a material one, so the sentence follows the
+// store the tag belongs to even though every other word on the site is English.
+func disclosure(host string) string {
+	if strings.HasSuffix(host, ".com.br") {
+		return "Como participante do Programa de Associados da Amazon, sou remunerado pelas compras qualificadas efetuadas."
+	}
+	return "As an Amazon Associate this site earns from qualifying purchases."
 }
 
 // labels counts how often a paint name repeats inside its brand, so a page can
