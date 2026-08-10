@@ -13,6 +13,35 @@ Start points: [conversion charts](https://paints.paulosalum.com/charts/) ·
 every other by **CIEDE2000**, published as ~10,000 pre-rendered pages. No
 server, no database, no request-time work.
 
+## Ranges covered
+
+Every range below is matched against all 28 others, both directions.
+
+| Range | Paints | Range | Paints |
+| --- | --- | --- | --- |
+| [AK Interactive](https://paints.paulosalum.com/brand/ak-interactive/) | 1,130 | [Mig](https://paints.paulosalum.com/brand/mig/) | 252 |
+| [Apple Barrel](https://paints.paulosalum.com/brand/apple-barrel/) | 213 | [Mission Models](https://paints.paulosalum.com/brand/mission-models/) | 201 |
+| [Arteza](https://paints.paulosalum.com/brand/arteza/) | 88 | [Monument](https://paints.paulosalum.com/brand/monument/) | 131 |
+| [Citadel](https://paints.paulosalum.com/brand/citadel/) | 451 | [Mr. Hobby](https://paints.paulosalum.com/brand/mr-hobby/) | 668 |
+| [Coat d'Arms](https://paints.paulosalum.com/brand/coat-d-arms/) | 150 | [Mr. Paint](https://paints.paulosalum.com/brand/mr-paint/) | 568 |
+| [Creature](https://paints.paulosalum.com/brand/creature/) | 53 | [P3](https://paints.paulosalum.com/brand/p3/) | 131 |
+| [Duncan](https://paints.paulosalum.com/brand/duncan/) | 180 | [Reaper](https://paints.paulosalum.com/brand/reaper/) | 438 |
+| [FolkArt](https://paints.paulosalum.com/brand/folkart/) | 435 | [Revell](https://paints.paulosalum.com/brand/revell/) | 88 |
+| [Foundry](https://paints.paulosalum.com/brand/foundry/) | 360 | [Scale75](https://paints.paulosalum.com/brand/scale75/) | 358 |
+| [Golden](https://paints.paulosalum.com/brand/golden/) | 346 | [Tamiya](https://paints.paulosalum.com/brand/tamiya/) | 320 |
+| [Green Stuff World](https://paints.paulosalum.com/brand/green-stuff-world/) | 220 | [The Army Painter](https://paints.paulosalum.com/brand/the-army-painter/) | 703 |
+| [Humbrol](https://paints.paulosalum.com/brand/humbrol/) | 115 | [Turbo Dork](https://paints.paulosalum.com/brand/turbo-dork/) | 40 |
+| [Italeri](https://paints.paulosalum.com/brand/italeri/) | 100 | [Vallejo](https://paints.paulosalum.com/brand/vallejo/) | 1,267 |
+| [Kimera Kolors](https://paints.paulosalum.com/brand/kimera-kolors/) | 38 | [Warcolours](https://paints.paulosalum.com/brand/warcolours/) | 178 |
+| [Liquitex](https://paints.paulosalum.com/brand/liquitex/) | 105 | | |
+
+The pairs people ask for most:
+[Citadel → Vallejo](https://paints.paulosalum.com/convert/citadel-to-vallejo/) ·
+[Vallejo → Citadel](https://paints.paulosalum.com/convert/vallejo-to-citadel/) ·
+[Citadel → The Army Painter](https://paints.paulosalum.com/convert/citadel-to-the-army-painter/) ·
+[Citadel → P3](https://paints.paulosalum.com/convert/citadel-to-p3/) ·
+[Tamiya → Vallejo](https://paints.paulosalum.com/convert/tamiya-to-vallejo/)
+
 ## Why CIEDE2000 and not RGB distance
 
 Comparing RGB numbers does not match human vision: two greens separated by the

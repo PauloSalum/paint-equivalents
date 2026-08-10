@@ -64,13 +64,13 @@ func TestPublishableNeedsColour(t *testing.T) {
 
 func TestSlug(t *testing.T) {
 	cases := map[string]string{
-		"Abaddon Black":      "abaddon-black",
-		"Mephiston Red":      "mephiston-red",
-		"Väljero  Ölive":     "valjero-olive",
-		"Ação & Cor":         "acao-cor",
-		"  spaced  out  ":    "spaced-out",
-		"P3 Coal Black (2)":  "p3-coal-black-2",
-		"---":                "",
+		"Abaddon Black":     "abaddon-black",
+		"Mephiston Red":     "mephiston-red",
+		"Väljero  Ölive":    "valjero-olive",
+		"Ação & Cor":        "acao-cor",
+		"  spaced  out  ":   "spaced-out",
+		"P3 Coal Black (2)": "p3-coal-black-2",
+		"---":               "",
 	}
 	for in, want := range cases {
 		if got := Slug(in); got != want {

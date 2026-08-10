@@ -16,8 +16,8 @@ func p(brand, name string, l, a, b float64) catalog.Paint {
 func fixture() []catalog.Paint {
 	return []catalog.Paint{
 		p("Citadel", "Mephiston Red", 40, 60, 40),
-		p("Vallejo", "Bloody Red", 41, 59, 39),  // nearly the same red
-		p("Vallejo", "Sky Blue", 70, -10, -30),  // far
+		p("Vallejo", "Bloody Red", 41, 59, 39), // nearly the same red
+		p("Vallejo", "Sky Blue", 70, -10, -30), // far
 		p("Army Painter", "Dragon Red", 45, 55, 35),
 		p("Citadel", "Evil Sunz Scarlet", 43, 62, 45), // same brand as the source
 	}

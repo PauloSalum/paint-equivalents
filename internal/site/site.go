@@ -80,6 +80,12 @@ type Generator struct {
 	meta   Meta
 	tmpl   map[string]*template.Template
 
+	// coverage is filled in by chartPages and read by the index that lists
+	// them, so 650 links stop being an undifferentiated wall: the one number
+	// that decides whether a chart is worth opening is how much of the range it
+	// actually answers.
+	coverage map[string]string
+
 	written int
 }
 
@@ -108,7 +114,8 @@ func New(cfg Config, paints []catalog.Paint, tables []match.Table) (*Generator, 
 			PaintCount:    len(paints),
 			BrandCount:    len(brands),
 		},
-		tmpl: map[string]*template.Template{},
+		tmpl:     map[string]*template.Template{},
+		coverage: map[string]string{},
 	}
 	for _, name := range []string{"home", "paint", "brand", "chart", "list", "about", "find", "privacy"} {
 		t, err := template.ParseFS(tmplFS, "tmpl/layout.html", "tmpl/"+name+".html")
@@ -326,10 +333,7 @@ func (g *Generator) paintPages() error {
 			best = fmt.Sprintf(" Closest match: %s %s (ΔE %.1f).",
 				t.Cross[0].Brand, t.Cross[0].Best[0].Paint.Name, t.Cross[0].Best[0].DE)
 		}
-		ld := fmt.Sprintf(`{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[`+
-			`{"@type":"ListItem","position":1,"name":%q,"item":%q},`+
-			`{"@type":"ListItem","position":2,"name":%q}]}`,
-			p.Brand, g.cfg.BaseURL+"/brand/"+p.BrandSlug+"/", p.Name)
+		ld := g.crumbs(p.Brand, "/brand/"+p.BrandSlug+"/", p.Name)
 
 		if err := g.paintCard(p, t); err != nil {
 			return err
@@ -341,7 +345,7 @@ func (g *Generator) paintPages() error {
 				Desc: fmt.Sprintf("Equivalents for %s (%s) across %d paint ranges, matched by CIEDE2000.%s",
 					full, p.Hex, len(g.brands)-1, best),
 				Path: p.URL(), Image: g.cfg.BaseURL + p.URL() + "card.png",
-				Site: g.meta, JSONLD: template.JS(ld),
+				Site: g.meta, JSONLD: ld,
 			},
 			Paint: p, Table: t, Detailed: detailed, Rest: rest,
 			Buy: g.buy(full), BuyBest: buyBest, BestName: bestName,
@@ -437,6 +441,16 @@ func summarise(p catalog.Paint, t match.Table) string {
 	return s
 }
 
+// crumbs is the markup that makes a result print "Paint Equivalents > Conversion
+// charts > Citadel to Vallejo" instead of a bare URL. Only the parent is linked;
+// the leaf is the page itself, which schema.org wants left without an item.
+func (g *Generator) crumbs(parent, parentURL, leaf string) template.JS {
+	return template.JS(fmt.Sprintf(`{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[`+
+		`{"@type":"ListItem","position":1,"name":%q,"item":%q},`+
+		`{"@type":"ListItem","position":2,"name":%q}]}`,
+		parent, g.cfg.BaseURL+parentURL, leaf))
+}
+
 func (g *Generator) brandPages() error {
 	for _, b := range g.brands {
 		var own []catalog.Paint
@@ -464,6 +478,7 @@ func (g *Generator) brandPages() error {
 				Desc: fmt.Sprintf("All %d %s paints with their closest equivalents in other ranges, matched by CIEDE2000.",
 					b.Count, b.Name),
 				Path: "/brand/" + b.Slug + "/", Site: g.meta,
+				JSONLD: g.crumbs("Paint ranges", "/brands/", b.Name),
 			},
 			Brand: b, Paints: own, Charts: charts,
 		})
@@ -511,6 +526,21 @@ func chartSummary(from, to catalog.Brand, rows []match.Pair) string {
 	return s
 }
 
+// coverage is the one figure that separates a chart worth opening from one that
+// is mostly gaps: the share of the source range that has a usable stand-in.
+func coverage(rows []match.Pair) string {
+	if len(rows) == 0 {
+		return ""
+	}
+	usable := 0
+	for _, r := range rows {
+		if r.DE < 5 {
+			usable++
+		}
+	}
+	return fmt.Sprintf("%d of %d matched", usable, len(rows))
+}
+
 func commonest(counts map[string]int) (string, int) {
 	best, n := "", 0
 	for k, v := range counts {
@@ -546,12 +576,14 @@ func (g *Generator) chartPages() error {
 				Rows    []match.Pair
 			}
 			path := chartPath(from.Slug, to.Slug)
+			g.coverage[path] = coverage(rows)
 			err := g.render("chart", strings.TrimPrefix(path, "/")+"index.html", data{
 				common: common{
 					Title: fmt.Sprintf("%s to %s paint conversion chart (%d paints)", from.Name, to.Name, len(rows)),
 					Desc: fmt.Sprintf("Complete %s to %s conversion chart: %d paints with their closest %s equivalent and the colour distance for each.",
 						from.Name, to.Name, len(rows), to.Name),
 					Path: path, Site: g.meta,
+					JSONLD: g.crumbs("Conversion charts", "/charts/", from.Name+" to "+to.Name),
 				},
 				From: from, To: to, Rows: rows,
 				Summary: chartSummary(from, to, rows),
@@ -598,7 +630,14 @@ func (g *Generator) indexes() error {
 			if from.Name == to.Name || !g.charted(from, to) {
 				continue
 			}
-			chartLinks = append(chartLinks, Link{URL: chartPath(from.Slug, to.Slug), From: from.Name, To: to.Name})
+			// An empty coverage entry means chartPages found nothing to tabulate
+			// and wrote no page, so linking to it would be a dead end.
+			path := chartPath(from.Slug, to.Slug)
+			note, ok := g.coverage[path]
+			if !ok {
+				continue
+			}
+			chartLinks = append(chartLinks, Link{URL: path, From: from.Name, To: to.Name, Note: note})
 		}
 	}
 	sort.Slice(chartLinks, func(i, j int) bool {
@@ -613,7 +652,7 @@ func (g *Generator) indexes() error {
 			Desc:  "Complete cross-brand conversion charts for miniature paints, matched by CIEDE2000.",
 			Path:  "/charts/", Site: g.meta,
 		},
-		Heading: "Conversion charts", Lede: "Full tables, one row per paint, with the colour distance for every match.",
+		Heading: "Conversion charts", Lede: "Full tables, one row per paint, with the colour distance for every match. The count beside each chart is how many of the source paints have a stand-in close enough to pass on a model (ΔE under 5), so a chart that answers most of a range is worth opening before one that answers a fraction of it.",
 		Links: chartLinks,
 	})
 }
