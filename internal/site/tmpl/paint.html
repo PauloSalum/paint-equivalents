@@ -1,14 +1,14 @@
 {{define "content"}}
-<nav class="crumbs"><a href="/">Home</a> / <a href="/brand/{{.Paint.BrandSlug}}/">{{.Paint.Brand}}</a> / {{.Paint.Name}}</nav>
+<nav class="crumbs"><a href="/">Home</a> / <a href="/brand/{{.Paint.BrandSlug}}/">{{.Paint.Brand}}</a> / {{.Name}}</nav>
 
 <article>
 <header class="paint-head" style="background:{{.Paint.Hex}};color:{{.Paint.Ink}}">
-  <h1>{{.Paint.Name}}</h1>
+  <h1>{{.Name}}</h1>
   <p>{{.Paint.Brand}}{{if .Paint.Range}} &middot; {{.Paint.Range}}{{end}}{{if .Paint.Code}} &middot; {{.Paint.Code}}{{end}}</p>
   <p class="hexline">{{.Paint.Hex}} &middot; L*{{printf "%.1f" .Paint.LabL}} a*{{printf "%.1f" .Paint.LabA}} b*{{printf "%.1f" .Paint.LabB}}</p>
 </header>
 
-<p class="lede">The closest match to <strong>{{.Paint.Brand}} {{.Paint.Name}}</strong> in every other range, nearest first.</p>
+<p class="lede">The closest match to <strong>{{.Paint.Brand}} {{.Name}}</strong> in every other range, nearest first.</p>
 <p class="summary">{{.Summary}}</p>
 
 {{if .Buy}}
@@ -22,7 +22,7 @@
 
 {{range .Detailed}}
 <section class="brandblock">
-  <h2>{{$.Paint.Name}} equivalent in {{.Brand}}</h2>
+  <h2>{{$.Name}} equivalent in {{.Brand}}</h2>
   <ol class="matches">
   {{range .Best}}
     <li>

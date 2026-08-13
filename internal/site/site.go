@@ -322,6 +322,7 @@ func (g *Generator) paintPages() error {
 		}
 		type data struct {
 			common
+			Name     string
 			Buy      string
 			BuyBest  string
 			BestName string
@@ -357,7 +358,8 @@ func (g *Generator) paintPages() error {
 				Site: g.meta, JSONLD: ld,
 			},
 			Paint: p, Table: t, Detailed: detailed, Rest: rest,
-			Buy: g.buy(full), BuyBest: buyBest, BestName: bestName,
+			Name: strings.TrimPrefix(full, p.Brand+" "),
+			Buy:  g.buy(full), BuyBest: buyBest, BestName: bestName,
 			Summary: summarise(p, t), Charts: charted[p.BrandSlug],
 		})
 		if err != nil {
