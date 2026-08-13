@@ -7,33 +7,34 @@ calls for a different range — what is the closest thing I can actually buy?*
 
 Start points: [conversion charts](https://paints.paulosalum.com/charts/) ·
 [find a paint from a hex code](https://paints.paulosalum.com/find/) ·
-[all 29 ranges](https://paints.paulosalum.com/brands/)
+[all 31 ranges](https://paints.paulosalum.com/brands/)
 
-9,327 miniature paints across 29 ranges, every one of them compared against
+9,693 miniature paints across 31 ranges, every one of them compared against
 every other by **CIEDE2000**, published as ~10,000 pre-rendered pages. No
 server, no database, no request-time work.
 
 ## Ranges covered
 
-Every range below is matched against all 28 others, both directions.
+Every range below is matched against all 30 others, both directions.
 
 | Range | Paints | Range | Paints |
 | --- | --- | --- | --- |
 | [AK Interactive](https://paints.paulosalum.com/brand/ak-interactive/) | 1,130 | [Mig](https://paints.paulosalum.com/brand/mig/) | 252 |
-| [Apple Barrel](https://paints.paulosalum.com/brand/apple-barrel/) | 213 | [Mission Models](https://paints.paulosalum.com/brand/mission-models/) | 201 |
-| [Arteza](https://paints.paulosalum.com/brand/arteza/) | 88 | [Monument](https://paints.paulosalum.com/brand/monument/) | 131 |
-| [Citadel](https://paints.paulosalum.com/brand/citadel/) | 451 | [Mr. Hobby](https://paints.paulosalum.com/brand/mr-hobby/) | 668 |
-| [Coat d'Arms](https://paints.paulosalum.com/brand/coat-d-arms/) | 150 | [Mr. Paint](https://paints.paulosalum.com/brand/mr-paint/) | 568 |
-| [Creature](https://paints.paulosalum.com/brand/creature/) | 53 | [P3](https://paints.paulosalum.com/brand/p3/) | 131 |
-| [Duncan](https://paints.paulosalum.com/brand/duncan/) | 180 | [Reaper](https://paints.paulosalum.com/brand/reaper/) | 438 |
-| [FolkArt](https://paints.paulosalum.com/brand/folkart/) | 435 | [Revell](https://paints.paulosalum.com/brand/revell/) | 88 |
-| [Foundry](https://paints.paulosalum.com/brand/foundry/) | 360 | [Scale75](https://paints.paulosalum.com/brand/scale75/) | 358 |
-| [Golden](https://paints.paulosalum.com/brand/golden/) | 346 | [Tamiya](https://paints.paulosalum.com/brand/tamiya/) | 320 |
-| [Green Stuff World](https://paints.paulosalum.com/brand/green-stuff-world/) | 220 | [The Army Painter](https://paints.paulosalum.com/brand/the-army-painter/) | 703 |
+| [Acrilex](https://paints.paulosalum.com/brand/acrilex/) | 95 | [Mission Models](https://paints.paulosalum.com/brand/mission-models/) | 201 |
+| [Apple Barrel](https://paints.paulosalum.com/brand/apple-barrel/) | 213 | [Monument](https://paints.paulosalum.com/brand/monument/) | 131 |
+| [Arteza](https://paints.paulosalum.com/brand/arteza/) | 88 | [Mr. Hobby](https://paints.paulosalum.com/brand/mr-hobby/) | 668 |
+| [Citadel](https://paints.paulosalum.com/brand/citadel/) | 451 | [Mr. Paint](https://paints.paulosalum.com/brand/mr-paint/) | 568 |
+| [Coat d'Arms](https://paints.paulosalum.com/brand/coat-d-arms/) | 150 | [P3](https://paints.paulosalum.com/brand/p3/) | 131 |
+| [Creature](https://paints.paulosalum.com/brand/creature/) | 53 | [Reaper](https://paints.paulosalum.com/brand/reaper/) | 438 |
+| [Duncan](https://paints.paulosalum.com/brand/duncan/) | 180 | [Revell](https://paints.paulosalum.com/brand/revell/) | 88 |
+| [FolkArt](https://paints.paulosalum.com/brand/folkart/) | 435 | [Scale75](https://paints.paulosalum.com/brand/scale75/) | 358 |
+| [Foundry](https://paints.paulosalum.com/brand/foundry/) | 360 | [Tamiya](https://paints.paulosalum.com/brand/tamiya/) | 320 |
+| [Golden](https://paints.paulosalum.com/brand/golden/) | 346 | [The Army Painter](https://paints.paulosalum.com/brand/the-army-painter/) | 703 |
+| [Green Stuff World](https://paints.paulosalum.com/brand/green-stuff-world/) | 220 | [Tom Color](https://paints.paulosalum.com/brand/tom-color/) | 271 |
 | [Humbrol](https://paints.paulosalum.com/brand/humbrol/) | 115 | [Turbo Dork](https://paints.paulosalum.com/brand/turbo-dork/) | 40 |
 | [Italeri](https://paints.paulosalum.com/brand/italeri/) | 100 | [Vallejo](https://paints.paulosalum.com/brand/vallejo/) | 1,267 |
 | [Kimera Kolors](https://paints.paulosalum.com/brand/kimera-kolors/) | 38 | [Warcolours](https://paints.paulosalum.com/brand/warcolours/) | 178 |
-| [Liquitex](https://paints.paulosalum.com/brand/liquitex/) | 105 | | |
+| [Liquitex](https://paints.paulosalum.com/brand/liquitex/) | 105 |  |  |
 
 The pairs people ask for most:
 [Citadel → Vallejo](https://paints.paulosalum.com/convert/citadel-to-vallejo/) ·
@@ -86,7 +87,7 @@ internal/site      templates, assets, all page rendering
 cmd/build          generator entry point
 ```
 
-`internal/match` compares 9,327 × 9,327 pairs. It keeps only a bounded top-N
+`internal/match` compares 9,693 × 9,693 pairs. It keeps only a bounded top-N
 per range as it goes and stores pointers rather than paint copies — the naive
 version allocates 87 million structs and exhausts a 32-bit heap.
 

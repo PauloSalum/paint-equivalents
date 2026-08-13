@@ -27,15 +27,20 @@ const sourceMIT = "mit-dataset"
 // excluded by name and not by the source column, because the column labels
 // them mit-dataset and the attribution file says otherwise — when the two
 // disagree, the stricter one wins.
+//
+// The list is deliberately narrower than "every Brazilian range". Checking the
+// 34 brand files upstream publishes against the column showed it lying about
+// six ranges and telling the truth about two: Acrilex and Tom Color really do
+// ship in Arcturus5404/miniature-paints and are MIT like everything else here,
+// so they are imported from that file and served. The six below appear in no
+// upstream file at all and stay out until a licensed source for them exists.
 var blockedBrands = map[string]bool{
-	"acrilex":      true,
 	"corfix":       true,
 	"daiara":       true,
 	"silverbright": true,
 	"smooth3d":     true,
 	"talento":      true,
 	"true colors":  true,
-	"tom color":    true,
 	"sem marca":    true,
 }
 

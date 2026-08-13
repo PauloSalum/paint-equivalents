@@ -11,8 +11,8 @@ func mit(brand, name string) Paint {
 // brand by brand rather than in bulk.
 func TestPublishableRejectsUnlicensedBrands(t *testing.T) {
 	for _, brand := range []string{
-		"Acrilex", "Corfix", "Daiara", "Silverbright",
-		"Smooth3D", "Talento", "True Colors", "Tom Color",
+		"Corfix", "Daiara", "Silverbright",
+		"Smooth3D", "Talento", "True Colors",
 	} {
 		if Publishable(mit(brand, "Any")) {
 			t.Errorf("%s is not cleared for redistribution but passed the filter", brand)
@@ -20,10 +20,24 @@ func TestPublishableRejectsUnlicensedBrands(t *testing.T) {
 	}
 }
 
+// Acrilex and Tom Color are Brazilian and were blocked alongside the six above
+// until the upstream file listing was checked: both ship in
+// Arcturus5404/miniature-paints, so both are MIT and may be served. They are
+// named here so that re-blocking them by reflex — "it is Brazilian, it must be
+// the unlicensed scrape" — fails the build instead of silently dropping 366
+// paints.
+func TestPublishableAcceptsTheBrazilianRangesThatAreMIT(t *testing.T) {
+	for _, brand := range []string{"Acrilex", "Tom Color"} {
+		if !Publishable(mit(brand, "Any")) {
+			t.Errorf("%s ships in the MIT upstream and must be published", brand)
+		}
+	}
+}
+
 // The blocked list is matched case- and space-insensitively, because the
 // export is not guaranteed to spell a brand the same way twice.
 func TestPublishableBlocksRegardlessOfCasing(t *testing.T) {
-	for _, brand := range []string{"acrilex", "  ACRILEX  ", "TaLeNtO"} {
+	for _, brand := range []string{"corfix", "  CORFIX  ", "TaLeNtO"} {
 		if Publishable(mit(brand, "Any")) {
 			t.Errorf("%q passed the filter", brand)
 		}

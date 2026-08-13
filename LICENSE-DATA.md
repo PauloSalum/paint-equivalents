@@ -34,6 +34,19 @@ source column and the upstream terms disagree for some ranges and the stricter
 of the two has to win. `internal/catalog/catalog_test.go` fails the build if
 that filter is ever loosened.
 
+Six ranges are named in that list — Corfix, Talento, Daiara, Silverbright,
+True Colors and Smooth3D. All six are tagged `mit-dataset` in the export and
+none of them appears in any of the 34 brand files upstream actually publishes,
+so the tag is wrong and they stay out until a licensed source exists.
+
+**Acrilex and Tom Color are Brazilian too and are not in that list**, because
+checking the same 34 files showed both of them there: `paints/Acrilex.md` and
+`paints/TomColor.md`. Their rows are imported from those files rather than
+copied out of the local export — for Acrilex the export carries the upstream
+name beside a colour from elsewhere, disagreeing on the hex in 72 of 94 rows,
+and the colour is the whole of what gets published. Lab is recomputed from the
+upstream RGB with the same conversion the rest of the catalogue uses.
+
 Also absent: harvested retailer barcodes and prices, and the RAL and Pantone
 colour standards, which are reference systems rather than paints.
 
