@@ -292,6 +292,48 @@ func (g *Generator) popular() []Link {
 	return out
 }
 
+// How much of a paint page's meta description Google shows before it truncates,
+// and how many brands are worth naming inside it even when they all fit.
+const (
+	descRunes  = 155
+	descBrands = 3
+)
+
+// paintDesc writes the meta description for one paint, naming as many brands as
+// the snippet has room for rather than one. The single nearest match is
+// whatever range happens to sit closest in Lab, and that is often a craft or
+// scale paint nobody reaches for on a miniature — a snippet answering "Corvus
+// Black" with "Creature Brown" reads as a wrong answer and the click goes
+// elsewhere. Listing several puts a range the reader stocks in front of them
+// without ranking by anything but distance.
+//
+// The budget is what Google shows before it truncates, and a name like
+// "Monument AdeptiCon Spray-Team Satin Black" costs two ordinary ones, so this
+// counts characters rather than matches. Truncation mid-name is the thing to
+// avoid: it is invisible in the HTML and only shows up in the search result.
+func paintDesc(full string, ranges int, cross []match.BrandMatches) string {
+	desc := fmt.Sprintf("%s equivalents in %d ranges.", full, ranges)
+	for i, c := range cross {
+		if i == descBrands {
+			break
+		}
+		sep := ", "
+		if i == 0 {
+			sep = " Closest: "
+		}
+		m := fmt.Sprintf("%s%s %s ΔE %.1f", sep, c.Brand, c.Best[0].Paint.Name, c.Best[0].DE)
+		// +1 leaves room for the full stop that closes the list.
+		if len([]rune(desc))+len([]rune(m))+1 > descRunes {
+			break
+		}
+		desc += m
+	}
+	if len(cross) > 0 && strings.Contains(desc, "Closest: ") {
+		desc += "."
+	}
+	return desc
+}
+
 func (g *Generator) paintPages() error {
 	// A range under the chart minimum never gets a chart page. Without this the
 	// blocks below still offer "full chart" links for those ranges, and every
@@ -338,11 +380,7 @@ func (g *Generator) paintPages() error {
 			bestName = names.product(*t.Cross[0].Best[0].Paint)
 			buyBest = g.buy(bestName)
 		}
-		best := ""
-		if len(t.Cross) > 0 {
-			best = fmt.Sprintf(" Closest match: %s %s (ΔE %.1f).",
-				t.Cross[0].Brand, t.Cross[0].Best[0].Paint.Name, t.Cross[0].Best[0].DE)
-		}
+		desc := paintDesc(full, len(g.brands)-1, t.Cross)
 		ld := g.crumbs(p.Brand, "/brand/"+p.BrandSlug+"/", p.Name)
 
 		if err := g.paintCard(p, t); err != nil {
@@ -352,8 +390,9 @@ func (g *Generator) paintPages() error {
 		err := g.render("paint", strings.TrimPrefix(p.URL(), "/")+"index.html", data{
 			common: common{
 				Title: fmt.Sprintf("%s equivalents — closest paint in every range", full),
-				Desc: fmt.Sprintf("Equivalents for %s (%s) across %d paint ranges, matched by CIEDE2000.%s",
-					full, p.Hex, len(g.brands)-1, best),
+				// The hex used to sit here and bought nothing: nobody searches a
+				// Citadel pot by hex, and the matches need the room.
+				Desc: desc,
 				Path: p.URL(), Image: g.cfg.BaseURL + p.URL() + "card.png",
 				Site: g.meta, JSONLD: ld,
 			},
