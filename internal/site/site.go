@@ -60,13 +60,32 @@ type Meta struct {
 }
 
 type common struct {
-	Title  string
-	Desc   string
-	Path   string
-	Image  string
-	JSONLD template.JS
-	Site   Meta
-	Finder bool
+	Title   string
+	Desc    string
+	Path    string
+	Image   string
+	JSONLD  template.JS
+	Site    Meta
+	Finder  bool
+	NoIndex bool
+}
+
+// unsearched are the ranges whose own pages will never earn a search click.
+// They are craft and fine-art acrylics, and the people who buy them do not shop
+// by paint name the way miniature painters do: every query this site has ranked
+// for so far names a miniature range, and the craft ranges are 1,146 of the
+// pages competing for the crawl.
+//
+// The pages stay on the site and stay linked. They are worth keeping as match
+// targets — telling a Citadel painter which FolkArt bottle is closest is a real
+// answer — they simply stop asking to be indexed, so what crawl budget a new
+// site has goes to the pages that can rank. Reversing this is deleting a line.
+var unsearched = map[string]bool{
+	"folkart":      true,
+	"apple-barrel": true,
+	"golden":       true,
+	"liquitex":     true,
+	"arteza":       true,
 }
 
 type Link struct {
@@ -412,7 +431,7 @@ func (g *Generator) paintPages() error {
 				// Citadel pot by hex, and the matches need the room.
 				Desc: desc,
 				Path: p.URL(), Image: g.cfg.BaseURL + p.URL() + "card.png",
-				Site: g.meta, JSONLD: ld,
+				Site: g.meta, JSONLD: ld, NoIndex: unsearched[p.BrandSlug],
 			},
 			Paint: p, Table: t, Detailed: detailed, Rest: rest,
 			Name: strings.TrimPrefix(full, p.Brand+" "),
@@ -926,6 +945,11 @@ func (g *Generator) sitemap() error {
 		}
 	}
 	for _, p := range g.paints {
+		// A page carrying noindex has no business in the sitemap: submitting it
+		// asks Google to spend a crawl on a page that tells it to go away.
+		if unsearched[p.BrandSlug] {
+			continue
+		}
 		add(p.URL(), "0.6")
 	}
 	b.WriteString("</urlset>\n")

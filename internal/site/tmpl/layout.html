@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{.Title}}</title>
 <meta name="description" content="{{.Desc}}">
-<link rel="canonical" href="{{$.Site.BaseURL}}{{.Path}}">
+{{if .NoIndex}}<meta name="robots" content="noindex,follow">
+{{end}}<link rel="canonical" href="{{$.Site.BaseURL}}{{.Path}}">
 <meta property="og:site_name" content="Paint Equivalents">
 <meta property="og:type" content="website">
 <meta property="og:title" content="{{.Title}}">
