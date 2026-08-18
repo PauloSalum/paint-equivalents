@@ -142,7 +142,7 @@ func (g *Generator) Run() (int, error) {
 		return 0, err
 	}
 	steps := []func() error{
-		g.copyAssets, g.siteCard, g.home, g.paintPages, g.brandPages,
+		g.copyAssets, g.siteCard, g.home, g.paintPages, g.moved, g.brandPages,
 		g.chartPages, g.indexes, g.about, g.privacy, g.find, g.searchIndex, g.sitemap, g.wellKnown,
 		g.verify,
 	}
@@ -350,6 +350,11 @@ func (g *Generator) paintPages() error {
 	}
 
 	names := newLabels(g.paints)
+	// Brands biggest first. The second question on a paint page has to name one
+	// other range, and nothing in the data says which range readers own; the
+	// widest catalog is the closest honest stand-in for the one a shop stocks.
+	bySize := append([]catalog.Brand(nil), g.brands...)
+	sort.Slice(bySize, func(i, j int) bool { return bySize[i].Count > bySize[j].Count })
 
 	for i, p := range g.paints {
 		t := g.tables[i]
@@ -369,6 +374,7 @@ func (g *Generator) paintPages() error {
 			BuyBest  string
 			BestName string
 			Summary  string
+			FAQ      []qa
 			Paint    catalog.Paint
 			Table    match.Table
 			Detailed []match.BrandMatches
@@ -381,7 +387,19 @@ func (g *Generator) paintPages() error {
 			buyBest = g.buy(bestName)
 		}
 		desc := paintDesc(full, len(g.brands)-1, t.Cross)
-		ld := g.crumbs(p.Brand, "/brand/"+p.BrandSlug+"/", p.Name)
+
+		big := ""
+		for _, b := range bySize {
+			if b.Name != p.Brand {
+				big = b.Name
+				break
+			}
+		}
+		faq := ask(full, p.Brand, big, t.Cross)
+		ld := graph(g.crumbList(p.Brand, "/brand/"+p.BrandSlug+"/", p.Name))
+		if len(faq) > 0 {
+			ld = graph(g.crumbList(p.Brand, "/brand/"+p.BrandSlug+"/", p.Name), faqList(faq))
+		}
 
 		if err := g.paintCard(p, t); err != nil {
 			return err
@@ -399,9 +417,35 @@ func (g *Generator) paintPages() error {
 			Paint: p, Table: t, Detailed: detailed, Rest: rest,
 			Name: strings.TrimPrefix(full, p.Brand+" "),
 			Buy:  g.buy(full), BuyBest: buyBest, BestName: bestName,
-			Summary: summarise(p, t), Charts: charted[p.BrandSlug],
+			Summary: summarise(p, t), FAQ: faq, Charts: charted[p.BrandSlug],
 		})
 		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// moved answers the paths that folding duplicate paints left empty. Static
+// hosting cannot serve a 301, so the page says the same thing the header would:
+// a canonical pointing at the paint that absorbed this one, and a refresh for
+// the reader who followed an old link. Deleting an indexed URL outright throws
+// away whatever standing it had and spends crawl budget on 404s, which this
+// site has none to spare.
+func (g *Generator) moved() error {
+	for from, to := range catalog.Vacated(g.paints) {
+		page := fmt.Sprintf(`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Moved to %s</title>
+<link rel="canonical" href="%s">
+<meta http-equiv="refresh" content="0;url=%s">
+</head>
+<body><p>This paint is now listed at <a href="%s">%s</a>.</p></body>
+</html>
+`, to, g.cfg.BaseURL+to, to, to, to)
+		if err := g.write(strings.TrimPrefix(from, "/")+"index.html", []byte(page)); err != nil {
 			return err
 		}
 	}
@@ -495,10 +539,95 @@ func summarise(p catalog.Paint, t match.Table) string {
 // charts > Citadel to Vallejo" instead of a bare URL. Only the parent is linked;
 // the leaf is the page itself, which schema.org wants left without an item.
 func (g *Generator) crumbs(parent, parentURL, leaf string) template.JS {
-	return template.JS(fmt.Sprintf(`{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[`+
+	return graph(g.crumbList(parent, parentURL, leaf))
+}
+
+func (g *Generator) crumbList(parent, parentURL, leaf string) string {
+	return fmt.Sprintf(`{"@type":"BreadcrumbList","itemListElement":[`+
 		`{"@type":"ListItem","position":1,"name":%q,"item":%q},`+
 		`{"@type":"ListItem","position":2,"name":%q}]}`,
-		parent, g.cfg.BaseURL+parentURL, leaf))
+		parent, g.cfg.BaseURL+parentURL, leaf)
+}
+
+// graph wraps the objects a page describes in the single block it carries. A
+// page that says two things about itself says them in one script tag; two tags
+// each with their own @context parse, but only the first is reliably read.
+func graph(objs ...string) template.JS {
+	return template.JS(`{"@context":"https://schema.org","@graph":[` + strings.Join(objs, ",") + `]}`)
+}
+
+// qa is one question a paint page answers in the words it was asked in.
+type qa struct{ Q, A string }
+
+// ask writes the questions the search results for these pages are actually made
+// of. "What is the closest equivalent to X" is a query, a People-also-ask entry
+// and the shape an AI overview quotes, and the competing sites that outrank this
+// one answer it in a sentence near the top of the page while this one buried the
+// answer in a table. The second question names the largest other range, because
+// "the Vallejo equivalent of X" is asked far more often than "the nearest paint
+// in any of 28 ranges to X". Both answers are read off the same measurements the
+// table below them shows, so neither can drift from the page it sits on.
+func ask(full, brand, big string, cross []match.BrandMatches) []qa {
+	if len(cross) == 0 {
+		return nil
+	}
+	best := cross[0].Best[0]
+	answer := fmt.Sprintf("%s %s is the closest equivalent to %s in any other range, at ΔE %.1f — %s.",
+		cross[0].Brand, best.Paint.Name, full, best.DE, verdict(best.DE))
+	// The single nearest paint is whatever sits closest in Lab, and that is
+	// often a craft range nobody reaches for on a miniature. Naming the runners
+	// up costs one clause and puts a range the reader stocks in the answer.
+	if len(cross) > 1 {
+		var next []string
+		for _, c := range cross[1:] {
+			if len(next) == 2 {
+				break
+			}
+			next = append(next, fmt.Sprintf("%s %s (ΔE %.1f)", c.Brand, c.Best[0].Paint.Name, c.Best[0].DE))
+		}
+		answer += " Next nearest: " + strings.Join(next, " and ") + "."
+	}
+	out := []qa{{
+		Q: "What is the closest equivalent to " + full + "?",
+		A: answer,
+	}}
+	for _, c := range cross {
+		if c.Brand != big {
+			continue
+		}
+		m := c.Best[0]
+		out = append(out, qa{
+			Q: fmt.Sprintf("What is the %s alternative to %s?", big, full),
+			A: fmt.Sprintf("The nearest %s paint is %s, ΔE %.1f — %s. The full %s to %s conversion chart lists the rest.",
+				big, m.Paint.Name, m.DE, verdict(m.DE), brand, big),
+		})
+		break
+	}
+	return out
+}
+
+// verdict turns a distance into what a painter can do with it. Under ΔE 5 the
+// swap survives on a painted model, so the answer may call it a substitute;
+// above it the honest answer is that it is not one.
+func verdict(de float64) string {
+	if de < 5 {
+		q := color.Quality(de)
+		article := "a "
+		if strings.ContainsRune("aeiou", rune(q[0])) {
+			article = "an "
+		}
+		return article + q + " substitute"
+	}
+	return fmt.Sprintf("%s, close enough to stand in only where the colour is not the point", color.Quality(de))
+}
+
+func faqList(qs []qa) string {
+	items := make([]string, 0, len(qs))
+	for _, q := range qs {
+		items = append(items, fmt.Sprintf(
+			`{"@type":"Question","name":%q,"acceptedAnswer":{"@type":"Answer","text":%q}}`, q.Q, q.A))
+	}
+	return `{"@type":"FAQPage","mainEntity":[` + strings.Join(items, ",") + `]}`
 }
 
 func (g *Generator) brandPages() error {
@@ -884,8 +1013,16 @@ func newLabels(paints []catalog.Paint) labels {
 
 // trimBrand drops a brand name the range already repeats — Italeri's range is
 // recorded as "Italeri Acrylic Paint" — which would otherwise print it twice.
+// A paint sold under several labels is qualified by the first of them alone:
+// the bracket exists to tell two pages apart, and "Vallejo Black (Game Air /
+// Game Color / Hobby Paint)" spends the whole title doing it. The page header
+// still lists every range.
 func trimBrand(p catalog.Paint) string {
-	return strings.TrimSpace(strings.TrimPrefix(p.Range, p.Brand))
+	r := strings.TrimSpace(strings.TrimPrefix(p.Range, p.Brand))
+	if i := strings.Index(r, catalog.RangeSep); i > 0 {
+		r = r[:i]
+	}
+	return r
 }
 
 // product names a paint the way a shop lists it. The qualifier goes in brackets

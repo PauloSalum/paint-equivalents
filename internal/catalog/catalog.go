@@ -63,6 +63,11 @@ type Paint struct {
 
 	Slug      string `json:"-"`
 	BrandSlug string `json:"-"`
+
+	// Folded counts the rows merged into this one. The pages those rows used to
+	// have are already indexed, and the count is what tells the build how many
+	// paths were left empty behind this paint.
+	Folded int `json:"-"`
 }
 
 func (p Paint) Lab() color.Lab { return color.Lab{L: p.LabL, A: p.LabA, B: p.LabB} }
@@ -89,9 +94,10 @@ func Publishable(p Paint) bool {
 }
 
 // Load reads the export and returns only the publishable rows, each carrying
-// the slugs its URLs are built from. Slugs are made unique per brand by
-// suffixing a collision counter, so two paints that normalise to the same
-// string never overwrite each other's page.
+// the slugs its URLs are built from. Rows that are the same colour under two
+// range labels are merged into one, and the slugs that remain are made unique
+// per brand by suffixing a collision counter, so two paints that normalise to
+// the same string never overwrite each other's page.
 func Load(path string) ([]Paint, error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
@@ -116,14 +122,87 @@ func Load(path string) ([]Paint, error) {
 	if len(out) == 0 {
 		return nil, errors.New("catalog: nothing publishable")
 	}
-	sort.Slice(out, func(i, j int) bool {
-		if out[i].Brand != out[j].Brand {
-			return out[i].Brand < out[j].Brand
-		}
-		return out[i].Name < out[j].Name
-	})
+	out = merge(out)
+	order(out)
 	dedupe(out)
 	return out, nil
+}
+
+// RangeSep joins the labels of a paint its maker sells in more than one range.
+// Not the middot the pages separate fields with: "Citadel · Air · Base" reads as
+// three things and "Citadel · Air / Base" as the two it is.
+const RangeSep = " / "
+
+// merge folds rows that are one colour wearing two range labels into a single
+// page. Citadel's Balthasar Gold ships in Base and in Air at the same hex and
+// the same Lab; published apart they are duplicates of each other, they split
+// the ranking signal of every "balthasar gold equivalent" search between two
+// URLs, and each one lists the other as an equivalent at ΔE 0.0, which answers
+// nothing. Only rows of identical colour are folded — a name reused for a
+// different pigment is a different paint and keeps its own page.
+func merge(ps []Paint) []Paint {
+	at := make(map[string]int, len(ps))
+	out := make([]Paint, 0, len(ps))
+	for _, p := range ps {
+		key := p.BrandSlug + "\x00" + p.Slug + "\x00" + strings.ToLower(p.Hex)
+		i, ok := at[key]
+		if !ok {
+			at[key] = len(out)
+			out = append(out, p)
+			continue
+		}
+		out[i].Range = addRange(out[i].Range, p.Range)
+		out[i].Folded++
+		if out[i].Code == "" {
+			out[i].Code = p.Code
+		}
+	}
+	return out
+}
+
+// addRange records one more label for a merged paint, alphabetically so the
+// same catalog always renders the same string.
+func addRange(have, add string) string {
+	if add == "" || have == add {
+		return have
+	}
+	if have == "" {
+		return add
+	}
+	parts := strings.Split(have, RangeSep)
+	for _, r := range parts {
+		if r == add {
+			return have
+		}
+	}
+	parts = append(parts, add)
+	sort.Strings(parts)
+	return strings.Join(parts, RangeSep)
+}
+
+// order fixes the sequence dedupe walks, and with it which paint of a same-name
+// group owns the unsuffixed URL. Brand and name alone left that group in
+// whatever order sort.Slice happened to leave it — the sort is not stable, so
+// /paint/citadel/leadbelcher/ could answer with the Spray pot on one build and
+// the Base pot on the next, and a URL that moves under the reader is a URL a
+// search engine drops. The widest variant takes the clean path, because a
+// colour a maker carries in several ranges is the one searched for by bare
+// name, and every tie after it is broken on a field that cannot drift.
+func order(ps []Paint) {
+	sort.Slice(ps, func(i, j int) bool {
+		a, b := ps[i], ps[j]
+		switch {
+		case a.Brand != b.Brand:
+			return a.Brand < b.Brand
+		case a.Name != b.Name:
+			return a.Name < b.Name
+		case strings.Count(a.Range, RangeSep) != strings.Count(b.Range, RangeSep):
+			return strings.Count(a.Range, RangeSep) > strings.Count(b.Range, RangeSep)
+		case a.Range != b.Range:
+			return a.Range < b.Range
+		}
+		return a.ID < b.ID
+	})
 }
 
 // dedupe gives every paint its own page. The suffix has to be checked against
@@ -140,6 +219,51 @@ func dedupe(ps []Paint) {
 		ps[i].Slug = slug
 		seen[ps[i].BrandSlug+"/"+slug] = true
 	}
+}
+
+// Vacated maps the paint paths this catalog stopped filling to the page that
+// answers for them now. Folding two rows into one frees the numbered path the
+// absorbed row used to hold, and that path is already indexed and linked from
+// outside: left empty it is a 404 for a page whose content only moved next
+// door. A name occupies the slugs base, base-2 … base-n, so the freed ones are
+// always the tail of that run.
+func Vacated(ps []Paint) map[string]string {
+	type group struct {
+		rows, folded int
+		clean        string
+	}
+	taken := make(map[string]bool, len(ps))
+	groups := map[string]*group{}
+	for _, p := range ps {
+		taken[p.URL()] = true
+		key := p.BrandSlug + "/" + Slug(p.Name)
+		gr := groups[key]
+		if gr == nil {
+			gr = &group{}
+			groups[key] = gr
+		}
+		gr.rows++
+		gr.folded += p.Folded
+		if p.Slug == Slug(p.Name) {
+			gr.clean = p.URL()
+		}
+	}
+	out := map[string]string{}
+	for key, gr := range groups {
+		if gr.folded == 0 || gr.clean == "" {
+			continue
+		}
+		for n := gr.rows + 1; n <= gr.rows+gr.folded; n++ {
+			path := "/paint/" + key + "-" + itoa(n) + "/"
+			// A paint genuinely named "Dark green 2" owns that path. Nothing
+			// may be written over a page that exists.
+			if taken[path] {
+				continue
+			}
+			out[path] = gr.clean
+		}
+	}
+	return out
 }
 
 func itoa(n int) string {

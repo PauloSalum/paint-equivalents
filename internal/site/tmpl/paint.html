@@ -11,6 +11,11 @@
 <p class="lede">The closest match to <strong>{{.Paint.Brand}} {{.Name}}</strong> in every other range, nearest first.</p>
 <p class="summary">{{.Summary}}</p>
 
+{{if .FAQ}}<section class="faq">{{range .FAQ}}
+  <h2>{{.Q}}</h2>
+  <p>{{.A}}</p>{{end}}
+</section>{{end}}
+
 {{if .Buy}}
 <p class="buy">
   <a href="{{.Buy}}" rel="nofollow sponsored noopener" target="_blank">Shop {{.Paint.Brand}} {{.Paint.Name}}</a>
@@ -34,7 +39,7 @@
     </li>
   {{end}}
   </ol>
-  {{if index $.Charts .Slug}}<p class="pairlink"><a href="/convert/{{$.Paint.BrandSlug}}-to-{{.Slug}}/">Full {{$.Paint.Brand}} &rarr; {{.Brand}} chart</a></p>{{end}}
+  {{if index $.Charts .Slug}}<p class="pairlink"><a href="/convert/{{$.Paint.BrandSlug}}-to-{{.Slug}}/">Full {{$.Paint.Brand}} &rarr; {{.Brand}} conversion chart</a></p>{{end}}
 </section>
 {{end}}
 

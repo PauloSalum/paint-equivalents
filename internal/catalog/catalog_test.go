@@ -110,6 +110,84 @@ func TestDedupeKeepsBothPages(t *testing.T) {
 	}
 }
 
+// The same colour sold in two ranges is one paint, and two pages for it are
+// duplicates competing for the same search.
+func TestMergeFoldsOneColourSoldInTwoRanges(t *testing.T) {
+	ps := []Paint{
+		{Brand: "Citadel", BrandSlug: "citadel", Name: "Balthasar Gold", Slug: "balthasar-gold", Hex: "#A77353", Range: "Air"},
+		{Brand: "Citadel", BrandSlug: "citadel", Name: "Balthasar Gold", Slug: "balthasar-gold", Hex: "#a77353", Range: "Base"},
+		{Brand: "Citadel", BrandSlug: "citadel", Name: "Leadbelcher", Slug: "leadbelcher", Hex: "#969696", Range: "Base"},
+		{Brand: "Citadel", BrandSlug: "citadel", Name: "Leadbelcher", Slug: "leadbelcher", Hex: "#868686", Range: "Spray"},
+	}
+	got := merge(ps)
+	if len(got) != 3 {
+		t.Fatalf("merged to %d paints, want 3: %+v", len(got), got)
+	}
+	if got[0].Range != "Air"+RangeSep+"Base" {
+		t.Errorf("merged paint should carry both ranges, got %q", got[0].Range)
+	}
+	// A different hex under the same name is a different pigment, not a label.
+	if got[1].Range != "Base" || got[2].Range != "Spray" {
+		t.Errorf("paints of different colour must stay apart, got %q and %q", got[1].Range, got[2].Range)
+	}
+}
+
+// The unsuffixed URL has to land on the same paint on every build, whatever
+// order the dataset lists the rows in, and it should be the variant sold in
+// most ranges rather than whichever one sorted first.
+func TestOrderIsStableAndGivesTheWidestVariantTheCleanSlug(t *testing.T) {
+	wide := Paint{ID: "citadel:base:leadbelcher", Brand: "Citadel", BrandSlug: "citadel", Name: "Leadbelcher", Slug: "leadbelcher", Range: "Air" + RangeSep + "Base"}
+	spray := Paint{ID: "citadel:spray:leadbelcher", Brand: "Citadel", BrandSlug: "citadel", Name: "Leadbelcher", Slug: "leadbelcher", Range: "Spray"}
+
+	for _, in := range [][]Paint{{wide, spray}, {spray, wide}} {
+		ps := append([]Paint(nil), in...)
+		order(ps)
+		dedupe(ps)
+		if ps[0].ID != wide.ID {
+			t.Fatalf("clean slug went to %q, want the two-range variant", ps[0].ID)
+		}
+		if ps[0].Slug != "leadbelcher" || ps[1].Slug != "leadbelcher-2" {
+			t.Errorf("slugs are %q and %q", ps[0].Slug, ps[1].Slug)
+		}
+	}
+}
+
+// Merging frees the numbered path the absorbed row held, and that path is
+// already indexed: it has to answer with the page that took the content over.
+func TestVacatedCoversThePathsMergingEmptied(t *testing.T) {
+	ps := []Paint{
+		{Brand: "Citadel", BrandSlug: "citadel", Name: "Balthasar Gold", Slug: "balthasar-gold", Hex: "#A77353", Range: "Air"},
+		{Brand: "Citadel", BrandSlug: "citadel", Name: "Balthasar Gold", Slug: "balthasar-gold", Hex: "#a77353", Range: "Base"},
+	}
+	got := merge(ps)
+	order(got)
+	dedupe(got)
+
+	v := Vacated(got)
+	if want := "/paint/citadel/balthasar-gold/"; v["/paint/citadel/balthasar-gold-2/"] != want {
+		t.Errorf("the freed path points at %q, want %q", v["/paint/citadel/balthasar-gold-2/"], want)
+	}
+	if len(v) != 1 {
+		t.Errorf("wrote %d redirects, want 1: %v", len(v), v)
+	}
+}
+
+// A page that exists must never be overwritten by a redirect to somewhere else.
+func TestVacatedLeavesARealPaintNamedTwoAlone(t *testing.T) {
+	ps := []Paint{
+		{Brand: "Tamiya", BrandSlug: "tamiya", Name: "Dark green", Slug: "dark-green", Hex: "#0A0"},
+		{Brand: "Tamiya", BrandSlug: "tamiya", Name: "Dark green", Slug: "dark-green", Hex: "#0a0"},
+		{Brand: "Tamiya", BrandSlug: "tamiya", Name: "Dark green 2", Slug: "dark-green-2", Hex: "#0B0"},
+	}
+	got := merge(ps)
+	order(got)
+	dedupe(got)
+
+	if to, ok := Vacated(got)["/paint/tamiya/dark-green-2/"]; ok {
+		t.Errorf("redirected over a real paint's page, to %q", to)
+	}
+}
+
 func TestDedupeAvoidsCollidingWithAnExistingSuffixedName(t *testing.T) {
 	ps := []Paint{
 		{Brand: "Tamiya", BrandSlug: "tamiya", Name: "Dark green", Slug: "dark-green"},
