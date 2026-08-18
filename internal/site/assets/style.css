@@ -103,6 +103,14 @@ table{border-collapse:collapse;width:100%;font-size:.92rem}
 .scale td:last-child{color:var(--dim)}
 .scale td:first-child{white-space:nowrap}
 
+.prose{max-width:40rem}
+.prose p,.prose li{line-height:1.7}
+.prose h2{font-size:1.25rem;margin:2.2rem 0 .5rem}
+.prose ul{padding-left:1.1rem}
+.prose li{margin:.5rem 0}
+.prose .scale{margin:1rem 0 1.5rem}
+.prose a{color:var(--acc)}
+
 .explain{margin-top:2.5rem}
 .warn{color:var(--dim);font-size:.9rem;border-left:3px solid var(--acc);padding-left:.8rem}
 .licence{background:var(--card);border:1px solid var(--line);border-radius:.5rem;

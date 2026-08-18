@@ -1,0 +1,65 @@
+{{define "body"}}
+<p>The question that brings people here is never really "what is the closest paint". It is "can I use this one instead". Those are different questions, and only the first one has an answer a computer can give. Every match on this site is published with a colour distance beside it — a &Delta;E value — and that number is the honest half of the answer. The other half is what the colour is doing on the model, and only you know that.</p>
+
+<h2>Why subtracting two hex codes gives the wrong answer</h2>
+
+<p>Every paint in this database carries a hex value, which is three numbers between 0 and 255. The obvious thing to do with two of them is subtract and see which pair comes out smallest. It is easy, it is fast, and it ranks the wrong paint first often enough to be useless.</p>
+
+<p>sRGB was designed to drive a display, not to describe a perception. Its three channels are storage slots, and equal steps in a slot are not equal steps in what your eye reports. Human colour vision is not uniform across the spectrum: it separates greens finely and lumps the deep blues together. Two greens twelve points apart in the green channel can be two obviously different pots. Two dark blues twelve points apart in the blue channel can be a pot you cannot tell from its neighbour under a lamp. A ranking built on RGB distance does not just make occasional mistakes — it makes the <em>same</em> mistakes, in the same regions of colour space, on every query that lands there.</p>
+
+<p>The other failure is quieter. RGB distance treats lightness, saturation and hue as one undifferentiated gap, and the eye does not. Being wrong about hue is far more visible than being equally wrong about saturation, and both are more visible than being wrong about lightness by the same amount. A single subtraction cannot express that, so a paint that is the right colour but slightly too pale gets ranked below one that is the right paleness and the wrong colour.</p>
+
+<h2>What CIELAB and CIEDE2000 measure instead</h2>
+
+<p>The first step is to stop working in the display's coordinates. Each colour here is converted from sRGB into <strong>CIELAB</strong> under a D65 white point — the daylight illuminant, roughly what you would see at a north-facing window. Lab keeps the same colour but re-describes it on three axes built to track perception rather than hardware: <em>L*</em> for lightness from 0 to 100, <em>a*</em> running green to red, and <em>b*</em> running blue to yellow.</p>
+
+<p>Straight-line distance in Lab was the original &Delta;E, defined in 1976, and it is a large improvement on RGB. It is also still wrong in ways that were mapped out over the following twenty years: it overstates differences in strongly saturated colours, it is worst of all in the blues, and it still weighs a hue error and a chroma error as though they cost the same.</p>
+
+<p><strong>CIEDE2000</strong> (CIE 142:2001) is the standard that corrects those. It works from the same Lab coordinates, then applies weighting functions to lightness, chroma and hue separately, plus an interaction term that handles the blue region where the older formula fails hardest. It is the current recommendation for exactly this problem — deciding whether two samples are the same colour — and it is what every number on this site is computed with. The implementation is checked against the 34-pair acceptance set published by Sharma, Wu and Dalal in 2005, which exists specifically to catch implementations that get the hue rotation wrong and look plausible anyway. The <a href="/about/">about page</a> has the rest of the detail.</p>
+
+<h2>What the number means once it reaches the model</h2>
+
+<p>The scale below is the one used on every page here. It is deliberately coarse: the difference between &Delta;E 2.6 and &Delta;E 2.9 is not something you should act on, and reading a match to one decimal place invites exactly that.</p>
+
+<table class="scale">
+  <tr><td><b>&lt; 1</b></td><td>indistinguishable</td><td>nobody, including you, will spot the swap on a finished model</td></tr>
+  <tr><td><b>1&ndash;2</b></td><td>near-perfect</td><td>safe for a straight substitution anywhere</td></tr>
+  <tr><td><b>2&ndash;3.5</b></td><td>very close</td><td>fine unless the two colours share an edge</td></tr>
+  <tr><td><b>3.5&ndash;5</b></td><td>close</td><td>visible side by side, usually fine underneath something else</td></tr>
+  <tr><td><b>5&ndash;10</b></td><td>similar</td><td>the same family, a different colour</td></tr>
+  <tr><td><b>&gt; 10</b></td><td>far</td><td>that range simply has nothing like it</td></tr>
+</table>
+
+<p>Around &Delta;E 1 is the region where a difference stops being reliably visible even when two patches touch. That is a laboratory condition — flat samples, controlled light, an observer looking for it — and it is the strictest test a paint substitution will ever face. Almost nothing on a miniature is that strict.</p>
+
+<h2>The threshold moves with the job</h2>
+
+<p>The same &Delta;E is a pass in one place and a failure in another, so decide what the paint has to do before you look at the number.</p>
+
+<ul>
+  <li><strong>Colours that never touch.</strong> A cloak on this model and the same cloak on the one beside it. Your eye is very good at comparing an edge and very bad at remembering a colour across a table. &Delta;E 5 will not be noticed.</li>
+  <li><strong>Colours that share an edge.</strong> A highlight over its own base coat, or a repair on a panel line. This is the strict case: the comparison is right there, and anything past &Delta;E 2 starts reading as a mistake rather than a transition.</li>
+  <li><strong>Anything that gets covered.</strong> A base coat under a wash, a glaze, or a contrast-style paint absorbs a surprising amount of error, because the layer on top is doing most of the colour. A "close" match is genuinely fine here.</li>
+  <li><strong>Large flat areas.</strong> A tank hull shows a shift that a shoulder pad hides. Area works against you: the same distance over more surface is more obvious.</li>
+  <li><strong>Colours the viewer already knows.</strong> Skin, and a faction's signature red or green, are the two cases where people carry a reference in their head and will notice a drift they could not name. Tighten the threshold.</li>
+  <li><strong>Touching up an existing model.</strong> The hardest case there is. The original paint is on the model, adjacent to the repair, under the same light. Aim under &Delta;E 1, and expect to blend regardless.</li>
+</ul>
+
+<h2>What a colour distance cannot see</h2>
+
+<p>A hex value describes a colour on a screen. A pot of paint is a suspension of pigment in a medium, and most of what makes two pots behave differently never reaches those six digits.</p>
+
+<ul>
+  <li><strong>Opacity.</strong> A perfect match that needs four coats to cover is not a substitute in a job built on thin layers.</li>
+  <li><strong>Finish.</strong> Matte, satin and gloss versions of the same pigment read as different colours, and the gap is larger than several &Delta;E.</li>
+  <li><strong>Metallics, fluorescents and anything with a shift.</strong> One hex value is a poor summary of a surface whose colour depends on the angle you view it from. Treat matches involving them as a starting point only.</li>
+  <li><strong>Consistency and medium.</strong> A one-coat contrast paint and an opaque acrylic can share a hex value and do completely different things to a recess.</li>
+  <li><strong>The sample itself.</strong> The colour values here are community-sampled approximations, not manufacturer specifications. They are good enough to rank candidates and not good enough to reproduce a colour exactly.</li>
+</ul>
+
+<h2>So how do you use it</h2>
+
+<p>Set the tolerance from the job, not from the table. Decide first whether the paint is going under a wash or next to its own highlight, then read the match as a bracket rather than a decimal. If two candidates land in the same bracket, the tie-breaker is not the number — it is which one you can actually buy, and which range you already own the neighbouring colours from.</p>
+
+<p>Then test it. Paint both on a scrap, let them dry fully, and look at them under the light you paint in. That last step is the one this site cannot do for you, and it is the only one that settles the question.</p>
+{{end}}

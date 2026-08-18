@@ -22,7 +22,9 @@ import (
 	"tintaequivalente/internal/match"
 )
 
-//go:embed tmpl/*.html
+// The pattern does not recurse, so the guide bodies need naming separately.
+//
+//go:embed tmpl/*.html tmpl/guides/*.html
 var tmplFS embed.FS
 
 //go:embed assets/*
@@ -152,6 +154,16 @@ func New(cfg Config, paints []catalog.Paint, tables []match.Table) (*Generator, 
 		}
 		g.tmpl[name] = t
 	}
+	// One parse per guide, not one for all of them: every body file defines
+	// "body", so a shared parse would leave whichever was read last standing and
+	// print it under every other guide's title.
+	for _, gd := range guides {
+		t, err := template.ParseFS(tmplFS, "tmpl/layout.html", "tmpl/guide.html", "tmpl/guides/"+gd.Slug+".html")
+		if err != nil {
+			return nil, fmt.Errorf("guide %s: %w", gd.Slug, err)
+		}
+		g.tmpl["guide:"+gd.Slug] = t
+	}
 	return g, nil
 }
 
@@ -162,7 +174,7 @@ func (g *Generator) Run() (int, error) {
 	}
 	steps := []func() error{
 		g.copyAssets, g.siteCard, g.home, g.paintPages, g.moved, g.brandPages,
-		g.chartPages, g.indexes, g.about, g.privacy, g.find, g.searchIndex, g.sitemap, g.wellKnown,
+		g.chartPages, g.indexes, g.guidePages, g.about, g.privacy, g.find, g.searchIndex, g.sitemap, g.wellKnown,
 		g.verify,
 	}
 	for _, step := range steps {
@@ -204,7 +216,7 @@ func (g *Generator) render(name, rel string, data any) error {
 // plus the two files the client fetches by path. They are rewritten rather
 // than templated so a path added later cannot silently escape the prefix.
 var roots = []string{
-	"/paint/", "/brand/", "/brands/", "/charts/", "/convert/", "/about/", "/privacy/",
+	"/paint/", "/brand/", "/brands/", "/charts/", "/convert/", "/guides/", "/about/", "/privacy/",
 	"/style.css", "/search.js", "/search.json", "/favicon.svg", "/sitemap.xml",
 	"/find/", "/find.js",
 }
@@ -934,6 +946,12 @@ func (g *Generator) sitemap() error {
 	add("/find/", "0.9")
 	add("/brands/", "0.8")
 	add("/charts/", "0.8")
+	// The guides are the only written pages here, so they get the priority the
+	// generated ones cannot argue for.
+	add("/guides/", "0.9")
+	for _, gd := range guides {
+		add("/guides/"+gd.Slug+"/", "0.9")
+	}
 	add("/about/", "0.3")
 	add("/privacy/", "0.1")
 	for _, br := range g.brands {

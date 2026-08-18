@@ -1,0 +1,13 @@
+{{define "content"}}
+<nav class="crumbs"><a href="/">Home</a> / <a href="/guides/">Guides</a> / {{.Guide.Heading}}</nav>
+<article class="prose">
+<h1>{{.Guide.Title}}</h1>
+<p class="lede">{{.Guide.Lede}}</p>
+
+{{template "ad" .}}
+
+{{template "body" .}}
+
+<p class="pairlink">Put it to work: <a href="/find/">find a paint from a hex code</a>, open a <a href="/charts/">conversion chart</a>, or browse <a href="/brands/">every range</a>.</p>
+</article>
+{{end}}
