@@ -41,4 +41,9 @@
 
 {{define "swatch"}}<span class="sw" style="background:{{.Hex}};color:{{.Ink}}">{{.Hex}}</span>{{end}}
 
+{{define "zenital"}}<aside class="zenital">
+<p><b>No range carries it? Mix it.</b> <a href="https://zenital.art/" hreflang="pt-BR" rel="noopener">Zenital</a> runs the same colour engine as this site and answers what a table of nearest matches cannot: it holds the pots you actually own and works a mixing recipe out of them when nothing sold ready-made is close enough. It also covers the Brazilian ranges left out here for licensing reasons.</p>
+<p>By the same author. Free, installs from the browser, and written in Portuguese.</p>
+</aside>{{end}}
+
 {{define "ad"}}{{if and .Site.AdsenseClient .Site.AdsenseSlot}}<aside class="ad" aria-label="Advertisement"><ins class="adsbygoogle" style="display:block" data-ad-client="{{.Site.AdsenseClient}}" data-ad-slot="{{.Site.AdsenseSlot}}" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></aside>{{end}}{{end}}
