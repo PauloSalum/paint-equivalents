@@ -31,6 +31,13 @@ var guides = []guide{{
 	// the site does not make a two-month-old article new, and telling Google it
 	// does is the fastest way to be trusted on neither.
 	Published: "2026-08-18",
+}, {
+	Slug:      "substituting-a-paint",
+	Title:     "Substituting a paint: choosing a replacement that survives the model",
+	Desc:      "How to replace a discontinued or unavailable miniature paint: name the job the pot is doing, set the tolerance from that, search the same range before you cross brands, and test before you commit.",
+	Heading:   "Substituting a paint",
+	Lede:      "The nearest colour is rarely the whole answer. This is the order to decide things in when the pot is discontinued, out of stock, or simply not the range you own.",
+	Published: "2026-08-18",
 }}
 
 const guideAuthor = "Paulo Salum"

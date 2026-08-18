@@ -106,7 +106,7 @@ table{border-collapse:collapse;width:100%;font-size:.92rem}
 .prose{max-width:40rem}
 .prose p,.prose li{line-height:1.7}
 .prose h2{font-size:1.25rem;margin:2.2rem 0 .5rem}
-.prose ul{padding-left:1.1rem}
+.prose ul,.prose ol{padding-left:1.1rem}
 .prose li{margin:.5rem 0}
 .prose .scale{margin:1rem 0 1.5rem}
 .prose a{color:var(--acc)}
