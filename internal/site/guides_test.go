@@ -52,7 +52,7 @@ func TestPagesLinkToGuidesThatExist(t *testing.T) {
 	for _, gd := range guides {
 		have["/guides/"+gd.Slug+"/"] = true
 	}
-	for _, name := range []string{"tmpl/paint.html", "tmpl/chart.html", "tmpl/home.html", "tmpl/guide.html"} {
+	for _, name := range []string{"tmpl/paint.html", "tmpl/chart.html", "tmpl/home.html", "tmpl/find.html", "tmpl/guide.html"} {
 		body, err := tmplFS.ReadFile(name)
 		if err != nil {
 			t.Fatal(err)

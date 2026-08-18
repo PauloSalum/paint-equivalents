@@ -38,6 +38,13 @@ var guides = []guide{{
 	Heading:   "Substituting a paint",
 	Lede:      "The nearest colour is rarely the whole answer. This is the order to decide things in when the pot is discontinued, out of stock, or simply not the range you own.",
 	Published: "2026-08-18",
+}, {
+	Slug:      "what-a-hex-code-misses",
+	Title:     "What a hex code misses: opacity, finish, metallics and the drift as it dries",
+	Desc:      "A colour value cannot tell you whether a paint covers, how its finish shifts the colour, why metallics need more than one measurement, or why two matching pots come apart under a different lamp. What to check instead.",
+	Heading:   "What a hex code misses",
+	Lede:      "Six digits record how a colour looked once, on a flat dry sample, under one light. This is everything about the pot that never reaches them.",
+	Published: "2026-08-18",
 }}
 
 const guideAuthor = "Paulo Salum"

@@ -1,0 +1,61 @@
+{{define "body"}}
+<p>Every paint on this site carries a hex value, and every match is computed from it. That value is doing real work — it is what lets one page rank nine thousand pots against each other in the time it takes to load. But it is the answer to a narrow question: what colour did a flat, dry, fully opaque sample of this paint appear to be, once, under one light, viewed straight on.</p>
+
+<p>A pot on your desk is not that sample. It has a covering power, a sheen, a consistency, a way of behaving over a dark primer that it does not have over a light one, and a colour that keeps moving for a few minutes after the brush leaves the model. None of that fits in six digits. Here is what falls out, in rough order of how often it ruins a substitution.</p>
+
+<h2>Three numbers for a whole spectrum</h2>
+
+<p>A pigment does not have a colour. It has a <em>reflectance curve</em>: for every wavelength of light that hits it, some fraction comes back. What you see is that curve multiplied by whatever the light source is emitting, collapsed by three kinds of cone in your eye into three signals. A hex code is a record of the collapse, not of the curve.</p>
+
+<p>Two paints made from completely different pigments can produce the same three signals under one light and different ones under another. That is not a hypothetical failure mode; it has a name — <strong>metamerism</strong> — and it is why colour matching is done under a specified illuminant. Every value here is handled under D65, roughly north-sky daylight, and the <a href="/guides/how-close-is-close-enough/">&Delta;E behind each match</a> is a daylight answer.</p>
+
+<p>What that means at the bench: a substitute that disappears into the original under the window can separate from it under a warm bulb, and the reverse. Two paints from the same range are less likely to do this to you than two paints from different manufacturers, because a single maker tends to reach for the same pigments across its own line. It is the strongest practical argument for looking inside the range first, and it is invisible in the number.</p>
+
+<h2>Opacity: some of the colour is whatever is underneath</h2>
+
+<p>Coverage is not a property of the colour, it is a property of the pigment and how much of it is in the pot. Some pigments are naturally opaque, some are close to transparent, and the difference is largely down to particle size and how strongly the particle bends light compared with the medium around it. Many yellows, oranges and bright reds are the difficult ones — you can have two pots that measure as the same colour where one covers black primer in two coats and the other never really does.</p>
+
+<p>This matters more than it sounds, because a paint that does not fully cover is not showing you its own colour. It is showing you its colour mixed with the colour underneath, in a ratio set by how thickly you put it on. The published hex was sampled from a swatch that was, in all likelihood, laid down solid over white. Over your black primer the same paint can read as a different colour entirely — darker, greyer, and further from the match than the number promised.</p>
+
+<p>The consequence is a rule, not a caveat: when you compare candidates, compare them on the primer you actually use, at the number of coats you actually apply. A test swatch on bare white plastic answers a question you were not asking.</p>
+
+<h2>Finish changes the colour after you have chosen it</h2>
+
+<p>Sheen is not a separate axis from colour. It is part of the colour, because it decides what happens to the light that does not go into the pigment.</p>
+
+<p>A gloss surface is smooth, so most of the light that bounces off the top does so in one direction, away from you. What reaches your eye is mostly light that went into the film and came back out carrying the pigment's colour, so gloss reads deep and saturated. A matte surface is rough at a scale you cannot see, so that same top-layer reflection scatters everywhere, including at you. It arrives the colour of the <em>lamp</em>, not the colour of the paint, and it lands as a thin white veil over the whole surface. Matte therefore reads lighter and less saturated than gloss made from the same pigment.</p>
+
+<p>The gap is easily larger than the &Delta;E you rejected a candidate over. It also arrives late: a model painted in satin paints and finished in a matte varnish has every colour on it shifted the same way at the very end of the job. That uniformity is why it usually goes unnoticed — and why a repair done in a matte paint on a satin model, or a single unvarnished panel, stands out far more than its colour distance suggests.</p>
+
+<h2>Metallics, pearls and fluorescents are not one colour</h2>
+
+<p>A metallic paint is flakes of metal or mica suspended in a medium, and they settle roughly parallel to the surface as the film dries. That is the whole point — it is what makes the surface behave like metal instead of like grey paint. It also means the colour depends on the angle you look from and the angle the light comes from. Industries that have to match metallics measure them from several angles at once, because one measurement does not describe the surface. One hex value cannot even describe one angle honestly.</p>
+
+<p>Colour-shift and pearlescent paints are the same problem, louder. Fluorescents are a different problem: they absorb light at short wavelengths and re-emit it in the visible band, so at some wavelengths they send back more light than fell on them. No screen colour can represent that, and no hex code can either — the fluorescent value in this database is a polite approximation of something that is, by construction, outside the range a reflective sample can occupy.</p>
+
+<p>Treat every match involving these as a shortlist entry and nothing more. Two metallics with a &Delta;E of 1 between them can be visibly different metals; two with a &Delta;E of 6 can be indistinguishable once they are on a model and catching the light the same way.</p>
+
+<h2>Wet is not dry</h2>
+
+<p>Acrylic medium is milky while it is wet and clear once it has cured. The paint you are looking at on the palette is therefore behind a slight white haze that is going to leave. Most acrylics settle darker and a little more saturated than they appeared under the brush, and how much they move varies with the medium — which means two paints that looked identical wet can be a visible step apart an hour later, and vice versa.</p>
+
+<p>So a wet comparison is not the comparison you care about, and neither is a touch-dry one on a thick coat: the film goes on curing after the surface stops being tacky. When you are testing a substitute, let both swatches dry properly and look at them together, in the light you paint under, with nothing else nearby competing for your eye.</p>
+
+<h2>How it goes on is part of the colour</h2>
+
+<p>The same pot gives you different colours depending on what you do with it. Thinned heavily it lays down less pigment per unit of surface, so more of the primer participates and the result is closer to whatever was underneath. Airbrushed it goes on in a much thinner film than a brush leaves, for the same reason. Two thin coats and one thick coat do not end up in the same place unless the paint was fully opaque to begin with — and if it were, you would not have needed the second coat.</p>
+
+<p>None of this is captured anywhere in a colour value, and it is why "same hex, different range" so often disappoints. The hex says the two paints ended up the same colour in a swatch. It says nothing about whether they get there the same way in your hands.</p>
+
+<h2>The sample has its own error bar</h2>
+
+<p>The last omission is the most easily forgotten, and it belongs on the honest side of the ledger. The colour values in this database are community-sampled approximations — hand-painted swatches, photographed or scanned, with a camera deciding on its own what counts as white in the frame. They are not manufacturer specifications from a spectrophotometer.</p>
+
+<p>That is good enough to sort nine thousand paints into an order and put ten plausible candidates at the top. It is not good enough to certify that two pots are the same colour to a decimal place. Read the numbers as brackets, as the <a href="/about/">methodology page</a> does, and let a difference of a few tenths mean nothing — because it genuinely might.</p>
+
+<h2>So what is the hex good for</h2>
+
+<p>Narrowing. Nine thousand pots down to ten, in a fraction of a second, without a shelf full of paint to compare against. That is a large and real service, and it is the part a computer can do well.</p>
+
+<p>Everything above is the part it cannot. Once you have the ten, the tie-breakers are physical: is it the same kind of paint, does it cover the way the original covered, will it still be in production next year, does it come from a range that already sits on your desk. <a href="/guides/substituting-a-paint/">Choosing a substitute</a> works through that in order. And if you arrived here from a colour rather than from a paint — a photo, a box art, a logo — the <a href="/find/">hex search</a> will hand you the shortlist, with all the same caveats attached.</p>
+{{end}}
