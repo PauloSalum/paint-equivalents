@@ -52,7 +52,13 @@ func TestPagesLinkToGuidesThatExist(t *testing.T) {
 	for _, gd := range guides {
 		have["/guides/"+gd.Slug+"/"] = true
 	}
-	for _, name := range []string{"tmpl/paint.html", "tmpl/chart.html", "tmpl/home.html", "tmpl/find.html", "tmpl/guide.html"} {
+	names := []string{"tmpl/paint.html", "tmpl/chart.html", "tmpl/home.html", "tmpl/find.html", "tmpl/guide.html"}
+	// The guides cite each other, so a rename breaks its siblings' bodies too —
+	// the same failure, one directory over, and just as invisible until verify().
+	for _, gd := range guides {
+		names = append(names, "tmpl/guides/"+gd.Slug+".html")
+	}
+	for _, name := range names {
 		body, err := tmplFS.ReadFile(name)
 		if err != nil {
 			t.Fatal(err)

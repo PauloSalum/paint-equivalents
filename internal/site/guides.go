@@ -45,6 +45,13 @@ var guides = []guide{{
 	Heading:   "What a hex code misses",
 	Lede:      "Six digits record how a colour looked once, on a flat dry sample, under one light. This is everything about the pot that never reaches them.",
 	Published: "2026-08-18",
+}, {
+	Slug:      "contrast-speedpaint-xpress",
+	Title:     "Contrast, Speedpaint and Xpress: the one-coat paints, and what a match between them is worth",
+	Desc:      "How Citadel Contrast, Army Painter Speedpaint, Vallejo Xpress Color and Scale75 Instant Colors work, why a transparent paint's colour depends on the undercoat under it, and why a close match between two one-coat ranges promises less than the same match between two opaque paints.",
+	Heading:   "Contrast, Speedpaint and Xpress",
+	Lede:      "Three ranges sell the same trick: base coat and shadow in one pass. That trick is also why a colour distance between two of them promises less than the same number anywhere else on this site.",
+	Published: "2026-08-19",
 }}
 
 const guideAuthor = "Paulo Salum"
