@@ -681,6 +681,7 @@ func (g *Generator) brandPages() error {
 			Brand  catalog.Brand
 			Paints []catalog.Paint
 			Charts []Link
+			Sets   []setLink
 		}
 		err := g.render("brand", "brand/"+b.Slug+"/index.html", data{
 			common: common{
@@ -690,7 +691,7 @@ func (g *Generator) brandPages() error {
 				Path: "/brand/" + b.Slug + "/", Site: g.meta,
 				JSONLD: g.crumbs("Paint ranges", "/brands/", b.Name),
 			},
-			Brand: b, Paints: own, Charts: charts,
+			Brand: b, Paints: own, Charts: charts, Sets: g.brandSets(b, own),
 		})
 		if err != nil {
 			return err
@@ -784,6 +785,17 @@ func (g *Generator) chartPages() error {
 				From    catalog.Brand
 				To      catalog.Brand
 				Rows    []match.Pair
+				Sets    []setLink
+			}
+			// The range being converted *to* comes first: a reader on this page
+			// already owns the left column and is deciding whether the right one
+			// is worth buying into.
+			var sets []setLink
+			if g.cfg.AmazonTag != "" {
+				sets = []setLink{
+					{Name: to.Name, URL: g.buySet(to.Name, "")},
+					{Name: from.Name, URL: g.buySet(from.Name, "")},
+				}
 			}
 			path := chartPath(from.Slug, to.Slug)
 			g.coverage[path] = coverage(rows)
@@ -795,7 +807,7 @@ func (g *Generator) chartPages() error {
 					Path: path, Site: g.meta,
 					JSONLD: g.crumbs("Conversion charts", "/charts/", from.Name+" to "+to.Name),
 				},
-				From: from, To: to, Rows: rows,
+				From: from, To: to, Rows: rows, Sets: sets,
 				Summary: chartSummary(from, to, rows),
 			})
 			if err != nil {
@@ -1027,6 +1039,100 @@ func (g *Generator) buy(product string) string {
 	q.Set("k", product+" "+word)
 	q.Set("tag", g.cfg.AmazonTag)
 	return "https://" + g.cfg.AmazonHost + "/s?" + q.Encode()
+}
+
+// setLink is one boxed-set search: the range it covers and where it points.
+type setLink struct{ Name, URL string }
+
+// buySet is buy() one level up: a set instead of a single pot. A brand page and
+// a conversion chart are read by someone choosing a *range*, not a colour, and
+// a set is the listing that answers that — at ten to twenty times the basket of
+// one pot, on the same visit. The query names the range and lets the store list
+// whatever boxes it actually stocks; naming a kit this catalogue has no record
+// of would send the reader to an empty result page.
+func (g *Generator) buySet(brand, rng string) string {
+	word := "set"
+	if strings.HasSuffix(g.cfg.AmazonHost, ".com.br") {
+		word = "kit"
+	}
+	return g.buy(strings.TrimSpace(brand+" "+rng) + " " + word)
+}
+
+// setMinimum is the size below which a sub-range is not offered as a set. A
+// label with a handful of colours is not boxed by anyone, and a search that
+// returns nothing spends the click for nothing. The number is a judgement, not
+// a measurement: it is low enough to keep Citadel Shade (16) out and every
+// range a starter box exists for in.
+//
+// ponytail: fixed floor, per-brand tuning only if the click data ever says so.
+const setMinimum = 20
+
+// sellable filters the labels there is no box to sell behind, which a paid
+// click would spend on an empty result page. Two kinds turn up in the
+// catalogue: a discontinued range, which is exactly what nobody can still buy,
+// and a label that is not a range name at all — Tom Color's arrive as "s" and
+// "s - UP", the tail of a brand name split in the wrong place upstream. A real
+// range label has at least one word in it; these have none. Whitespace is
+// squeezed on the way through because "Warfront  Range" is in the data too.
+func sellable(r string) (string, bool) {
+	words := strings.Fields(r)
+	if strings.Contains(strings.ToLower(r), "discontinued") {
+		return "", false
+	}
+	for _, w := range words {
+		if len(w) >= 3 {
+			return strings.Join(words, " "), true
+		}
+	}
+	return "", false
+}
+
+// brandSets lists the sets worth offering for a brand, largest sub-range first.
+// A paint sold under several labels counts for each of them, because each label
+// is boxed separately. Brands whose range field is just the brand name, and
+// brands whose labels are all too small, fall back to one search for the brand.
+func (g *Generator) brandSets(b catalog.Brand, own []catalog.Paint) []setLink {
+	if g.cfg.AmazonTag == "" {
+		return nil
+	}
+	count := map[string]int{}
+	for _, p := range own {
+		for _, r := range strings.Split(p.Range, catalog.RangeSep) {
+			// Per part, the way trimBrand does it for a single label: some
+			// ranges repeat the maker's name and would otherwise be searched
+			// for as "Vallejo Vallejo Model Color".
+			r = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(r), p.Brand))
+			if r, ok := sellable(r); ok {
+				count[r]++
+			}
+		}
+	}
+	var ranges []string
+	for r, n := range count {
+		if n >= setMinimum {
+			ranges = append(ranges, r)
+		}
+	}
+	// Ties break on the name so the page is identical between builds.
+	sort.Slice(ranges, func(i, j int) bool {
+		if count[ranges[i]] != count[ranges[j]] {
+			return count[ranges[i]] > count[ranges[j]]
+		}
+		return ranges[i] < ranges[j]
+	})
+	if len(ranges) == 0 {
+		return []setLink{{Name: b.Name, URL: g.buySet(b.Name, "")}}
+	}
+	// Six is where a row of buttons stops being a choice and starts being a
+	// wall; the ranges past it are the ones nobody starts with anyway.
+	if len(ranges) > 6 {
+		ranges = ranges[:6]
+	}
+	sets := make([]setLink, 0, len(ranges))
+	for _, r := range ranges {
+		sets = append(sets, setLink{Name: b.Name + " " + r, URL: g.buySet(b.Name, r)})
+	}
+	return sets
 }
 
 // disclosure returns the sentence the operating agreement of that marketplace

@@ -3,6 +3,13 @@
 <h1>{{.Brand.Name}} paint range</h1>
 <p class="lede">{{.Brand.Count}} paints. Open any one to see its closest equivalent in every other range.</p>
 
+{{if .Sets}}
+<p class="setlede">Starting the range rather than replacing one pot? These search the boxed sets {{.Brand.Name}} sells, by range.</p>
+<p class="buy">
+  {{range .Sets}}<a href="{{.URL}}" rel="nofollow sponsored noopener" target="_blank">Shop {{.Name}} set</a>{{end}}
+</p>
+{{end}}
+
 <h2>Convert {{.Brand.Name}} to another range</h2>
 <ul class="cards">
   {{range .Charts}}<li><a href="{{.URL}}"><strong>{{.From}}</strong> <span>to</span> <strong>{{.To}}</strong></a></li>{{end}}

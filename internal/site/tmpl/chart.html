@@ -5,6 +5,13 @@
 <p class="summary">{{.Summary}}</p>
 <p class="pairlink"><a href="/guides/how-close-is-close-enough/">How close is close enough? Reading the &Delta;E column</a></p>
 
+{{if .Sets}}
+<p class="setlede">Moving a whole recipe across takes more than one pot. These search the boxed sets each range is sold in.</p>
+<p class="buy">
+  {{range .Sets}}<a href="{{.URL}}" rel="nofollow sponsored noopener" target="_blank">Shop {{.Name}} set</a>{{end}}
+</p>
+{{end}}
+
 {{template "ad" .}}
 
 <table class="chart">

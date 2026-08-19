@@ -134,6 +134,7 @@ footer .disclosure{color:var(--ink)}
 .zenital p+p{margin-top:.4rem;color:var(--dim);font-size:.85rem}
 .zenital a{color:var(--acc);font-weight:600}
 
+.setlede{margin:1.4rem 0 .5rem;font-size:.9rem;color:var(--dim)}
 .buy{display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1.6rem}
 .buy a{display:inline-block;padding:.5rem .9rem;border-radius:.5rem;text-decoration:none;
   font-size:.9rem;font-weight:600;color:var(--acc);border:1px solid var(--acc)}
