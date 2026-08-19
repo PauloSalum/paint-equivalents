@@ -1,6 +1,11 @@
 package site
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+
+	"tintaequivalente/internal/catalog"
+)
 
 // guide is one written article. Everything else on this site is generated: a
 // paint page is the same three sentences with different measurements in them,
@@ -52,15 +57,86 @@ var guides = []guide{{
 	Heading:   "Contrast, Speedpaint and Xpress",
 	Lede:      "Three ranges sell the same trick: base coat and shadow in one pass. That trick is also why a colour distance between two of them promises less than the same number anywhere else on this site.",
 	Published: "2026-08-19",
+}, {
+	Slug:      "paint-ranges-explained",
+	Title:     "Paint ranges explained: what Base, Layer, Air, Contrast and the rest are for",
+	Desc:      "What a paint range actually is — consistency, pigment load, chemistry and the job the pot is built for — and what Citadel, Vallejo, The Army Painter and Mr. Hobby put in each of theirs. The half of a paint's name that a colour match cannot read.",
+	Heading:   "Paint ranges explained",
+	Lede:      "A brand is not one paint. It is several different products wearing the same logo, and the range is the word that tells them apart. A colour distance cannot read it, so you have to.",
+	Published: "2026-08-19",
 }}
 
 const guideAuthor = "Paulo Salum"
 
+// rangeCount is one range label and how many of this site's colours carry it.
+// It exists so the ranges guide can print sizes without any number being typed
+// into the prose: a figure written into an article is correct on the day it is
+// written and quietly wrong after the next dataset update, with nothing failing
+// to say so. Counted from the same catalogue the pages are built from, it can
+// only ever disagree with the site if the site is wrong too.
+type rangeCount struct {
+	Name string
+	N    int
+}
+
+// rangeGuideBrands are the brands the ranges guide walks through in prose. A
+// brand this build does not carry is skipped rather than invented, the way
+// popular() skips a pairing it has no paints for.
+var rangeGuideBrands = []string{"Citadel", "Vallejo", "The Army Painter", "Mr. Hobby"}
+
+const (
+	// Below this the label is a handful of specialist pots, and listing it says
+	// less about the brand than the row costs to read.
+	rangeGuideMinimum = 10
+	// Where a table stops being a summary of a brand and starts being its
+	// inventory. The labels past it are the long tail the prose does not cover.
+	rangeGuideRows = 8
+)
+
+// rangeSizes measures each guide brand's range labels for the table in the
+// ranges guide.
+func (g *Generator) rangeSizes() map[string][]rangeCount {
+	own := map[string][]catalog.Paint{}
+	for _, name := range rangeGuideBrands {
+		own[name] = nil
+	}
+	for _, p := range g.paints {
+		if _, ok := own[p.Brand]; ok {
+			own[p.Brand] = append(own[p.Brand], p)
+		}
+	}
+	out := map[string][]rangeCount{}
+	for brand, ps := range own {
+		var rows []rangeCount
+		for r, n := range subRanges(ps) {
+			if n >= rangeGuideMinimum {
+				rows = append(rows, rangeCount{Name: r, N: n})
+			}
+		}
+		// Ties break on the name so the page is identical between builds.
+		sort.Slice(rows, func(i, j int) bool {
+			if rows[i].N != rows[j].N {
+				return rows[i].N > rows[j].N
+			}
+			return rows[i].Name < rows[j].Name
+		})
+		if len(rows) > rangeGuideRows {
+			rows = rows[:rangeGuideRows]
+		}
+		if len(rows) > 0 {
+			out[brand] = rows
+		}
+	}
+	return out
+}
+
 func (g *Generator) guidePages() error {
 	type data struct {
 		common
-		Guide guide
+		Guide  guide
+		Ranges map[string][]rangeCount
 	}
+	sizes := g.rangeSizes()
 	for _, gd := range guides {
 		path := "/guides/" + gd.Slug + "/"
 		article := fmt.Sprintf(
@@ -72,7 +148,7 @@ func (g *Generator) guidePages() error {
 				Title: gd.Title, Desc: gd.Desc, Path: path, Site: g.meta,
 				JSONLD: graph(g.crumbList("Guides", "/guides/", gd.Heading), article),
 			},
-			Guide: gd,
+			Guide: gd, Ranges: sizes,
 		})
 		if err != nil {
 			return err

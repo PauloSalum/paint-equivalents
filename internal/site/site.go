@@ -1087,14 +1087,10 @@ func sellable(r string) (string, bool) {
 	return "", false
 }
 
-// brandSets lists the sets worth offering for a brand, largest sub-range first.
-// A paint sold under several labels counts for each of them, because each label
-// is boxed separately. Brands whose range field is just the brand name, and
-// brands whose labels are all too small, fall back to one search for the brand.
-func (g *Generator) brandSets(b catalog.Brand, own []catalog.Paint) []setLink {
-	if g.cfg.AmazonTag == "" {
-		return nil
-	}
+// subRanges counts how many of these paints carry each range label. A paint
+// sold under several labels counts for each of them, because each label is a
+// separate product: one page, two ranges, two things you could be holding.
+func subRanges(own []catalog.Paint) map[string]int {
 	count := map[string]int{}
 	for _, p := range own {
 		for _, r := range strings.Split(p.Range, catalog.RangeSep) {
@@ -1107,6 +1103,17 @@ func (g *Generator) brandSets(b catalog.Brand, own []catalog.Paint) []setLink {
 			}
 		}
 	}
+	return count
+}
+
+// brandSets lists the sets worth offering for a brand, largest sub-range first.
+// Brands whose range field is just the brand name, and brands whose labels are
+// all too small, fall back to one search for the brand.
+func (g *Generator) brandSets(b catalog.Brand, own []catalog.Paint) []setLink {
+	if g.cfg.AmazonTag == "" {
+		return nil
+	}
+	count := subRanges(own)
 	var ranges []string
 	for r, n := range count {
 		if n >= setMinimum {

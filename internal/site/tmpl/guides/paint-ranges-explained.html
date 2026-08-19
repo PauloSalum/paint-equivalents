@@ -1,0 +1,94 @@
+{{define "body"}}
+<p>Every answer on this site is one pot standing in for another, and the ranges in that sentence are doing more work than the brands are. <a href="/brand/citadel/">Citadel</a> is not a paint. It is eight or nine different products sharing a logo, a lid and a shelf. The word sitting between the brand and the colour name &mdash; Base, Layer, Shade, Dry, Air, Contrast &mdash; is what tells you which of those products you are holding: how thick it is, how many coats it wants, what it does when it meets a recess, and what it will refuse to do however carefully you paint it.</p>
+
+<p>The &Delta;E beside a match compares colour, and only colour. It cannot read the range field. So this is the half of a paint's name you have to read yourself, and this page is about what it is telling you.</p>
+
+<h2>What the word "range" is carrying</h2>
+
+<p>Four things, none of which is hue:</p>
+
+<ul>
+  <li><strong>Consistency and pigment load.</strong> How thick it comes out of the pot, how far you have to thin it, how many passes it takes to cover what is underneath. This is what separates a base paint from a layer paint from a wash, and all three can exist at the same colour.</li>
+  <li><strong>How it is meant to go on.</strong> Brush, airbrush, drybrush, one loaded pass, a glaze so thin it only tints.</li>
+  <li><strong>The job on the model.</strong> Cover the primer. Sit on top of a base without hiding it. Gather in a recess. Catch on a raised edge. Build texture on a base rather than colour on a surface.</li>
+  <li><strong>Chemistry.</strong> Water-based acrylic, lacquer, enamel &mdash; what thins it, what cleans it, what it does to the coat underneath. This is the least visible of the four and the most expensive one to get wrong.</li>
+</ul>
+
+<p>None of that reaches a colour value. Two pots can sit at &Delta;E 0.0 from each other and still be different products with different uses, and further down this page there is a pair on this very site that does exactly that.</p>
+
+<h2>Citadel: one logo, several jobs</h2>
+
+<p>Citadel splits its paints by what the pot is for, and the split is unusually clean, which is why its vocabulary has leaked into how everyone else talks about miniature paint.</p>
+
+<p><strong>Base</strong> is opaque and heavily pigmented: it goes over primer and is expected to hide it. <strong>Layer</strong> is thinner and less opaque, made to go over a base without burying it, which is what you want for highlights and blends. <strong>Shade</strong> is a wash &mdash; thin, low surface tension, engineered to run off the raised surfaces and pool in the recesses. <strong>Dry</strong> is the opposite: stiff, low-moisture, formulated to be dragged nearly empty across a raised edge. <strong>Contrast</strong> is the one-coat range, transparent and made for a light undercoat, with its own <a href="/guides/contrast-speedpaint-xpress/">rules and its own caveats about matching</a>. <strong>Technical</strong> is not colour in the usual sense at all: texture pastes, effects and mediums. <strong>Air</strong> is thinned for an airbrush, and <strong>Spray</strong> comes out of a can.</p>
+
+{{with index .Ranges "Citadel"}}
+<p>Colours on this site under each Citadel label:</p>
+<table class="scale">
+  {{range .}}<tr><td><b>{{.Name}}</b></td><td>{{.N}}</td></tr>{{end}}
+</table>
+{{end}}
+
+<p>Two things about that list are worth noticing. Air is large because much of it is the Base and Layer palette thinned for spraying &mdash; Balthasar Gold, for one, is recorded at the same colour value in both Air and Base, so this site publishes a single page for it listing both labels. And the catalogue still carries Citadel's Foundation range &mdash; kept out of the table above because the data marks it discontinued &mdash; which is a reminder that a range can end while your recipe still calls for it. That is the situation <a href="/guides/substituting-a-paint/">substituting a paint</a> is written for.</p>
+
+<h2>Vallejo: choose the line before you choose the colour</h2>
+
+<p><a href="/brand/vallejo/">Vallejo</a> is organised the other way round: by who is buying, rather than by the job. <strong>Model Color</strong> is the broad, matt, dropper-bottle line that historical and scale modellers work from. <strong>Game Color</strong> covers the same idea with a palette aimed at fantasy miniatures. <strong>Model Air</strong> and <strong>Game Air</strong> are those two thinned for the airbrush. <strong>Xpress Color</strong> is the one-coat range. <strong>Mecha Color</strong> is aimed at mecha kits, <strong>Panzer Aces</strong> at armour, and there are washes, primers, metallics and effect ranges beyond them.</p>
+
+{{with index .Ranges "Vallejo"}}
+<p>Colours on this site under each Vallejo label:</p>
+<table class="scale">
+  {{range .}}<tr><td><b>{{.Name}}</b></td><td>{{.N}}</td></tr>{{end}}
+</table>
+{{end}}
+
+<p>A brand's biggest label is not always the one you are shopping in. Arte Deco sits near the top of that table, and its colour names &mdash; Baby Pink, Antique White, Berry Red &mdash; read as decorative craft rather than as models. It is perfectly good paint and it is not what a Model Color user is looking for. When a match lands you in a label you do not recognise, open it before you buy it.</p>
+
+<h2>The Army Painter: the same name in two generations</h2>
+
+<p><a href="/brand/the-army-painter/">The Army Painter</a> is the clearest example of why the range matters even inside one brand. It carries <strong>Warpaints</strong> and the newer <strong>Warpaints Fanatic</strong>, plus <strong>Warpaints Air</strong> for the airbrush and the <strong>Speedpaint</strong> one-coat line, which is itself in the catalogue under both its original and its 2.0 labels.</p>
+
+{{with index .Ranges "The Army Painter"}}
+<p>Colours on this site under each Army Painter label:</p>
+<table class="scale">
+  {{range .}}<tr><td><b>{{.Name}}</b></td><td>{{.N}}</td></tr>{{end}}
+</table>
+{{end}}
+
+<p>Warpaints and Warpaints Fanatic share colour names. Ash Grey, Angel Green, Army Green, Barbarian Flesh and others appear in both, and where the two are recorded at different colour values this site gives them separate pages and prints the range after the name to keep them apart. If someone hands you a recipe calling for Ash Grey, the range it came from is not a detail. It is which of two pots they meant.</p>
+
+<h2>Mr. Hobby: where the range is the chemistry</h2>
+
+<p><a href="/brand/mr-hobby/">Mr. Hobby</a> makes the fourth item on the list above concrete. <strong>Mr Color</strong> is a lacquer, thinned and cleaned with its own solvent. <strong>Aqueous Hobby Color</strong> and <strong>Acrysion</strong> are water-based. The catalogue numbers say so before the label does: Aqueous codes start with H, Acrysion codes start with N, and Mr Color codes are bare numbers.</p>
+
+{{with index .Ranges "Mr. Hobby"}}
+<p>Colours on this site under each Mr. Hobby label:</p>
+<table class="scale">
+  {{range .}}<tr><td><b>{{.Name}}</b></td><td>{{.N}}</td></tr>{{end}}
+</table>
+{{end}}
+
+<p>The number after that letter often repeats across the lines. Aqueous H5 and Acrysion N5 are both called Blue and are recorded at the same colour value, which is why this site folds them into one page carrying both labels &mdash; the promised &Delta;E 0.0 from the top of this article. A colour comparison between those two says nothing, because colour is the one thing they were never going to differ on. What separates them is everything a hex code leaves out: what you thin them with, how they cure, and what they do over the coat below. Read the label before you reach for a thinner.</p>
+
+<h2>The ranges that are not miniature paint</h2>
+
+<p>This site also carries craft and fine-art acrylics &mdash; FolkArt, Apple Barrel, Golden, Liquitex, Arteza. They are here because they are genuinely useful as match targets: if you own a shelf of craft bottles, knowing which one is nearest to the Citadel pot in a recipe is a real answer, and for a large flat area it may be the right one. But they are a different product class from a miniature paint, in bottle size, in pigment load and in what they are formulated to sit on. The colour distance will not warn you about any of that, so treat a jump from a miniature range into a craft one as a decision rather than a result.</p>
+
+<h2>What these pages tell you about range, and what they do not</h2>
+
+<p>The pot you are reading about names its own range in the header, under the title, alongside its catalogue code. Where one colour ships under more than one label the page lists all of them, joined with a slash, because folding them into a single page is honest and pretending the second label does not exist is not. Where two different pots share a name, the range goes in brackets after it, which is the only thing separating them.</p>
+
+<p>What the match lists do <em>not</em> carry is the range of the paint being suggested. Each match names a brand and a colour, and its range is one click away on its own page. On a <a href="/charts/">conversion chart</a> the same applies to every row: the chart pairs two brands, not two ranges, so the nearest colour it finds you may well be a wash where you wanted a base. The name in that column is a shortlist entry, not an instruction.</p>
+
+<h2>Crossing a range on purpose</h2>
+
+<ul>
+  <li><strong>Match like for like.</strong> Opaque to opaque, wash to wash, one-coat to one-coat, airbrush line to airbrush line. A range crossing you chose is a tool; one you did not notice is a repaint.</li>
+  <li><strong>Look inside the brand first.</strong> Every paint page here ends with the nearest colours inside its own brand, and a neighbouring pot in a range you already own changes fewer variables than a perfect colour in a range you do not.</li>
+  <li><strong>Do not brush an air range because the number was good.</strong> It is thinned already; it will behave like a paint you have watered down, because it is one.</li>
+  <li><strong>Check chemistry when you cross makers.</strong> Between two water-based miniature ranges this is a non-issue. Between a lacquer and an acrylic, over a varnish or under one, it is the whole issue.</li>
+  <li><strong>Moving a whole recipe? Move it into one range.</strong> Take the set out of a single line so the pots stay consistent with each other, which is what the brand-to-brand charts are for.</li>
+</ul>
+
+<p>All of this sits on top of the number, not instead of it. <a href="/guides/how-close-is-close-enough/">How close is close enough</a> sets out what the distance is worth, and <a href="/guides/what-a-hex-code-misses/">what a hex code misses</a> covers the physical properties it never saw. The range field is the third thing: the one printed on every page here, in plain words, that the ranking simply does not read.</p>
+{{end}}

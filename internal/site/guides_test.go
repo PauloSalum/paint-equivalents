@@ -29,8 +29,9 @@ func TestEveryGuideRendersItsOwnBody(t *testing.T) {
 		var buf bytes.Buffer
 		data := struct {
 			common
-			Guide guide
-		}{common{Title: gd.Title, Path: "/guides/" + gd.Slug + "/"}, gd}
+			Guide  guide
+			Ranges map[string][]rangeCount
+		}{common{Title: gd.Title, Path: "/guides/" + gd.Slug + "/"}, gd, nil}
 		if err := tp.ExecuteTemplate(&buf, "layout", data); err != nil {
 			t.Errorf("guide %q: %v", gd.Slug, err)
 			continue
