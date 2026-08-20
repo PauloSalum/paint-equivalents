@@ -20,9 +20,9 @@
 {{range .Rows}}
 <tr>
   <td class="c"><span class="sw" style="background:{{.From.Hex}}"></span></td>
-  <td><a href="{{.From.URL}}">{{.From.Name}}</a></td>
+  <td><a href="{{.From.URL}}">{{.From.Name}}</a>{{with rangeOf .From}} <em class="rng">{{.}}</em>{{end}}</td>
   <td class="c"><span class="sw" style="background:{{.To.Hex}}"></span></td>
-  <td><a href="{{.To.URL}}">{{.To.Name}}</a></td>
+  <td><a href="{{.To.URL}}">{{.To.Name}}</a>{{with rangeOf .To}} <em class="rng">{{.}}</em>{{end}}</td>
   <td class="c"><b>{{printf "%.1f" .DE}}</b></td>
 </tr>
 {{end}}

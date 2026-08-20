@@ -148,7 +148,7 @@ func New(cfg Config, paints []catalog.Paint, tables []match.Table) (*Generator, 
 		coverage: map[string]string{},
 	}
 	for _, name := range []string{"home", "paint", "brand", "chart", "list", "about", "find", "privacy"} {
-		t, err := template.ParseFS(tmplFS, "tmpl/layout.html", "tmpl/"+name+".html")
+		t, err := template.New(name).Funcs(tmplFuncs).ParseFS(tmplFS, "tmpl/layout.html", "tmpl/"+name+".html")
 		if err != nil {
 			return nil, fmt.Errorf("template %s: %w", name, err)
 		}
@@ -158,7 +158,7 @@ func New(cfg Config, paints []catalog.Paint, tables []match.Table) (*Generator, 
 	// "body", so a shared parse would leave whichever was read last standing and
 	// print it under every other guide's title.
 	for _, gd := range guides {
-		t, err := template.ParseFS(tmplFS, "tmpl/layout.html", "tmpl/guide.html", "tmpl/guides/"+gd.Slug+".html")
+		t, err := template.New(gd.Slug).Funcs(tmplFuncs).ParseFS(tmplFS, "tmpl/layout.html", "tmpl/guide.html", "tmpl/guides/"+gd.Slug+".html")
 		if err != nil {
 			return nil, fmt.Errorf("guide %s: %w", gd.Slug, err)
 		}
@@ -1067,17 +1067,19 @@ func (g *Generator) buySet(brand, rng string) string {
 // ponytail: fixed floor, per-brand tuning only if the click data ever says so.
 const setMinimum = 20
 
-// sellable filters the labels there is no box to sell behind, which a paid
-// click would spend on an empty result page. Two kinds turn up in the
-// catalogue: a discontinued range, which is exactly what nobody can still buy,
-// and a label that is not a range name at all — Tom Color's arrive as "s" and
-// "s - UP", the tail of a brand name split in the wrong place upstream. A real
-// range label has at least one word in it; these have none. Whitespace is
-// squeezed on the way through because "Warfront  Range" is in the data too.
-func sellable(r string) (string, bool) {
+// rangeName reduces a range field to the name of the range, and reports whether
+// anything is left. Tom Color's 265 rows arrive as "s", "s - UP" and
+// "s - Primer": upstream splits "Tom Colors …" in the wrong place and this site
+// receives the tail. The rule for the leftover is that a word of one or two
+// letters standing in front of a dash is not part of a range name — which is
+// narrow enough to leave "Mr Color" alone, where the short word is the name.
+// What survives with no word of three letters in it is not a range name at all.
+// Whitespace is squeezed on the way through because "Warfront  Range" is in the
+// data too.
+func rangeName(r string) (string, bool) {
 	words := strings.Fields(r)
-	if strings.Contains(strings.ToLower(r), "discontinued") {
-		return "", false
+	if len(words) > 2 && len(words[0]) < 3 && isSeparator(words[1]) {
+		words = words[2:]
 	}
 	for _, w := range words {
 		if len(w) >= 3 {
@@ -1085,6 +1087,44 @@ func sellable(r string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func isSeparator(w string) bool {
+	switch w {
+	case "-", "–", "—", ":", "/", "·":
+		return true
+	}
+	return false
+}
+
+// sellable filters the labels there is no box to sell behind, which a paid
+// click would spend on an empty result page. On top of the labels that are not
+// range names it drops the discontinued ones, which are exactly what nobody can
+// still buy — the one difference from what a match row prints, where
+// "discontinued" is the most useful word on the line.
+func sellable(r string) (string, bool) {
+	if strings.Contains(strings.ToLower(r), "discontinued") {
+		return "", false
+	}
+	return rangeName(r)
+}
+
+// tmplFuncs is what the markup can call. rangeOf is here rather than in the
+// page data because every match row needs it and the rows are pointers into one
+// shared catalog: precomputing it would copy a string onto ten million rankings
+// to print a few hundred thousand of them.
+var tmplFuncs = template.FuncMap{"rangeOf": rangeOf}
+
+// rangeOf is the range label a match row shows for a suggested paint. Until
+// this existed the lists gave brand, name and code and nothing else, so a
+// reader replacing a Base could be handed a wash, a spray or an airbrush paint
+// with no warning on the line — the half of a paint's name that the colour
+// distance cannot read. The paint's own page still lists every label it ships
+// under; a row gets the first one, the way product() qualifies a title, because
+// a list is read down the left edge and "Air / Base / Layer" is a paragraph.
+func rangeOf(p catalog.Paint) string {
+	r, _ := rangeName(trimBrand(p))
+	return r
 }
 
 // subRanges counts how many of these paints carry each range label. A paint

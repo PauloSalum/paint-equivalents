@@ -83,7 +83,7 @@ h2{font-size:1.15rem;margin:2rem 0 .6rem}
   padding:.45rem 0;border-bottom:1px solid var(--line)}
 .matches li a{display:flex;align-items:center;gap:.7rem;text-decoration:none;flex:1;min-width:12rem}
 .matches li a:hover .mname{color:var(--acc)}
-.mname em{color:var(--dim);font-style:normal;font-size:.82rem}
+.mname em,.rng{color:var(--dim);font-style:normal;font-size:.82rem}
 .de{font-size:.85rem;color:var(--dim);white-space:nowrap}
 .de.A{color:var(--a)}.de.B{color:var(--b)}.de.C{color:var(--c)}
 .de.D{color:var(--d)}.de.E{color:var(--e)}

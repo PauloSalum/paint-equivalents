@@ -34,7 +34,7 @@
     <li>
       <a href="{{.Paint.URL}}">
         <span class="sw big" style="background:{{.Paint.Hex}};color:{{.Paint.Ink}}">{{.Grade}}</span>
-        <span class="mname">{{.Paint.Name}}{{if .Paint.Code}} <em>{{.Paint.Code}}</em>{{end}}</span>
+        <span class="mname">{{.Paint.Name}}{{with rangeOf .Paint}} <em class="rng">{{.}}</em>{{end}}{{if .Paint.Code}} <em>{{.Paint.Code}}</em>{{end}}</span>
       </a>
       <span class="de {{.Grade}}">&Delta;E {{printf "%.1f" .DE}} &middot; {{.Quality}}</span>
     </li>
@@ -54,7 +54,7 @@
     {{range .Rest}}{{$m := index .Best 0}}<tr>
       <td><a href="/brand/{{.Slug}}/">{{.Brand}}</a></td>
       <td class="c"><span class="sw" style="background:{{$m.Paint.Hex}};color:{{$m.Paint.Ink}}">{{$m.Paint.Hex}}</span></td>
-      <td><a href="{{$m.Paint.URL}}">{{$m.Paint.Name}}</a></td>
+      <td><a href="{{$m.Paint.URL}}">{{$m.Paint.Name}}</a>{{with rangeOf $m.Paint}} <em class="rng">{{.}}</em>{{end}}</td>
       <td class="de {{$m.Grade}}">&Delta;E {{printf "%.1f" $m.DE}}</td>
     </tr>{{end}}
     </tbody>
@@ -70,7 +70,7 @@
     <li>
       <a href="{{.Paint.URL}}">
         <span class="sw big" style="background:{{.Paint.Hex}};color:{{.Paint.Ink}}">{{.Grade}}</span>
-        <span class="mname">{{.Paint.Name}}</span>
+        <span class="mname">{{.Paint.Name}}{{with rangeOf .Paint}} <em class="rng">{{.}}</em>{{end}}</span>
       </a>
       <span class="de {{.Grade}}">&Delta;E {{printf "%.1f" .DE}} &middot; {{.Quality}}</span>
     </li>
