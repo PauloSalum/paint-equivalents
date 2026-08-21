@@ -33,7 +33,8 @@ func TestEveryGuideRendersItsOwnBody(t *testing.T) {
 			Ranges map[string][]rangeCount
 			Washes []rangeCount
 			Air    []rangeCount
-		}{common{Title: gd.Title, Path: "/guides/" + gd.Slug + "/"}, gd, nil, nil, nil}
+			Metal  []rangeCount
+		}{common{Title: gd.Title, Path: "/guides/" + gd.Slug + "/"}, gd, nil, nil, nil, nil}
 		if err := tp.ExecuteTemplate(&buf, "layout", data); err != nil {
 			t.Errorf("guide %q: %v", gd.Slug, err)
 			continue

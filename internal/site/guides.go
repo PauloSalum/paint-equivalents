@@ -79,6 +79,13 @@ var guides = []guide{{
 	Heading:   "Air ranges",
 	Lede:      "Air on a label answers two different questions, and only one of them is about how the paint sprays. Which one you are looking at decides what a match to it is worth.",
 	Published: "2026-08-21",
+}, {
+	Slug:      "metallic-paints",
+	Title:     "Metallic paints: why the nearest colour to a silver is usually a flat grey",
+	Desc:      "Why a metallic's recorded colour is only its flat-on tint, why the closest match to a silver is often a matte grey, and how to spot one in a match list.",
+	Heading:   "Metallic paints",
+	Lede:      "A metallic is a colour that changes with the angle you hold it at, and this site holds one number for it. Worse, the label beside that number usually does not say the pot has flake in it.",
+	Published: "2026-08-21",
 }}
 
 const guideAuthor = "Paulo Salum"
@@ -155,23 +162,23 @@ func (g *Generator) rangeSizes() map[string][]rangeCount {
 	return out
 }
 
-// washGuideMinimum keeps a label out of the washes table when only one colour
-// on this site carries it. One pot is a stray row in a reference table, and the
-// tail of them is long: a wash that shares a page with an opaque paint brings
-// its label along, and that page counts for both.
-const washGuideMinimum = 2
+// labelTableMinimum keeps a label out of a cross-brand table when only one
+// colour on this site carries it. One pot is a stray row in a reference table,
+// and the tail of them is long: a wash that shares a page with an opaque paint
+// brings its label along, and that page counts for both.
+const labelTableMinimum = 2
 
-// washSizes lists every range on this site whose label names a wash, a shade or
-// an ink, across all brands, largest first. It is the reference table the
-// washes guide is built around, and it exists for the same reason rangeSizes
-// does: the article's argument is that the label is the only warning a match
-// row carries, so the list of labels had better come from the build rather than
-// from what was true on the day it was written.
+// labelSizes lists every range on this site whose label answers is, across all
+// brands, largest first. Two guides are built around such a table — washes and
+// metallics — and both exist for the same reason rangeSizes does: the argument
+// is that the label is the only warning a match row carries, so the list of
+// labels had better come from the build rather than from what was true on the
+// day it was written.
 //
 // Discontinued labels stay in. The Citadel washes that carry the most useful
-// evidence in the whole article are discontinued, and a reader who owns one is
+// evidence in that whole article are discontinued, and a reader who owns one is
 // exactly who is looking for a replacement.
-func (g *Generator) washSizes() []rangeCount {
+func (g *Generator) labelSizes(is func(string) bool) []rangeCount {
 	own := map[string][]catalog.Paint{}
 	for _, p := range g.paints {
 		own[p.Brand] = append(own[p.Brand], p)
@@ -179,7 +186,7 @@ func (g *Generator) washSizes() []rangeCount {
 	var rows []rangeCount
 	for brand, ps := range own {
 		for r, n := range subRanges(ps, rangeName) {
-			if n >= washGuideMinimum && isWash(r) {
+			if n >= labelTableMinimum && is(r) {
 				rows = append(rows, rangeCount{Brand: brand, Name: r, N: n})
 			}
 		}
@@ -265,19 +272,24 @@ func (g *Generator) guidePages() error {
 		Ranges map[string][]rangeCount
 		Washes []rangeCount
 		Air    []rangeCount
+		Metal  []rangeCount
 	}
 	sizes := g.rangeSizes()
-	washes := g.washSizes()
+	washes := g.labelSizes(isWash)
 	air := g.airSizes()
-	// Both guides are built around their table and read as an argument with its
-	// evidence removed without it. {{with}} over an empty slice is silence, so a
-	// dataset that stops carrying those labels — or a wiring mistake here —
-	// would publish the article gutted and leave the build green.
+	metal := g.labelSizes(isMetal)
+	// Each of these guides is built around its table and reads as an argument
+	// with its evidence removed without it. {{with}} over an empty slice is
+	// silence, so a dataset that stops carrying those labels — or a wiring
+	// mistake here — would publish the article gutted and leave the build green.
 	if len(washes) == 0 {
 		return fmt.Errorf("no wash ranges in this catalogue: the washes guide would publish without its table")
 	}
 	if len(air) == 0 {
 		return fmt.Errorf("no air ranges in this catalogue: the airbrush guide would publish without its table")
+	}
+	if len(metal) == 0 {
+		return fmt.Errorf("no metallic ranges in this catalogue: the metallics guide would publish without its table")
 	}
 	for _, gd := range guides {
 		path := "/guides/" + gd.Slug + "/"
@@ -290,7 +302,7 @@ func (g *Generator) guidePages() error {
 				Title: gd.Title, Desc: gd.Desc, Path: path, Site: g.meta,
 				JSONLD: graph(g.crumbList("Guides", "/guides/", gd.Heading), article),
 			},
-			Guide: gd, Ranges: sizes, Washes: washes, Air: air,
+			Guide: gd, Ranges: sizes, Washes: washes, Air: air, Metal: metal,
 		})
 		if err != nil {
 			return err

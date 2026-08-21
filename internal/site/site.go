@@ -1113,7 +1113,7 @@ func sellable(r string) (string, bool) {
 // page data because every match row needs it and the rows are pointers into one
 // shared catalog: precomputing it would copy a string onto ten million rankings
 // to print a few hundred thousand of them.
-var tmplFuncs = template.FuncMap{"rangeOf": rangeOf, "isWash": isWash, "isAir": isAir}
+var tmplFuncs = template.FuncMap{"rangeOf": rangeOf, "isWash": isWash, "isAir": isAir, "isMetal": isMetal}
 
 // rangeOf is the range label a match row shows for a suggested paint. Until
 // this existed the lists gave brand, name and code and nothing else, so a
@@ -1203,6 +1203,24 @@ func isAir(label string) bool {
 		}
 	}
 	return false
+}
+
+// isMetal reports whether a range label says the pots in it are metallic. One
+// substring, because one substring is all the evidence there is: "metal" covers
+// Metal Color, Mr Metallic Color GX, Chameleon Colorshift Metallic and every
+// other label here that uses the word, and nothing in this catalogue carries it
+// without meaning it.
+//
+// What it deliberately does not do is guess. Pearl and colour-shift ranges are
+// the same optics under another word, and Scale75's Liquid Gold is a metallic
+// range whose label never says so — but "gold" and "pearl" are colour names at
+// least as often as they are product classes, and a warning that fires on
+// Pearl White would be worth less than no warning. The gap is not a defect to
+// widen the rule over: it is the metallics guide's argument, which is that the
+// label is the only warning a match row carries and for metallics it is usually
+// missing. Citadel files its metals in Base, Layer, Dry, Air and Spray.
+func isMetal(label string) bool {
+	return strings.Contains(strings.ToLower(label), "metal")
 }
 
 // brandSets lists the sets worth offering for a brand, largest sub-range first.

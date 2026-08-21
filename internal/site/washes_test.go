@@ -69,9 +69,9 @@ func TestWashSizesKeepsDiscontinuedAndDropsEverythingElse(t *testing.T) {
 		{Brand: "Citadel", Name: "Foundation Wash (discontinued)", N: 8},
 		{Brand: "Vallejo", Name: "Game Color Wash", N: 2},
 	}
-	got := g.washSizes()
+	got := g.labelSizes(isWash)
 	if len(got) != len(want) {
-		t.Fatalf("washSizes() = %v, want %v", got, want)
+		t.Fatalf("labelSizes(isWash) = %v, want %v", got, want)
 	}
 	for i, w := range want {
 		if got[i] != w {

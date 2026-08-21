@@ -1,0 +1,60 @@
+{{define "body"}}
+<p>Open the page for <a href="/paint/citadel/grey-seer/">Citadel Grey Seer</a> &mdash; a matte off-white grey, and one of the most-used base coats there is &mdash; and read the answer this site gives for Mr. Hobby. There are two suggestions in that block. Both of them are chrome: <a href="/paint/mr-hobby/aluminium/">Aluminium</a> and <a href="/paint/mr-hobby/chrome-silver/">Chrome Silver</a>, both from Mr Metal Color, both graded near-perfect at &Delta;E 1.5. The summary at the top of the page names Aluminium as the third-closest paint to Grey Seer in the entire catalogue, ahead of most of the greys.</p>
+
+<p>None of those numbers is wrong. A silver, sampled flat-on and reduced to three channels, really is a light neutral grey. That is the whole problem, and it is not a problem you can fix by making the comparison better.</p>
+
+<h2>What the number beside a metallic is measuring</h2>
+
+<p>A metallic paint is flake suspended in a medium, lying roughly parallel to the surface once it dries, and its entire reason to exist is that it does not look the same from two angles. <a href="/guides/what-a-hex-code-misses/">What a hex code misses</a> covers the optics; the short version is that industries which have to match metallics measure them from several angles at once, because one measurement does not describe the surface. This catalogue has one measurement. It is the flat-on one, and it is a fair description of the tint and no description at all of the finish.</p>
+
+<p>You can watch that happen inside the data. Mr. Hobby's Aluminium and Chrome Silver are on record here at <em>the same value</em> &mdash; not close, identical, so the distance between them is zero. Aluminium and chrome are not the same finish and nobody who has sprayed both would confuse them, but they are the same light neutral grey seen face-on, and that is the only thing a hex code was ever going to notice. Citadel does the same thing one shelf over: <a href="/paint/citadel/stormhost-silver/">Stormhost Silver</a>, a Layer paint, and <a href="/paint/citadel/necron-compound/">Necron Compound</a>, a Dry one, sit at one identical value between them.</p>
+
+<p>There is a second problem underneath the first, and it is worth stating plainly because it affects what you should trust here. A metallic is the easiest kind of paint to sample badly. Mr. Hobby's <a href="/paint/mr-hobby/bronze/">Bronze</a> is on record in this catalogue as a mid green, so every answer on its page is a green &mdash; Emerald Green at &Delta;E 1.6, near-perfect, then Metallic Emerald, then Phthalo Green, then Kelly Green. Its <a href="/paint/mr-hobby/iron/">Iron</a> is on record as a dark teal and its <a href="/paint/mr-hobby/dark-iron/">Dark Iron</a> as pure black. Whether those came off an odd photograph, a wet sample or a reflection of whatever was in the room, nothing downstream can tell: a colour value arrives with no confidence attached, and every stage after it treats a bad reading exactly like a good one. A flat paint sampled badly gives you a slightly wrong grey. A metallic sampled badly can give you a different colour entirely.</p>
+
+<h2>Every range here whose label says metal</h2>
+
+<p>This is the whole list, counted from the same catalogue the match pages are built from rather than typed into this sentence, so it cannot quietly disagree with the site.</p>
+
+{{with .Metal}}
+<table class="scale">
+  <tr><th>Range</th><th>Colours</th></tr>
+  {{range .}}<tr><td><b>{{.Brand}}</b> {{.Name}}</td><td>{{.N}}</td></tr>{{end}}
+</table>
+{{end}}
+
+<p>Read that as a list of the makers who will warn you, because every match row on this site prints the range of the paint it is suggesting. Where the label says Metal Color or Metallic, the warning is already on the row, and reading it is the entire skill.</p>
+
+<h2>And the ranges that say nothing at all</h2>
+
+<p>Now the other half, which is longer. <a href="/brand/citadel/">Citadel</a> has no metal-labelled range in this catalogue &mdash; not one. Its metals are filed under the same words as its flat paints: <a href="/paint/citadel/leadbelcher/">Leadbelcher</a> reads <em>Air / Base</em>, <a href="/paint/citadel/retributor-armour/">Retributor Armour</a> reads <em>Base</em>, <a href="/paint/citadel/runelord-brass/">Runelord Brass</a> reads <em>Base</em>, <a href="/paint/citadel/canoptek-alloy/">Canoptek Alloy</a> and Stormhost Silver read <em>Layer</em>, Necron Compound reads <em>Dry</em>. A row offering you any of those looks exactly like a row offering you a flat paint, because as far as the label goes it is one. That is not Citadel being careless. Its ranges are organised by the job the pot does on the model, which <a href="/guides/paint-ranges-explained/">is a perfectly good scheme</a> and simply does not have a slot for what the pigment is made of.</p>
+
+<p><a href="/brand/turbo-dork/">Turbo Dork</a> is the sharper case. Every one of its colours arrives here under the bare brand name, with no range word after it, so its rows in a match list carry no label at all &mdash; you will see <a href="/paint/turbo-dork/gold-rush/">Gold Rush</a>, <a href="/paint/turbo-dork/bullion/">Bullion</a>, <a href="/paint/turbo-dork/silver-fox/">Silver Fox</a>, <a href="/paint/turbo-dork/tin-star/">Tin Star</a> and a distance, and nothing else. The names are the only hint the data carries, and names are not a rule.</p>
+
+<p>They are not a rule in the other direction either. Citadel's <a href="/paint/citadel/golden-yellow/">Golden Yellow</a> and <a href="/paint/citadel/steel-legion-drab/">Steel Legion Drab</a> both wear a metal word, and they are on record at the values you would expect from a saturated yellow and a dark olive drab. A word like gold, steel or bronze in a paint name is at least as often a description of the colour as of the pigment, which is exactly why the rule that fires the warning on the pages of this site looks only at the range label and never at the name.</p>
+
+<h2>What that does to a match here, in both directions</h2>
+
+<p><strong>Looking for a substitute for a metallic, you get flat paints.</strong> Leadbelcher's nearest neighbours inside its own brand are <a href="/paint/citadel/astrogranite-debris/">Astrogranite Debris</a>, a Technical paint, at &Delta;E 2.2, and <a href="/paint/citadel/nuln-oil/">Nuln Oil</a>, a black wash, at &Delta;E 2.6 &mdash; both ahead of every actual metal in the range except <a href="/paint/citadel/ironbreaker/">Ironbreaker</a> at 4.2. Retributor Armour, a gold, is answered across brands with Vallejo's Beige, Monument's Warm Flesh, Coat d'Arms' Oriental Flesh and Golden's Naples Yellow Hue, every one of them inside &Delta;E 4. Those are honest answers to the question the site can ask. They are useless answers to the question you asked, which was for a gold.</p>
+
+<p><strong>Looking for a substitute for a flat paint, you get metallics</strong> &mdash; the Grey Seer case at the top. This direction is the more dangerous of the two, because it does not look like a mistake. A flat stand-in for a metal is obviously wrong the moment you brush it out. A metal stand-in for a flat grey passes every check you are likely to run on the screen, arrives labelled near-perfect, and only fails on the model, in the light, at the angle you did not test it at.</p>
+
+<p>Both failures come from the same place, and it is not the &Delta;E. The distance did its job: it ranked colours by colour. What is missing is a field for what kind of surface the pot makes, and no catalogue this site has access to carries one.</p>
+
+<h2>Five rules that survive the bench</h2>
+
+<ol>
+  <li><strong>Read the range word on the row before you read the distance.</strong> It is printed on every match on this site for exactly this reason. Metal Color, Mr Metal Color, Metallic, Colorshift: those are the rows where the number is describing a tint and not a finish.</li>
+  <li><strong>A row with no range word, or with a range word shared by flat paints, tells you nothing &mdash; so go and look.</strong> One click to the paint's own page gives you its full set of labels, its brand and its neighbours, and for Citadel or Turbo Dork that click is the only way to find out what you are being offered.</li>
+  <li><strong>Match metal to metal, and be far more generous with the number when you do.</strong> Two silvers a &Delta;E of 6 apart can be indistinguishable once they are on a model catching the light the same way, and two a &Delta;E of 1 apart can be visibly different metals. Inside the metals, the ranking is close to noise; what it is good for is telling gold from brass from copper, not fine from coarse.</li>
+  <li><strong>Test it over the undercoat you actually use, at the number of coats you actually apply.</strong> That rule holds for every paint on this site, and it bites hardest here, because flake and pigment do not cover the same way and what shows through changes the metal as much as the pot does.</li>
+  <li><strong>Treat colour-shift and pearl ranges as the weakest evidence on the site.</strong> A paint whose colour is a function of viewing angle has been recorded here as one point on that curve, and which point it is was decided by whoever held the camera.</li>
+</ol>
+
+<h2>Using this site for it</h2>
+
+<p>Start on the paint's own page and read the header, which carries every range label the maker sells that colour under. If one of them says metal, the page says so above the match list. If none of them does, the header is still worth reading &mdash; <em>Air / Base</em> on Leadbelcher is the site telling you truthfully that Citadel sells that colour in two lines, and telling you nothing whatsoever about the flake in either.</p>
+
+<p>From there the <a href="/charts/">conversion chart for the two brands</a> ranks both catalogues against each other with the range label on every row, which makes it the fastest way to find the metal ranges of a brand you do not own: sort down the chart and look for the label rather than the number. The <a href="/brands/">range index</a> does the same job from the other end. And when the honest answer is that no maker's metal is close enough, that is the point at which mixing beats substituting, which is the one thing a table of nearest matches cannot do for you.</p>
+
+<p>The rest of the series applies here without modification. <a href="/guides/how-close-is-close-enough/">How close is close enough</a> sets the brackets these distances live in, <a href="/guides/substituting-a-paint/">choosing a substitute</a> puts the colour question in its proper place behind the question of what the pot has to do, and the <a href="/guides/washes-and-shades/">washes</a> and <a href="/guides/airbrush-ranges/">air ranges</a> guides describe the same shape of failure in two other kinds of paint. The pattern behind all three is one sentence: the number ranks colours, and the word beside it tells you what kind of thing you are being offered. For metallics, more often than not, there is no word.</p>
+{{end}}
