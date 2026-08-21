@@ -72,6 +72,13 @@ var guides = []guide{{
 	Heading:   "Washes and shades",
 	Lede:      "A wash is not painted onto a surface. It is let into the recesses, and most of it ends up somewhere you did not put it. That changes what the number beside it is comparing.",
 	Published: "2026-08-20",
+}, {
+	Slug:      "airbrush-ranges",
+	Title:     "Air ranges: Model Air, Game Air, Warpaints Air, and when the Air pot is a different colour",
+	Desc:      "What Air means on a paint label — thinned for the airbrush, or made for aircraft — and when a brand's Air pot is a different colour from the brush one.",
+	Heading:   "Air ranges",
+	Lede:      "Air on a label answers two different questions, and only one of them is about how the paint sprays. Which one you are looking at decides what a match to it is worth.",
+	Published: "2026-08-21",
 }}
 
 const guideAuthor = "Paulo Salum"
@@ -89,6 +96,12 @@ type rangeCount struct {
 	Brand string
 	Name  string
 	N     int
+	// Shared is set only by airSizes: how many of the N colours sit on a page
+	// that also carries a label outside the air ranges, which is this site's way
+	// of saying the catalogue records the airbrush pot and a brush pot at one
+	// identical value. It is the whole point of that table and meaningless in
+	// the other two, so it stays zero there.
+	Shared int
 }
 
 // rangeGuideBrands are the brands the ranges guide walks through in prose. A
@@ -184,21 +197,87 @@ func (g *Generator) washSizes() []rangeCount {
 	return rows
 }
 
+// airGuideMinimum keeps a stray label out of the airbrush table for the same
+// reason washGuideMinimum does: one colour under a label is a row that costs
+// more to read than it says.
+const airGuideMinimum = 2
+
+// airSizes lists every range on this site whose label carries the word Air,
+// with how many colours it holds and how many of those share their page with a
+// pot from outside the air ranges. That second figure is the article's evidence
+// and it cannot be written into the prose, because it is not a fact about
+// paint: it is a fact about whether this catalogue happens to record the
+// airbrush version and the brush version of one colour at the same value. It
+// moves whenever the dataset does, and a number typed into a sentence would not.
+func (g *Generator) airSizes() []rangeCount {
+	type tally struct {
+		brand, label string
+		n, shared    int
+	}
+	at := map[string]*tally{}
+	for _, p := range g.paints {
+		labels := labelsOf(p, rangeName)
+		var air []string
+		brush := false
+		for _, l := range labels {
+			if isAir(l) {
+				air = append(air, l)
+			} else {
+				brush = true
+			}
+		}
+		for _, l := range air {
+			key := p.Brand + "\x00" + l
+			t := at[key]
+			if t == nil {
+				t = &tally{brand: p.Brand, label: l}
+				at[key] = t
+			}
+			t.n++
+			if brush {
+				t.shared++
+			}
+		}
+	}
+	var rows []rangeCount
+	for _, t := range at {
+		if t.n >= airGuideMinimum {
+			rows = append(rows, rangeCount{Brand: t.brand, Name: t.label, N: t.n, Shared: t.shared})
+		}
+	}
+	// Ties break on brand then label so the page is identical between builds.
+	sort.Slice(rows, func(i, j int) bool {
+		if rows[i].N != rows[j].N {
+			return rows[i].N > rows[j].N
+		}
+		if rows[i].Brand != rows[j].Brand {
+			return rows[i].Brand < rows[j].Brand
+		}
+		return rows[i].Name < rows[j].Name
+	})
+	return rows
+}
+
 func (g *Generator) guidePages() error {
 	type data struct {
 		common
 		Guide  guide
 		Ranges map[string][]rangeCount
 		Washes []rangeCount
+		Air    []rangeCount
 	}
 	sizes := g.rangeSizes()
 	washes := g.washSizes()
-	// The washes guide is built around that table and reads as an argument with
-	// its evidence removed without it. {{with}} over an empty slice is silence,
-	// so a dataset that stops carrying wash labels — or a wiring mistake here —
+	air := g.airSizes()
+	// Both guides are built around their table and read as an argument with its
+	// evidence removed without it. {{with}} over an empty slice is silence, so a
+	// dataset that stops carrying those labels — or a wiring mistake here —
 	// would publish the article gutted and leave the build green.
 	if len(washes) == 0 {
 		return fmt.Errorf("no wash ranges in this catalogue: the washes guide would publish without its table")
+	}
+	if len(air) == 0 {
+		return fmt.Errorf("no air ranges in this catalogue: the airbrush guide would publish without its table")
 	}
 	for _, gd := range guides {
 		path := "/guides/" + gd.Slug + "/"
@@ -211,7 +290,7 @@ func (g *Generator) guidePages() error {
 				Title: gd.Title, Desc: gd.Desc, Path: path, Site: g.meta,
 				JSONLD: graph(g.crumbList("Guides", "/guides/", gd.Heading), article),
 			},
-			Guide: gd, Ranges: sizes, Washes: washes,
+			Guide: gd, Ranges: sizes, Washes: washes, Air: air,
 		})
 		if err != nil {
 			return err

@@ -1113,7 +1113,7 @@ func sellable(r string) (string, bool) {
 // page data because every match row needs it and the rows are pointers into one
 // shared catalog: precomputing it would copy a string onto ten million rankings
 // to print a few hundred thousand of them.
-var tmplFuncs = template.FuncMap{"rangeOf": rangeOf, "isWash": isWash}
+var tmplFuncs = template.FuncMap{"rangeOf": rangeOf, "isWash": isWash, "isAir": isAir}
 
 // rangeOf is the range label a match row shows for a suggested paint. Until
 // this existed the lists gave brand, name and code and nothing else, so a
@@ -1137,17 +1137,30 @@ func rangeOf(p catalog.Paint) string {
 func subRanges(own []catalog.Paint, keep func(string) (string, bool)) map[string]int {
 	count := map[string]int{}
 	for _, p := range own {
-		for _, r := range strings.Split(p.Range, catalog.RangeSep) {
-			// Per part, the way trimBrand does it for a single label: some
-			// ranges repeat the maker's name and would otherwise be searched
-			// for as "Vallejo Vallejo Model Color".
-			r = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(r), p.Brand))
-			if r, ok := keep(r); ok {
-				count[r]++
-			}
+		for _, r := range labelsOf(p, keep) {
+			count[r]++
 		}
 	}
 	return count
+}
+
+// labelsOf splits one paint's range field into the labels it ships under. It is
+// separate from subRanges because the airbrush guide needs the labels of a
+// paint together rather than a count across paints: what it asks is whether the
+// same page carries an air label and a brush label at once, and a tally cannot
+// answer that.
+func labelsOf(p catalog.Paint, keep func(string) (string, bool)) []string {
+	var out []string
+	for _, r := range strings.Split(p.Range, catalog.RangeSep) {
+		// Per part, the way trimBrand does it for a single label: some
+		// ranges repeat the maker's name and would otherwise be searched
+		// for as "Vallejo Vallejo Model Color".
+		r = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(r), p.Brand))
+		if r, ok := keep(r); ok {
+			out = append(out, r)
+		}
+	}
+	return out
 }
 
 // isWash reports whether a range label names a shading product — a wash, a
@@ -1165,6 +1178,27 @@ func isWash(label string) bool {
 	}
 	for _, w := range strings.Fields(strings.ReplaceAll(l, "-", " ")) {
 		if strings.HasPrefix(w, "ink") || strings.HasPrefix(w, "dip") {
+			return true
+		}
+	}
+	return false
+}
+
+// isAir reports whether a range label carries the word Air. It deliberately
+// does not report whether the pot is thinned for an airbrush, because the label
+// does not say: Citadel, Vallejo and The Army Painter use Air for the tool,
+// while AK Interactive uses it for the subject — aircraft, as against its AFV,
+// Figures and Naval ranges, which are armour, people and ships. Both meanings
+// are in this catalogue under the same three letters, and that ambiguity is the
+// airbrush guide's argument rather than a defect to filter away here.
+//
+// The word has to stand alone, so that Aircraft Spray — a can of aircraft
+// colours, neither an airbrush line nor a subject this test should claim — does
+// not qualify. Airbrush may start a word, for Vallejo's Premium Airbrush Color.
+func isAir(label string) bool {
+	for _, w := range strings.Fields(strings.ReplaceAll(strings.ToLower(label), "-", " ")) {
+		w = strings.Trim(w, "()")
+		if w == "air" || strings.HasPrefix(w, "airbrush") {
 			return true
 		}
 	}

@@ -1,0 +1,67 @@
+{{define "body"}}
+<p>Sooner or later the question arrives with the word Air in it: what is the Citadel equivalent of Vallejo Model Air German Grey, can I use Warpaints Air instead of Warpaints, is Game Air the same paint as Game Color. This site will answer all of those, because it compares nine thousand recorded colours to each other and the word Air is not one of the things it compares. That word is doing more work than the number is, and the first problem with it is that it is not one word.</p>
+
+<h2>Air names a tool, or it names a subject</h2>
+
+<p>For <a href="/brand/citadel/">Citadel</a>, <a href="/brand/vallejo/">Vallejo</a> and <a href="/brand/the-army-painter/">The Army Painter</a>, Air is a statement about the tool. The pot is thinned to somewhere near spray viscosity, ground fine enough to pass a nozzle without blocking it, and usually carries more flow additive than the brush version of the same paint. That is a claim about how the paint behaves in a gun, and it says nothing at all about what colour is in it.</p>
+
+<p>For <a href="/brand/ak-interactive/">AK Interactive</a>, Air is a statement about the subject. Its Air range and its Real Colors &ndash; Air range are colours for aeroplanes, and you can tell because of what sits beside them on the same shelf: AFV, Figures and Naval. Those are armoured vehicles, people and ships. Nobody thins a paint specially for a figure. Look inside the range and it settles the matter &mdash; the colours there are RLM numbers, Soviet AMT codes, US Federal Standard references, <a href="/paint/ak-interactive/cockpit-grey/">Cockpit Grey</a>, <a href="/paint/ak-interactive/clear-doped-linen/">Clear Doped Linen</a>. Those are the colours aircraft were painted, not a formulation for spraying them.</p>
+
+<p><a href="/brand/tamiya/">Tamiya</a> manages to use both meanings in two words: its Aircraft Spray range is a subject and a delivery method at once, and the delivery method is a rattle can rather than an airbrush. Three different things, one family of labels, and a colour distance reads none of them.</p>
+
+<h2>Every range here with Air on the label</h2>
+
+<p>The second column is the one worth staring at. This site publishes one page per colour, so when a maker sells one colour under two labels and the recorded value is identical, the two rows fold into a single page that lists both labels. The second count is how many colours in each air range sit on a page like that &mdash; how often, in other words, the pot with Air on the label and a pot without it are on record here as the same colour.</p>
+
+{{with .Air}}
+<table class="scale">
+  <tr><th>Range</th><th>Colours</th><th>Shared with a non-air pot</th></tr>
+  {{range .}}<tr><td><b>{{.Brand}}</b> {{.Name}}</td><td>{{.N}}</td><td>{{.Shared}}</td></tr>{{end}}
+</table>
+{{end}}
+
+<h2>What the second column is telling you</h2>
+
+<p>Citadel is the outlier, and the reason is that most of its Air range is the Base and Layer palette carrying one measurement between them. <a href="/paint/citadel/balthasar-gold/">Balthasar Gold</a> gets a single page here reading <em>Air / Base</em>, because the two are recorded at the same value down to the last digit. Vallejo's Model Air behaves in the opposite way: it is very largely its own palette, aircraft and armour colours that have no brush-range twin to be folded into.</p>
+
+<p>Game Air is the interesting case, because it does mirror a brush range by name &mdash; nearly every colour in it answers to a name that Game Color also uses &mdash; and only a handful of those pairs are recorded at one value. Warpaints Air overlaps Warpaints the same way over a good part of its length, with the same near-zero column beside it. Where the names coincide and the values do not, this site gives them a page each. Vallejo's Bloody Red occupies <a href="/paint/vallejo/bloody-red/">five separate pages</a> here, two of them Game Air, because five rows carry that name and five different values. Citadel's <a href="/paint/citadel/administratum-grey/">Administratum Grey</a> gets two pages, one Air and one Layer, for the same reason and a much smaller gap.</p>
+
+<p>The AK Interactive rows need reading differently, and they show why the column is worth being careful with. Its Air (3rd Gen) range shares a handful of pages with Real Colors &ndash; WWII, every one of them a Luftwaffe RLM colour. That is not an airbrush pot meeting a brush pot. It is one aircraft colour sold in two of the same maker's subject lines, which is what you should expect once the word Air has stopped meaning a tool.</p>
+
+<p>Which brings the general warning: that second column is a fact about the record, not about the pot. Where it is high, one measurement was reused for two products, and the site cannot tell you whether that is because the products really are the same colour or because nobody sampled them separately. Where it is low, either the two genuinely differ or they were sampled on different days, off different swatches, by different people. Both readings fit, and nothing in a hex code chooses between them. What you can take from the column is narrower and still useful: <strong>a brand that folds its Air range into its brush range is a brand whose &Delta;E between the two is going to be zero, and a brand that does not is a brand where it will not be.</strong> Neither of those numbers is measuring the thing you are buying.</p>
+
+<h2>What that does to a match here</h2>
+
+<ul>
+  <li><strong>A &Delta;E of 0.0 between an Air pot and a Base pot of the same name is not a colour match.</strong> It is one measurement printed twice. The difference between those two products is viscosity, pigment load per unit volume and grind, and every one of those is invisible to the comparison.</li>
+  <li><strong>A small &Delta;E between an air paint and its brush namesake is not a measurement of what thinning did to the colour.</strong> It may be two sampling runs of one product. Do not read it as evidence that the airbrush version is very slightly darker.</li>
+  <li><strong>Across brands, the label warns you about the pot you are being sent to.</strong> Every match row on this site prints the range of the suggested paint, so an Air label is visible before you click. If you are matching a brush colour and the nearest answer is an air paint, you are being offered something that will need more coats than you expect &mdash; and vice versa.</li>
+  <li><strong>A label is a shelf, not a promise.</strong> Citadel's Air range includes <a href="/paint/citadel/air-caste-thinner/">Air Caste Thinner</a>, which is in this catalogue with a colour value attached and is not a paint. It will turn up in a match list like anything else.</li>
+</ul>
+
+<h2>What thinned for the airbrush actually costs</h2>
+
+<p>The trade is straightforward once it is stated. An airbrush-ready paint carries less pigment per unit of volume than the brush version of the same colour, because a good part of that volume is thinner. Through a gun this is exactly what you want. Through a brush it means each coat lays down less pigment, so you need more of them, and until you have enough of them the colour on the model is partly the colour of whatever is underneath. That is the same effect described in <a href="/guides/what-a-hex-code-misses/">what a hex code misses</a>, and it is why the answer to &ldquo;can I brush Model Air&rdquo; is yes, with an asterisk about coats.</p>
+
+<p>The reverse works too. A brush paint can be thinned and sprayed, and modellers do it constantly. The one thing thinning cannot fix is particle size: a paint ground for a brush can still block a fine nozzle however watery you make it, and that is the property the air ranges are actually selling. It is also the only property in this discussion that you cannot adjust at the bench.</p>
+
+<p>Note what that does to the colour on record. The recorded value follows the pot, not what you did with it. A Model Air colour sprayed in three passes and the same colour brushed in four coats end up in different places on the model, and the catalogue holds one number for both.</p>
+
+<h2>Choosing a substitute for an air paint</h2>
+
+<ol>
+  <li><strong>Work out which Air you are holding.</strong> If the range sits beside AFV, Figures and Naval, the word is about aeroplanes and tells you nothing about spraying; treat the substitution as an ordinary one and use <a href="/guides/substituting-a-paint/">the usual order</a>. If it sits beside a brush range of the same brand, the word is about the gun.</li>
+  <li><strong>Look at the brush sibling first.</strong> It is frequently the same colour and always the same maker's idea of that colour. On this site it is either on the same page &mdash; look for two labels in the header &mdash; or one click away under the same name.</li>
+  <li><strong>Only insist on another air range if the paint has to go through the gun.</strong> Otherwise the air label is a constraint you are imposing on yourself. Any opaque paint can be thinned; what you lose by ignoring the label is convenience, not colour.</li>
+  <li><strong>If it does have to go through the gun, prefer an air range over thinning a brush paint yourself</strong> &mdash; not for the colour, for the nozzle.</li>
+  <li><strong>Judge the substitute at the coverage you will actually use.</strong> Two thin passes of a strong paint and four of a weak one are not the same result, and the &Delta;E was calculated as though they were.</li>
+</ol>
+
+<p>The good news is that air paints are among the easier substitutions on this site, for the same reason washes are: the property most likely to be wrong is one you can correct. A paint that sprays too thin can be built up; a paint that sprays too thick can be thinned. Colour is the part you cannot fix afterwards, and colour is the part the number here is genuinely about.</p>
+
+<h2>Using this site for it</h2>
+
+<p>Open the paint's own page and read the header. One line with two labels in it &mdash; <em>Air / Base</em> &mdash; means this catalogue could not tell the two products apart by colour, and the page you are on answers for both. A single label means it could tell them apart, and the brush version has a page of its own under the same name, which the search box and the brand page will both offer you. Vallejo's <a href="/paint/vallejo/german-grey/">German Grey</a> is the plain case: one page for the Model Air pot, another for the Model Color one, two codes and two values, and the difference between them is the whole reason this guide exists.</p>
+
+<p>From there, the <a href="/charts/">conversion chart for the pair of brands</a> ranks the two catalogues against each other and the range labels on every row tell you which shelf each answer came from. What each maker puts under each of its labels is set out in <a href="/guides/paint-ranges-explained/">paint ranges explained</a>; the ranges whose matches have to be read most carefully of all are the <a href="/guides/washes-and-shades/">washes and shades</a> and the <a href="/guides/contrast-speedpaint-xpress/">one-coat lines</a>, for reasons that rhyme with this one. In every case the rule is the same: the number ranks colours, and the word beside it tells you what kind of thing you are being offered.</p>
+{{end}}
