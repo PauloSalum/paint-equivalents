@@ -38,7 +38,7 @@ func TestRangeSizesCountsEveryLabelAPaintCarries(t *testing.T) {
 	g := &Generator{paints: ps}
 	got := g.rangeSizes()
 
-	want := []rangeCount{{"Layer", 20}, {"Air", 12}, {"Base", 12}}
+	want := []rangeCount{{Name: "Layer", N: 20}, {Name: "Air", N: 12}, {Name: "Base", N: 12}}
 	if len(got["Citadel"]) != len(want) {
 		t.Fatalf("Citadel ranges = %v, want %v", got["Citadel"], want)
 	}

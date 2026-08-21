@@ -1113,7 +1113,7 @@ func sellable(r string) (string, bool) {
 // page data because every match row needs it and the rows are pointers into one
 // shared catalog: precomputing it would copy a string onto ten million rankings
 // to print a few hundred thousand of them.
-var tmplFuncs = template.FuncMap{"rangeOf": rangeOf}
+var tmplFuncs = template.FuncMap{"rangeOf": rangeOf, "isWash": isWash}
 
 // rangeOf is the range label a match row shows for a suggested paint. Until
 // this existed the lists gave brand, name and code and nothing else, so a
@@ -1130,7 +1130,11 @@ func rangeOf(p catalog.Paint) string {
 // subRanges counts how many of these paints carry each range label. A paint
 // sold under several labels counts for each of them, because each label is a
 // separate product: one page, two ranges, two things you could be holding.
-func subRanges(own []catalog.Paint) map[string]int {
+//
+// keep decides which labels survive, because the callers disagree about
+// discontinued ones: there is no boxed set to sell behind a dead range, and
+// there is very much a substitute to look for inside one.
+func subRanges(own []catalog.Paint, keep func(string) (string, bool)) map[string]int {
 	count := map[string]int{}
 	for _, p := range own {
 		for _, r := range strings.Split(p.Range, catalog.RangeSep) {
@@ -1138,12 +1142,33 @@ func subRanges(own []catalog.Paint) map[string]int {
 			// ranges repeat the maker's name and would otherwise be searched
 			// for as "Vallejo Vallejo Model Color".
 			r = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(r), p.Brand))
-			if r, ok := sellable(r); ok {
+			if r, ok := keep(r); ok {
 				count[r]++
 			}
 		}
 	}
 	return count
+}
+
+// isWash reports whether a range label names a shading product — a wash, a
+// shade, an ink, a dip. Nothing in the catalogue marks a pot as transparent, so
+// the label is the only evidence there is, which is the whole argument of the
+// washes guide: it is also the only warning the reader gets.
+//
+// "wash" and "shade" match anywhere, because Quickshade and Greenshade need
+// them to. "ink" and "dip" have to start a word, or every Pink range in the
+// catalogue joins the list.
+func isWash(label string) bool {
+	l := strings.ToLower(label)
+	if strings.Contains(l, "wash") || strings.Contains(l, "shade") {
+		return true
+	}
+	for _, w := range strings.Fields(strings.ReplaceAll(l, "-", " ")) {
+		if strings.HasPrefix(w, "ink") || strings.HasPrefix(w, "dip") {
+			return true
+		}
+	}
+	return false
 }
 
 // brandSets lists the sets worth offering for a brand, largest sub-range first.
@@ -1153,7 +1178,7 @@ func (g *Generator) brandSets(b catalog.Brand, own []catalog.Paint) []setLink {
 	if g.cfg.AmazonTag == "" {
 		return nil
 	}
-	count := subRanges(own)
+	count := subRanges(own, sellable)
 	var ranges []string
 	for r, n := range count {
 		if n >= setMinimum {

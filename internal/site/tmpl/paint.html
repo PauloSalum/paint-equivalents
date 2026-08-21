@@ -11,6 +11,9 @@
 <p class="lede">The closest match to <strong>{{.Paint.Brand}} {{.Name}}</strong> in every other range, nearest first.</p>
 <p class="summary">{{.Summary}}</p>
 <p class="pairlink"><a href="/guides/how-close-is-close-enough/">What the &Delta;E numbers below mean, and how close a match has to be</a></p>
+{{/* The label, not the pot: these ranges also hold primers, varnishes and
+     mediums, and the warning has to stay true on those pages too. */}}
+{{if isWash .Paint.Range}}<p class="warn">This is a wash, shade or ink range, and the list below ranks it on colour alone &mdash; which for a paint meant to be thinned into a recess is the least reliable thing about it. <a href="/guides/washes-and-shades/">How to read these matches, and how to choose a wash substitute</a>.</p>{{end}}
 
 {{if .FAQ}}<section class="faq">{{range .FAQ}}
   <h2>{{.Q}}</h2>

@@ -1,0 +1,78 @@
+{{define "body"}}
+<p>Someone asks the obvious question &mdash; what replaces Nuln Oil, what is the Vallejo equivalent of Agrax Earthshade &mdash; and this site will answer it, because it answers that question about nine thousand pots. For a wash the answer arrives with a problem attached, and the problem is visible on the site's own pages if you know where to look. This is what to do about it.</p>
+
+<h2>The pot and the model are not the same colour</h2>
+
+<p>An opaque paint is a colour you put on a surface. A wash is a colour you let into a surface. It is thin, low in binder and high in flow, and once it is on the model surface tension does the work: it retreats off the raised areas and collects in every crease, panel line and rivet. What you see afterwards is not one colour. It is a very thin film over the flat, a heavier film on the slope, and a dark pool in the recess, all from one pot in one pass.</p>
+
+<p>So there is no single colour to record. There is a fluid in a bottle, which is dark and saturated, and there is the film that fluid leaves, which is pale and weak, and the difference between those two is enormous. Any colour value published for a wash has picked one of them. Nothing in a hex code says which, and there is no convention that everyone follows.</p>
+
+<h2>The catalogue proves it, twice</h2>
+
+<p>Two Citadel washes make the point better than any argument. <a href="/paint/citadel/badab-black-wash/">Badab Black Wash</a>, from the discontinued generation, is on record here as pure black &mdash; the same value as <a href="/paint/citadel/abaddon-black/">Abaddon Black</a>, an opaque black that ships as a Base and as an Air paint. Open the Badab Black page and the nearest colour inside Citadel is Abaddon Black at &Delta;E 0.0, marked <em>indistinguishable</em>. It is not indistinguishable. One of them covers plastic in a single coat and the other one runs off it.</p>
+
+<p><a href="/paint/citadel/nuln-oil/">Nuln Oil</a> is the pot that replaced it, doing the same job for the same maker, and it is on record as a pale warm grey. Its three nearest Citadel neighbours are Astrogranite Debris, Leadbelcher and Grey Seer &mdash; a Technical paint, an Air paint and a Base paint, all inside &Delta;E 5, and not a wash among them. Every one of those is a correct answer to the question the number asks.</p>
+
+<p>Two black washes, one company, one replacing the other, and their recorded values sit at opposite ends of the lightness scale. Neither record is a lie. They were taken of different things: one of the fluid, one of what the fluid leaves behind.</p>
+
+<p>Nor is it only a matter of one generation replacing another. <a href="/brand/vallejo/">Vallejo</a> has three pots called Black Wash on this site, and they get three separate pages precisely because their values disagree &mdash; two in the Game Color Wash line and one in Mecha Color, running from a dark grey you could mistake for a basecoat down to pure black. Three other makers in this catalogue sell a pot of the same name, and their values are spread across the same gap. They are all black washes. They do not agree on what black is, because they do not agree on what was measured.</p>
+
+<h2>What that means for the &Delta;E</h2>
+
+<p>The colour distance on this site is honest about what it does: it compares the two colour values on record, in CIELAB under D65, the way <a href="/guides/how-close-is-close-enough/">how close is close enough</a> sets out. That comparison is only as good as what the values describe. For two opaque base paints they describe the same thing &mdash; a flat dry film &mdash; and the number is worth a lot. For two washes they may describe a bottle and a film, and then the number is comparing two different physical situations and reporting the difference as if it were a difference of colour.</p>
+
+<p>The consequence is specific, and it is not the usual warning about tolerance:</p>
+
+<ul>
+  <li><strong>A wash's nearest neighbours are frequently not washes.</strong> If the value is film-pale, the neighbours are light greys, bone tones and metallics. If it is fluid-dark, the neighbours are black and near-black base paints. Both lists are useless as substitutes, and both look exactly like the lists that are useful everywhere else on this site.</li>
+  <li><strong>A close cross-brand match between two washes may be an accident of method.</strong> Two washes recorded the same way and genuinely alike will match. So will two washes recorded the same way that are not alike, and two unlike washes that happen to have been sampled at compensating strengths.</li>
+  <li><strong>A distant match is not evidence of difference either.</strong> The gap between Badab Black and Nuln Oil is a gap between measurements, not between products.</li>
+</ul>
+
+<p>This is the same failure mode as the one-coat ranges in <a href="/guides/contrast-speedpaint-xpress/">Contrast, Speedpaint and Xpress</a>, and worse. There, a transparent paint's colour depends on the undercoat under it. Here it depends on the undercoat <em>and</em> on whether anyone applied it before measuring.</p>
+
+<h2>Read the range label before you read the number</h2>
+
+<p>Every match row on this site now prints the range the suggested paint comes from, in small type after the name, for exactly this reason. On a wash's page that label is the first thing to check: if the nearest colour carries no wash, shade or ink in its range, it is not a candidate however good the number looks, and if it does, the number is at least comparing two things of the same kind.</p>
+
+<p>These are the ranges on this site whose label names a wash, a shade, an ink or a dip, with the number of colours under each:</p>
+
+{{with .Washes}}
+<table class="scale">
+  {{range .}}<tr><td><b>{{.Brand}}</b> {{.Name}}</td><td>{{.N}}</td></tr>{{end}}
+</table>
+{{end}}
+
+<p>Two cautions about that list. A label is a shelf, not a promise: the ranges named for washes also hold brush-on primer, matt varnish, mixing medium and glow effects, none of which is a wash and all of which will turn up in a colour match. And a wash can sit in a range that is not named for one &mdash; the label is good evidence, not proof. What each maker puts under each of its labels is in <a href="/guides/paint-ranges-explained/">paint ranges explained</a>.</p>
+
+<h2>Choosing a substitute for a wash</h2>
+
+<p>Work from the job, not from the ranking. A wash has four properties that matter on a model, and colour is only one of them.</p>
+
+<ol>
+  <li><strong>Tone.</strong> Neutral black, blue-black, warm brown, sepia, flesh, or a colour. This is the part the number is trying to describe, and the part you can usually judge from the name and the swatch better than from the &Delta;E.</li>
+  <li><strong>Strength.</strong> How dark it leaves the recess for one pass. Two washes of the same tone at different pigment loads are different tools, and this never reaches the colour value at all.</li>
+  <li><strong>Flow.</strong> How hard it pulls out of the flats and into the crease. A wash that stays where you put it leaves tidemarks on a smooth surface; one that runs hard needs a recess to run into.</li>
+  <li><strong>Finish.</strong> Matt, satin or gloss. Citadel sells Nuln Oil and Agrax Earthshade in both matt and gloss versions and records them at different values, which tells you the finish moves the measured colour before it moves anything on your model. Why that happens is in <a href="/guides/what-a-hex-code-misses/">what a hex code misses</a>.</li>
+</ol>
+
+<p>With those named, the order to search in is the one from <a href="/guides/substituting-a-paint/">substituting a paint</a>, with one change: cross brands earlier than usual. Looking inside your own range first is the right move for an opaque paint, because it holds medium and finish constant and moves only the colour. For a wash, the range you own may simply not contain a second brown, and a wash from another maker's shading line is a far better bet than the nearest opaque colour in your own.</p>
+
+<p>The one advantage you have with a wash is that strength is adjustable. A wash that is too strong can be thinned, with water, with medium, or with the mixing medium some ranges sell for the purpose. A wash that is too weak can go on twice. Neither of those is available to you with an opaque paint, and it means a wash substitute only has to be right about tone and roughly right about flow &mdash; you can correct the rest at the bench. That is a much easier target than an exact colour, and it is the reason cross-brand wash substitution works in practice despite everything above.</p>
+
+<h2>Testing one</h2>
+
+<p>Three things, and the first is the one that decides it.</p>
+
+<ul>
+  <li><strong>Test it on a recess, over the basecoat you actually use.</strong> A wash on a flat swatch card is showing you the one part of its behaviour you do not care about. Use a spare shoulder pad, a piece of sprue with a groove in it, anything with a shape.</li>
+  <li><strong>One pass, then let it dry completely.</strong> Acrylic medium is milky wet and clear cured, and a wash is mostly medium; a wet judgement is not the judgement you want.</li>
+  <li><strong>Look at it under the light you paint under and then under a different one.</strong> Washes are usually mixtures of several pigments, which is where two pots that match under one lamp come apart under another.</li>
+</ul>
+
+<h2>Using this site for it</h2>
+
+<p>Search by hex is the wrong tool here: if you take a colour off a photograph of a finished model, you have sampled a wash over a basecoat over a primer, and no pot on this site is that. <a href="/find/">The finder</a> earns its keep on opaque colours.</p>
+
+<p>What does work is going by range. Open the <a href="/brands/">brand you want to move to</a>, find its shading line in the table above, and look at what it carries; then use the <a href="/charts/">conversion chart for the pair</a> to see how this site ranks the two catalogues against each other, treating the ranking as a shortlist of things to look at rather than an answer. And when the match list on a wash's page hands you a metallic at &Delta;E 2, you now know what it is telling you: not that the two are alike, but that somebody measured them differently.</p>
+{{end}}

@@ -64,6 +64,14 @@ var guides = []guide{{
 	Heading:   "Paint ranges explained",
 	Lede:      "A brand is not one paint. It is several different products wearing the same logo, and the range is the word that tells them apart. A colour distance cannot read it, so you have to.",
 	Published: "2026-08-19",
+}, {
+	Slug:  "washes-and-shades",
+	Title: "Washes and shades: why the nearest colour to a wash is usually the wrong pot",
+	// Short enough to survive Google's snippet, which the five above are not.
+	Desc:      "Why a wash's recorded colour describes how it was sampled more than what it does, and how to choose a substitute for one on this site.",
+	Heading:   "Washes and shades",
+	Lede:      "A wash is not painted onto a surface. It is let into the recesses, and most of it ends up somewhere you did not put it. That changes what the number beside it is comparing.",
+	Published: "2026-08-20",
 }}
 
 const guideAuthor = "Paulo Salum"
@@ -75,8 +83,12 @@ const guideAuthor = "Paulo Salum"
 // to say so. Counted from the same catalogue the pages are built from, it can
 // only ever disagree with the site if the site is wrong too.
 type rangeCount struct {
-	Name string
-	N    int
+	// Brand is set only where the table crosses brands. The ranges guide prints
+	// one table per brand and has already said whose it is in the sentence above
+	// it; the washes guide puts every maker in one list and cannot.
+	Brand string
+	Name  string
+	N     int
 }
 
 // rangeGuideBrands are the brands the ranges guide walks through in prose. A
@@ -108,7 +120,7 @@ func (g *Generator) rangeSizes() map[string][]rangeCount {
 	out := map[string][]rangeCount{}
 	for brand, ps := range own {
 		var rows []rangeCount
-		for r, n := range subRanges(ps) {
+		for r, n := range subRanges(ps, sellable) {
 			if n >= rangeGuideMinimum {
 				rows = append(rows, rangeCount{Name: r, N: n})
 			}
@@ -130,13 +142,64 @@ func (g *Generator) rangeSizes() map[string][]rangeCount {
 	return out
 }
 
+// washGuideMinimum keeps a label out of the washes table when only one colour
+// on this site carries it. One pot is a stray row in a reference table, and the
+// tail of them is long: a wash that shares a page with an opaque paint brings
+// its label along, and that page counts for both.
+const washGuideMinimum = 2
+
+// washSizes lists every range on this site whose label names a wash, a shade or
+// an ink, across all brands, largest first. It is the reference table the
+// washes guide is built around, and it exists for the same reason rangeSizes
+// does: the article's argument is that the label is the only warning a match
+// row carries, so the list of labels had better come from the build rather than
+// from what was true on the day it was written.
+//
+// Discontinued labels stay in. The Citadel washes that carry the most useful
+// evidence in the whole article are discontinued, and a reader who owns one is
+// exactly who is looking for a replacement.
+func (g *Generator) washSizes() []rangeCount {
+	own := map[string][]catalog.Paint{}
+	for _, p := range g.paints {
+		own[p.Brand] = append(own[p.Brand], p)
+	}
+	var rows []rangeCount
+	for brand, ps := range own {
+		for r, n := range subRanges(ps, rangeName) {
+			if n >= washGuideMinimum && isWash(r) {
+				rows = append(rows, rangeCount{Brand: brand, Name: r, N: n})
+			}
+		}
+	}
+	// Ties break on brand then label so the page is identical between builds.
+	sort.Slice(rows, func(i, j int) bool {
+		if rows[i].N != rows[j].N {
+			return rows[i].N > rows[j].N
+		}
+		if rows[i].Brand != rows[j].Brand {
+			return rows[i].Brand < rows[j].Brand
+		}
+		return rows[i].Name < rows[j].Name
+	})
+	return rows
+}
+
 func (g *Generator) guidePages() error {
 	type data struct {
 		common
 		Guide  guide
 		Ranges map[string][]rangeCount
+		Washes []rangeCount
 	}
 	sizes := g.rangeSizes()
+	washes := g.washSizes()
+	// The washes guide is built around that table and reads as an argument with
+	// its evidence removed without it. {{with}} over an empty slice is silence,
+	// so a dataset that stops carrying wash labels — or a wiring mistake here —
+	// would publish the article gutted and leave the build green.
+	if len(washes) == 0 {
+		return fmt.Errorf("no wash ranges in this catalogue: the washes guide would publish without its table")
+	}
 	for _, gd := range guides {
 		path := "/guides/" + gd.Slug + "/"
 		article := fmt.Sprintf(
@@ -148,7 +211,7 @@ func (g *Generator) guidePages() error {
 				Title: gd.Title, Desc: gd.Desc, Path: path, Site: g.meta,
 				JSONLD: graph(g.crumbList("Guides", "/guides/", gd.Heading), article),
 			},
-			Guide: gd, Ranges: sizes,
+			Guide: gd, Ranges: sizes, Washes: washes,
 		})
 		if err != nil {
 			return err
