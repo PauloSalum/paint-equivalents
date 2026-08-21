@@ -15,7 +15,10 @@
      mediums, and the warning has to stay true on those pages too. */}}
 {{if isWash .Paint.Range}}<p class="warn">This is a wash, shade or ink range, and the list below ranks it on colour alone &mdash; which for a paint meant to be thinned into a recess is the least reliable thing about it. <a href="/guides/washes-and-shades/">How to read these matches, and how to choose a wash substitute</a>.</p>
 {{else if isAir .Paint.Range}}<p class="warn">This range carries the word Air, which on some labels means thinned for an airbrush and on others means colours for aircraft. The list below cannot read either. <a href="/guides/airbrush-ranges/">What Air means on a label, and when the Air pot is a different colour</a>.</p>
-{{else if isMetal .Paint.Range}}<p class="warn">This is a metallic range, and the value above is one flat-on reading of a surface built to change with the angle. Most of the matches below have no flake in them at all. <a href="/guides/metallic-paints/">How to read a match to a metallic, and how to spot one in a list</a>.</p>{{end}}
+{{else if isMetal .Paint.Range}}<p class="warn">This is a metallic range, and the value above is one flat-on reading of a surface built to change with the angle. Most of the matches below have no flake in them at all. <a href="/guides/metallic-paints/">How to read a match to a metallic, and how to spot one in a list</a>.</p>
+{{/* The one warning here about the answer rather than the paint, and last in
+     the chain because the three above are about the pot the reader is holding. */}}
+{{else if .CraftFirst}}<p class="warn">The closest colour to this paint is in a craft or fine-art range &mdash; a bottle sold for decorating and canvas work, not for models. The distance is right; the pot is a different kind of product. <a href="/guides/craft-paint-on-miniatures/">What a match to a craft bottle promises, and where it belongs on a model</a>.</p>{{end}}
 
 {{if .FAQ}}<section class="faq">{{range .FAQ}}
   <h2>{{.Q}}</h2>

@@ -167,7 +167,8 @@ func TestPaintPageWarnsOnMetalRangesWithoutStealingTheOtherWarnings(t *testing.T
 			Table    match.Table
 			Detailed []match.BrandMatches
 			Rest     []match.BrandMatches
-			Charts   map[string]bool
+			Charts     map[string]bool
+			CraftFirst bool
 		}{
 			common: common{Title: "t", Path: "/paint/citadel/x/"},
 			Paint:  catalog.Paint{Brand: "Citadel", Range: rng, Hex: "#000000"},

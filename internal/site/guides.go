@@ -86,6 +86,13 @@ var guides = []guide{{
 	Heading:   "Metallic paints",
 	Lede:      "A metallic is a colour that changes with the angle you hold it at, and this site holds one number for it. Worse, the label beside that number usually does not say the pot has flake in it.",
 	Published: "2026-08-21",
+}, {
+	Slug:      "craft-paint-on-miniatures",
+	Title:     "Craft paint on miniatures: when the closest colour is a bottle from the art aisle",
+	Desc:      "Why FolkArt, Golden, Apple Barrel, Liquitex and Arteza win so many matches here, what such a match promises, and where a craft bottle belongs on a model.",
+	Heading:   "Craft paint on miniatures",
+	Lede:      "Five of the ranges this site matches against are sold for decorating wood and painting canvas, not models. They are also, often enough, the closest colour to the pot you are trying to replace.",
+	Published: "2026-08-21",
 }}
 
 const guideAuthor = "Paulo Salum"
@@ -109,6 +116,12 @@ type rangeCount struct {
 	// identical value. It is the whole point of that table and meaningless in
 	// the other two, so it stays zero there.
 	Shared int
+	// Nearest is set only by craftSizes: how many of the site's other colours
+	// this range is the first one offered for. It is a different question from
+	// N — not how much of the catalogue a maker fills, but how much of the
+	// site's answer it wins — and the craft guide is built on the gap between
+	// the two.
+	Nearest int
 }
 
 // rangeGuideBrands are the brands the ranges guide walks through in prose. A
@@ -265,6 +278,44 @@ func (g *Generator) airSizes() []rangeCount {
 	return rows
 }
 
+// craftSizes measures what the craft aisle answers on this site: for each of
+// the craft and fine-art lines, how many colours it holds here and how many of
+// the site's other colours it is the first range offered for.
+//
+// That second figure is the craft guide's evidence, and it is the reason the
+// table is counted rather than written. It is not a fact about paint. It is a
+// fact about how densely a decorative range happens to cover the colour space
+// beside the miniature ranges it is being ranked against, and it moves whenever
+// either side of that does — which a number typed into a sentence would not.
+func (g *Generator) craftSizes() []rangeCount {
+	colours := map[string]int{}
+	nearest := map[string]int{}
+	for i, p := range g.paints {
+		// A craft page's own nearest range is usually another craft range, and
+		// counting that would measure the aisle against itself.
+		if unsearched[p.BrandSlug] {
+			colours[p.Brand]++
+			continue
+		}
+		if t := g.tables[i]; len(t.Cross) > 0 && unsearched[t.Cross[0].Slug] {
+			nearest[t.Cross[0].Brand]++
+		}
+	}
+	var rows []rangeCount
+	for b, n := range colours {
+		rows = append(rows, rangeCount{Brand: b, N: n, Nearest: nearest[b]})
+	}
+	// Sorted by what the table is arguing, not by size: ties break on the name
+	// so the page is identical between builds.
+	sort.Slice(rows, func(i, j int) bool {
+		if rows[i].Nearest != rows[j].Nearest {
+			return rows[i].Nearest > rows[j].Nearest
+		}
+		return rows[i].Brand < rows[j].Brand
+	})
+	return rows
+}
+
 func (g *Generator) guidePages() error {
 	type data struct {
 		common
@@ -273,11 +324,13 @@ func (g *Generator) guidePages() error {
 		Washes []rangeCount
 		Air    []rangeCount
 		Metal  []rangeCount
+		Craft  []rangeCount
 	}
 	sizes := g.rangeSizes()
 	washes := g.labelSizes(isWash)
 	air := g.airSizes()
 	metal := g.labelSizes(isMetal)
+	craft := g.craftSizes()
 	// Each of these guides is built around its table and reads as an argument
 	// with its evidence removed without it. {{with}} over an empty slice is
 	// silence, so a dataset that stops carrying those labels — or a wiring
@@ -291,6 +344,9 @@ func (g *Generator) guidePages() error {
 	if len(metal) == 0 {
 		return fmt.Errorf("no metallic ranges in this catalogue: the metallics guide would publish without its table")
 	}
+	if len(craft) == 0 {
+		return fmt.Errorf("no craft ranges in this catalogue: the craft guide would publish without its table")
+	}
 	for _, gd := range guides {
 		path := "/guides/" + gd.Slug + "/"
 		article := fmt.Sprintf(
@@ -302,7 +358,7 @@ func (g *Generator) guidePages() error {
 				Title: gd.Title, Desc: gd.Desc, Path: path, Site: g.meta,
 				JSONLD: graph(g.crumbList("Guides", "/guides/", gd.Heading), article),
 			},
-			Guide: gd, Ranges: sizes, Washes: washes, Air: air, Metal: metal,
+			Guide: gd, Ranges: sizes, Washes: washes, Air: air, Metal: metal, Craft: craft,
 		})
 		if err != nil {
 			return err

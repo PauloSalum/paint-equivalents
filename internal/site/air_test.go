@@ -158,6 +158,9 @@ func TestPaintPageWarnsOnAirRangesWithoutStealingTheWashWarning(t *testing.T) {
 			Detailed []match.BrandMatches
 			Rest     []match.BrandMatches
 			Charts   map[string]bool
+			// Left false throughout: this test is about the three warnings that
+			// describe the pot, and the craft one describes the answer.
+			CraftFirst bool
 		}{
 			common: common{Title: "t", Path: "/paint/citadel/x/"},
 			Paint:  catalog.Paint{Brand: "Citadel", Range: rng, Hex: "#000000"},

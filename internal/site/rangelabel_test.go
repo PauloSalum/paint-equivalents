@@ -96,7 +96,8 @@ func TestMatchListsPrintTheRangeOfTheSuggestedPaint(t *testing.T) {
 		Table    match.Table
 		Detailed []match.BrandMatches
 		Rest     []match.BrandMatches
-		Charts   map[string]bool
+		Charts     map[string]bool
+		CraftFirst bool
 	}{
 		common: common{Title: "Abaddon Black", Path: subject.URL()},
 		Name:   subject.Name, Paint: *subject,
@@ -115,6 +116,7 @@ func TestMatchListsPrintTheRangeOfTheSuggestedPaint(t *testing.T) {
 		To      catalog.Brand
 		Rows    []match.Pair
 		Sets    []setLink
+		Craft   bool
 	}{
 		common: common{Title: "Citadel to Vallejo", Path: "/convert/citadel-to-vallejo/"},
 		From:   catalog.Brand{Name: "Citadel", Slug: "citadel"},

@@ -82,6 +82,13 @@ type common struct {
 // targets — telling a Citadel painter which FolkArt bottle is closest is a real
 // answer — they simply stop asking to be indexed, so what crawl budget a new
 // site has goes to the pages that can rank. Reversing this is deleting a line.
+//
+// It doubles as the list of craft ranges, for the guide about them and for the
+// warning a paint page carries when its first answer comes from one. That is
+// not two ideas sharing a map by accident: these ranges are kept out of the
+// index precisely because they are craft and fine-art lines rather than
+// miniature ones, so a range joining this list is a range the warning should
+// fire for.
 var unsearched = map[string]bool{
 	"folkart":      true,
 	"apple-barrel": true,
@@ -411,6 +418,11 @@ func (g *Generator) paintPages() error {
 			Detailed []match.BrandMatches
 			Rest     []match.BrandMatches
 			Charts   map[string]bool
+			// CraftFirst is the one warning on this page about the answer rather
+			// than about the paint: the block at the top of the list is a craft
+			// or fine-art range. It is decided here and not in the markup
+			// because the template would have to index an empty slice to ask.
+			CraftFirst bool
 		}
 		var buyBest, bestName string
 		if len(t.Cross) > 0 {
@@ -449,6 +461,9 @@ func (g *Generator) paintPages() error {
 			Name: strings.TrimPrefix(full, p.Brand+" "),
 			Buy:  g.buy(full), BuyBest: buyBest, BestName: bestName,
 			Summary: summarise(p, t), FAQ: faq, Charts: charted[p.BrandSlug],
+			// Not on the craft pages themselves, where the nearest range is
+			// usually another craft one and the reader is already in the aisle.
+			CraftFirst: !unsearched[p.BrandSlug] && len(t.Cross) > 0 && unsearched[t.Cross[0].Slug],
 		})
 		if err != nil {
 			return err
@@ -786,6 +801,12 @@ func (g *Generator) chartPages() error {
 				To      catalog.Brand
 				Rows    []match.Pair
 				Sets    []setLink
+				// Craft says one side of this chart is a craft or fine-art
+				// range. The wash, air and metallic warnings are deliberately
+				// kept off the charts, because a chart is brand to brand and
+				// cannot know what kind of pot the reader wants. This one it
+				// does know: both columns are named at the top of the page.
+				Craft bool
 			}
 			// The range being converted *to* comes first: a reader on this page
 			// already owns the left column and is deciding whether the right one
@@ -809,6 +830,7 @@ func (g *Generator) chartPages() error {
 				},
 				From: from, To: to, Rows: rows, Sets: sets,
 				Summary: chartSummary(from, to, rows),
+				Craft:   unsearched[from.Slug] || unsearched[to.Slug],
 			})
 			if err != nil {
 				return err

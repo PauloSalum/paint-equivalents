@@ -1,0 +1,72 @@
+{{define "body"}}
+<p>Open the page for <a href="/paint/citadel/genestealer-purple/">Citadel Genestealer Purple</a> and read the first block on it. It is not Vallejo and it is not The Army Painter. It is Arteza, and the bottle at the top of it is <a href="/paint/arteza/mauve-pole/">Mauve Pole</a>, from a line called Acrylic Premium Paints, at &Delta;E 1.8 and graded near-perfect. <a href="/paint/citadel/militarum-green/">Militarum Green</a> opens with Golden, whose <a href="/paint/golden/green-gold/">Green Gold</a> lands at 1.6. <a href="/paint/citadel/balthasar-gold/">Balthasar Gold</a> opens with Arteza again, and the answer waiting there is a pearl craft paint at 1.3.</p>
+
+<p>None of that is a fault in the ranking. Those bottles really are the nearest colours this catalogue holds, and the distance printed beside them is doing exactly what it claims to do. What no part of the row says is that the pot it has just offered you was made for a wooden box on a craft table.</p>
+
+<h2>Why the art aisle keeps winning</h2>
+
+<p>Five of the ranges matched on this site are not miniature paint at all. FolkArt and Apple Barrel are decorative craft acrylics, Arteza is a general art-supply line, and Golden and Liquitex are artist acrylics sold for canvas. They are here on purpose: telling someone with a shelf of craft bottles which one stands closest to the pot in a recipe is a real answer, and sometimes it is the right one. Between them they are the first answer on roughly one in eight of the miniature paints here.</p>
+
+<p>The table below is counted from the same catalogue the match pages are built from, so it cannot quietly disagree with the site. The first column is how many colours each line holds here. The second is how many of this site's other colours it is the <em>first</em> range offered for &mdash; not how much of the catalogue it fills, but how much of the answer it wins.</p>
+
+{{with .Craft}}
+<table class="scale">
+  <tr><th>Range</th><th>Colours</th><th>First answer for</th></tr>
+  {{range .}}<tr><td><b>{{.Brand}}</b></td><td>{{.N}}</td><td>{{.Nearest}}</td></tr>{{end}}
+</table>
+{{end}}
+
+<p>That second column has a cause, and it is not that craft paint is secretly the best paint. It is not that these five punch above their weight either: set against how much of the catalogue each of them fills, they win about the share you would predict, and FolkArt heads the table because it is the largest of the five. What needs explaining is why the share is that big at all, and the answer is that the two kinds of range are organised around different things. A miniature line is built around subjects and jobs: AK Interactive files its colours under AFV, Figures and Naval, Citadel files its under what the pot does on the model, and both catalogues are dense where their subject is dense and thin everywhere else. A craft or artist line is built around the colour itself and the medium carrying it &mdash; Fluid, High Flow, Heavy Body, OPEN Acrylics, Acrylic Premium, Acrylic Pearl. One is a palette for painting a particular kind of thing. The other is a palette for painting anything. Ask a catalogue for the nearest colour to an arbitrary purple and the range that exists to cover purple is going to win a fair share of the time.</p>
+
+<h2>What that number is measuring, and what it is not</h2>
+
+<p>Start from the part that is not in doubt. A dried sample of a craft acrylic is exactly as measurable as a dried sample of a Citadel Layer paint, and CIEDE2000 neither knows nor cares which shelf either came off. When this site puts a FolkArt bottle at the top of your pot's page, that is a real statement about two colours, and it is the same statement it would make about two miniature paints.</p>
+
+<p>What the number cannot carry is everything that makes them different products: how finely the pigment is ground, how much of it is in the bottle, how the paint behaves once you thin it to the consistency you actually brush at, what finish it dries to, how many coats it takes before the primer stops showing through, and whether the maker will still be selling that exact colour next year. None of those fields exists in this catalogue for <em>any</em> paint &mdash; <a href="/guides/what-a-hex-code-misses/">a colour value never carried them</a>. The difference is that between two miniature ranges you can usually assume the answers are in the same neighbourhood, and between a miniature range and a decorating range you cannot assume anything at all. A craft acrylic is formulated to cover wood, canvas, foam and terracotta under a brush held at arm's length. A miniature paint is formulated to go on in thin coats over primer and be looked at from thirty centimetres. Both are honest products. They were asked different questions.</p>
+
+<p>Balthasar Gold is where two of this site's blind spots meet. It is a metallic, so <a href="/guides/metallic-paints/">the value recorded for it is one flat-on reading</a> of a surface built to change with the angle &mdash; and the bottle answering it at 1.3 is from Arteza's pearl range, which has the same problem for the same reason. Two paints whose colour is a function of how you hold them, compared through one number each. The match is arithmetically fine and tells you almost nothing.</p>
+
+<h2>The range word means something else in this aisle</h2>
+
+<p>Golden sells Green Gold in four lines here, and this site publishes three pages for it: <a href="/paint/golden/green-gold/">Fluid / High Flow</a>, <a href="/paint/golden/green-gold-2/">Heavy Body</a> and <a href="/paint/golden/green-gold-3/">OPEN Acrylics</a>. Three, because one colour gets one page here and splits only where the recorded values differ &mdash; Fluid and High Flow are on record at the same value and share a page, and the other two arrive as separate colours. The codes say it too: Heavy Body is 1170, Fluid is 2170 and OPEN is 7170, one family with the line number in front.</p>
+
+<p>That is the same trap the <a href="/guides/paint-ranges-explained/">ranges guide</a> describes, one aisle over and with a different meaning. In a miniature range the word after the brand tells you what the pot is for on the model. In an artist range it tells you how the paint moves: heavy body holds a brushstroke, fluid does not, open stays workable far longer than either. Nominally it is one pigment in four bodies. In practice this site records three different colours, and the one the match list handed you is the one whose sample happened to land nearest.</p>
+
+<p>So read the range label on a craft row the way you would read Base or Layer, because it is doing the same job: telling you which of several products with one name you are being pointed at. Every match row on this site prints it.</p>
+
+<h2>Where a craft bottle is the right answer</h2>
+
+<ul>
+  <li><strong>Terrain, boards and bases.</strong> This is the strongest case there is, and it is about volume rather than colour. Craft acrylic is sold by the bottle, in quantities a miniature pot is not, at a price per millilitre that is not in the same conversation. A gaming board, a hill, a ruin, a batch of forty bases: paint them out of the craft aisle and keep the expensive pots for the models standing on them.</li>
+  <li><strong>Large flat areas that nothing else has to sit next to.</strong> A banner, a vehicle panel, scatter terrain. The failure modes of a coarser paint show up in the places where a coat has to stay thin over relief, and there is no relief here.</li>
+  <li><strong>Drybrushing rock, wood and rubble.</strong> Drybrushing throws away most of what a fine grind buys you, and it eats paint.</li>
+  <li><strong>Mixing your own.</strong> Artist ranges exist to be mixed &mdash; that is what a painter buys them for &mdash; so when no maker carries the colour you want, they are a reasonable place to build it from. Write down the ratio, mix enough for the whole unit at once, and keep in mind that a mix is only reproducible while you can still buy both parents.</li>
+  <li><strong>A colour you need once.</strong> Nobody should buy into a new miniature range for one panel.</li>
+  <li><strong>You already own the craft paint.</strong> This is the direction the site is most useful in and the one people forget: instead of asking which craft bottle replaces your pot, ask which pot your bottles already stand in for. Every chart here runs both ways.</li>
+</ul>
+
+<h2>Where it is not</h2>
+
+<ul>
+  <li><strong>Thin coats over detail.</strong> Anything where the coat has to stay thin enough not to soften the relief under it &mdash; chainmail, fur, rope, lettering, a face. This is what miniature paint is formulated for and what it is worth paying for.</li>
+  <li><strong>An army colour you have to repeat.</strong> The pot you have to match again in two years should come from a range whose business is keeping the same colours in stock under the same names. Decorative lines rotate.</li>
+  <li><strong>As a stand-in for a one-coat paint.</strong> Contrast, Speedpaint, Xpress and their relatives are transparent, high-flow paints whose colour depends on the undercoat under them; an opaque craft acrylic at the same measured colour is <a href="/guides/contrast-speedpaint-xpress/">not the same tool</a>. The same goes for <a href="/guides/washes-and-shades/">washes and shades</a>.</li>
+  <li><strong>Anywhere you have not tested the finish.</strong> Two paints at the same colour and different sheens do not read as the same colour on a model, and a varnish coat moves both of them again.</li>
+</ul>
+
+<h2>Five rules that survive the bench</h2>
+
+<ol>
+  <li><strong>Read the brand on the row before the number.</strong> FolkArt, Apple Barrel, Golden, Liquitex and Arteza are the five to recognise here. When one of them is the first block on a paint's page, this site usually says so above the list &mdash; usually, because a pot that is itself a wash, an Air range or a metallic carries that warning instead, and those are about what you are holding rather than what you are being handed. Genestealer Purple, at the top of this page, is exactly that case: the answer is Arteza and the line above the list is about Air.</li>
+  <li><strong>Ask what the paint has to do, not what it has to look like.</strong> A craft bottle failing on a cloak edge and a craft bottle winning on a hillside are the same bottle with the same measurement. <a href="/guides/substituting-a-paint/">Naming the job first</a> is what separates the two, and it works the same way for every substitution on this site.</li>
+  <li><strong>Buy the body, not just the colour.</strong> In an artist line the range word is the product: fluid, heavy body and open behave differently enough that this site records them as different colours. Match to the row you actually saw.</li>
+  <li><strong>Test over your primer, at the number of coats you would really apply.</strong> Coverage is the thing most likely to be different, and it is invisible until it is on the model.</li>
+  <li><strong>Do not mix product classes inside one recipe without deciding to.</strong> A base coat from the craft aisle under highlights from a miniature range can work perfectly well, but it should be a decision you made, not one the top of a list made for you.</li>
+</ol>
+
+<h2>Using this site for it</h2>
+
+<p>Craft ranges have full pages here like everything else, so a match row is one click from the bottle's own page, its neighbours and its whole line. The <a href="/charts/">conversion charts</a> are the better tool when the question is bigger than one pot: <a href="/convert/citadel-to-folkart/">Citadel to FolkArt</a> and its counterparts rank an entire catalogue against an entire aisle, in both directions, with the range label on every row. That is the fastest way to answer either version of the question &mdash; which bottle replaces this pot, or which pot this bottle has been standing in for all along.</p>
+
+<p>The rest of the series applies without modification. <a href="/guides/how-close-is-close-enough/">How close is close enough</a> sets the brackets these distances live in, and the <a href="/guides/washes-and-shades/">washes</a>, <a href="/guides/airbrush-ranges/">air</a> and <a href="/guides/metallic-paints/">metallic</a> guides describe the same shape of failure in three other kinds of paint. The pattern behind all four is one sentence: the number ranks colours, and what it never ranks is what kind of thing you are being handed. Here the word that would tell you is right there on the row. It just happens to be a brand name from a different shop.</p>
+{{end}}
