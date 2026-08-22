@@ -93,6 +93,13 @@ var guides = []guide{{
 	Heading:   "Craft paint on miniatures",
 	Lede:      "Five of the ranges this site matches against are sold for decorating wood and painting canvas, not models. They are also, often enough, the closest colour to the pot you are trying to replace.",
 	Published: "2026-08-21",
+}, {
+	Slug:      "switching-brands",
+	Title:     "Switching paint brands: why a conversion chart only runs one way",
+	Desc:      "A conversion chart answers a different amount in each direction. How much of one range another really covers, and how to pick which way to switch.",
+	Heading:   "Switching brands",
+	Lede:      "Citadel to Vallejo and Vallejo to Citadel look like the same chart read from either end. They are two different answers, and the gap between them decides which way is worth moving.",
+	Published: "2026-08-21",
 }}
 
 const guideAuthor = "Paulo Salum"
@@ -316,6 +323,51 @@ func (g *Generator) craftSizes() []rangeCount {
 	return rows
 }
 
+// pairCover is one direction of one conversion chart. The brand-switching
+// guide prints both directions of a pair one under the other, because that is
+// the whole argument: they are different numbers, and a reader who has opened
+// only one of the two charts has no way to find that out.
+type pairCover struct {
+	From, To string
+	chartCover
+}
+
+// switchCoverage reads what chartPages already measured for the pairs the home
+// page calls the popular ones, and returns both directions of each. It measures
+// nothing itself on purpose — a second count of the same chart is a second
+// answer waiting to disagree with the page it sends the reader to.
+//
+// A pair is dropped unless both of its charts exist. One direction on its own
+// is a row that cannot show an asymmetry, which is the only thing this table is
+// for.
+func (g *Generator) switchCoverage() []pairCover {
+	slug := map[string]string{}
+	for _, b := range g.brands {
+		slug[b.Name] = b.Slug
+	}
+	seen := map[string]bool{}
+	var out []pairCover
+	for _, w := range popularPairs {
+		a, b := w[0], w[1]
+		key := a + "\x00" + b
+		if a > b {
+			key = b + "\x00" + a
+		}
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+		there, okThere := g.coverage[chartPath(slug[a], slug[b])]
+		back, okBack := g.coverage[chartPath(slug[b], slug[a])]
+		if !okThere || !okBack {
+			continue
+		}
+		out = append(out, pairCover{From: a, To: b, chartCover: there},
+			pairCover{From: b, To: a, chartCover: back})
+	}
+	return out
+}
+
 func (g *Generator) guidePages() error {
 	type data struct {
 		common
@@ -325,12 +377,14 @@ func (g *Generator) guidePages() error {
 		Air    []rangeCount
 		Metal  []rangeCount
 		Craft  []rangeCount
+		Switch []pairCover
 	}
 	sizes := g.rangeSizes()
 	washes := g.labelSizes(isWash)
 	air := g.airSizes()
 	metal := g.labelSizes(isMetal)
 	craft := g.craftSizes()
+	pairs := g.switchCoverage()
 	// Each of these guides is built around its table and reads as an argument
 	// with its evidence removed without it. {{with}} over an empty slice is
 	// silence, so a dataset that stops carrying those labels — or a wiring
@@ -347,6 +401,9 @@ func (g *Generator) guidePages() error {
 	if len(craft) == 0 {
 		return fmt.Errorf("no craft ranges in this catalogue: the craft guide would publish without its table")
 	}
+	if len(pairs) == 0 {
+		return fmt.Errorf("no popular pair has charts in both directions: the brand-switching guide would publish without its table")
+	}
 	for _, gd := range guides {
 		path := "/guides/" + gd.Slug + "/"
 		article := fmt.Sprintf(
@@ -359,6 +416,7 @@ func (g *Generator) guidePages() error {
 				JSONLD: graph(g.crumbList("Guides", "/guides/", gd.Heading), article),
 			},
 			Guide: gd, Ranges: sizes, Washes: washes, Air: air, Metal: metal, Craft: craft,
+			Switch: pairs,
 		})
 		if err != nil {
 			return err

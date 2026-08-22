@@ -115,8 +115,9 @@ type Generator struct {
 	// coverage is filled in by chartPages and read by the index that lists
 	// them, so 650 links stop being an undifferentiated wall: the one number
 	// that decides whether a chart is worth opening is how much of the range it
-	// actually answers.
-	coverage map[string]string
+	// actually answers. The brand-switching guide reads it too, which is why
+	// guidePages runs after chartPages.
+	coverage map[string]chartCover
 
 	written int
 }
@@ -152,7 +153,7 @@ func New(cfg Config, paints []catalog.Paint, tables []match.Table) (*Generator, 
 			BrandCount:    len(brands),
 		},
 		tmpl:     map[string]*template.Template{},
-		coverage: map[string]string{},
+		coverage: map[string]chartCover{},
 	}
 	for _, name := range []string{"home", "paint", "brand", "chart", "list", "about", "find", "privacy"} {
 		t, err := template.New(name).Funcs(tmplFuncs).ParseFS(tmplFS, "tmpl/layout.html", "tmpl/"+name+".html")
@@ -305,21 +306,27 @@ func (g *Generator) home() error {
 	})
 }
 
+// popularPairs are the conversions people actually search for. The home page
+// links them and the brand-switching guide measures them, and it matters that
+// both work from one list: the guide's argument is about the charts a reader
+// is most likely to have already opened, not about a set of pairs chosen to
+// make the argument look good.
+var popularPairs = [][2]string{
+	{"Citadel", "Vallejo"}, {"Vallejo", "Citadel"},
+	{"Citadel", "The Army Painter"}, {"The Army Painter", "Vallejo"},
+	{"Citadel", "Scale75"}, {"Vallejo", "The Army Painter"},
+	{"Citadel", "P3"}, {"Tamiya", "Vallejo"},
+}
+
 // popular seeds the home page with the pairs people actually search for,
 // restricted to brands this build really has.
 func (g *Generator) popular() []Link {
-	want := [][2]string{
-		{"Citadel", "Vallejo"}, {"Vallejo", "Citadel"},
-		{"Citadel", "The Army Painter"}, {"The Army Painter", "Vallejo"},
-		{"Citadel", "Scale75"}, {"Vallejo", "The Army Painter"},
-		{"Citadel", "P3"}, {"Tamiya", "Vallejo"},
-	}
 	have := map[string]catalog.Brand{}
 	for _, b := range g.brands {
 		have[b.Name] = b
 	}
 	var out []Link
-	for _, w := range want {
+	for _, w := range popularPairs {
 		a, okA := have[w[0]]
 		b, okB := have[w[1]]
 		if !okA || !okB {
@@ -723,48 +730,69 @@ func chartSummary(from, to catalog.Brand, rows []match.Pair) string {
 	if len(rows) == 0 {
 		return ""
 	}
-	des := make([]float64, 0, len(rows))
-	near, usable := 0, 0
+	c := coverage(rows)
 	missed := map[string]int{}
 	for _, r := range rows {
-		des = append(des, r.DE)
-		switch {
-		case r.DE < 2:
-			near++
-			usable++
-		case r.DE < 5:
-			usable++
-		default:
+		if r.DE >= 5 {
 			missed[color.Hue(r.From.Lab())]++
 		}
 	}
-	sort.Float64s(des)
 
 	// "an equivalent in X" rather than "an X paint", because brands whose name
 	// carries its own article ("The Army Painter") read as nonsense otherwise.
 	s := fmt.Sprintf("%d of the %d %s colours below have an equivalent in %s within ΔE 5, the distance at which a substitution stops being obvious on a painted model. %d sit within ΔE 2 and are interchangeable outright. Across the whole range the typical distance is ΔE %.1f.",
-		usable, len(rows), from.Name, to.Name, near, des[len(des)/2])
+		c.Usable, c.Total, from.Name, to.Name, c.Near, c.Median)
 
 	if hue, n := commonest(missed); n > 2 {
 		s += fmt.Sprintf(" The %d gaps are not spread evenly: %d of them are %ss, so that is the corner of the %s range %s does not answer.",
-			len(rows)-usable, n, hue, from.Name, to.Name)
+			c.Total-c.Usable, n, hue, from.Name, to.Name)
 	}
 	return s
 }
 
-// coverage is the one figure that separates a chart worth opening from one that
-// is mostly gaps: the share of the source range that has a usable stand-in.
-func coverage(rows []match.Pair) string {
+// chartCover is what one conversion chart adds up to, kept as numbers rather
+// than as the sentence the index prints beside it. Two readers need it: the
+// index, which shows the one figure that separates a chart worth opening from
+// one that is mostly gaps, and the brand-switching guide, which sets the two
+// directions of a pair against each other. Two formatted strings cannot be
+// compared, and measuring the same chart twice invites the two answers to drift.
+type chartCover struct {
+	// Total is one row per colour in the source range.
+	Total int
+	// Usable is the rows inside ΔE 5, where the substitution stops being
+	// obvious on a painted model, and Near the rows inside ΔE 2, where the two
+	// pots are interchangeable outright. Near counts inside Usable.
+	Usable int
+	Near   int
+	// Median is where the middle row of the chart sits. It says what the chart
+	// is like to use in a way the counts do not: a median past 5 means the
+	// typical row is already a miss.
+	Median float64
+}
+
+func coverage(rows []match.Pair) chartCover {
+	c := chartCover{Total: len(rows)}
 	if len(rows) == 0 {
-		return ""
+		return c
 	}
-	usable := 0
+	des := make([]float64, 0, len(rows))
 	for _, r := range rows {
+		des = append(des, r.DE)
 		if r.DE < 5 {
-			usable++
+			c.Usable++
+		}
+		if r.DE < 2 {
+			c.Near++
 		}
 	}
-	return fmt.Sprintf("%d of %d matched", usable, len(rows))
+	sort.Float64s(des)
+	c.Median = des[len(des)/2]
+	return c
+}
+
+// note is the coverage figure as the chart index prints it beside each link.
+func (c chartCover) note() string {
+	return fmt.Sprintf("%d of %d matched", c.Usable, c.Total)
 }
 
 func commonest(counts map[string]int) (string, int) {
@@ -877,11 +905,11 @@ func (g *Generator) indexes() error {
 			// An empty coverage entry means chartPages found nothing to tabulate
 			// and wrote no page, so linking to it would be a dead end.
 			path := chartPath(from.Slug, to.Slug)
-			note, ok := g.coverage[path]
+			c, ok := g.coverage[path]
 			if !ok {
 				continue
 			}
-			chartLinks = append(chartLinks, Link{URL: path, From: from.Name, To: to.Name, Note: note})
+			chartLinks = append(chartLinks, Link{URL: path, From: from.Name, To: to.Name, Note: c.note()})
 		}
 	}
 	sort.Slice(chartLinks, func(i, j int) bool {

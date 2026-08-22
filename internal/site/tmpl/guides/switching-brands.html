@@ -1,0 +1,64 @@
+{{define "body"}}
+<p>Two pages on this site carry the same pair of brand names. <a href="/convert/citadel-to-vallejo/">Citadel to Vallejo</a> lists every Citadel colour with its closest Vallejo equivalent. <a href="/convert/vallejo-to-citadel/">Vallejo to Citadel</a> does the same job with the columns swapped. Almost everybody treats those as one chart read from either end.</p>
+
+<p>They are two different answers, and not slightly. Nine Citadel colours in ten have a Vallejo stand-in close enough that the swap will not show on a painted model. Going the other way it is closer to seven in ten, and the count of pairs that are genuinely interchangeable rather than merely close falls harder still: about a third of the Citadel chart, about one row in seven of the Vallejo one. Same two catalogues, same arithmetic, opposite directions. That gap is the most useful thing this site can tell you before you buy into a new range, and it is invisible if you only ever open the chart pointing your way.</p>
+
+<h2>A chart is a list of questions, not a list of pairs</h2>
+
+<p>Every conversion chart here has one row per colour in the range named first. Each row asks the same question &mdash; what is the nearest colour to this one, over there &mdash; and the answer is whatever the second range happens to have closest. So the range on the left decides which questions get asked, and the range on the right decides how good the answers are allowed to be. Swap them and you have changed both halves at once.</p>
+
+<p>Nothing ties the two results together, because nearest is not a mutual relation: the closest Vallejo bottle to some Citadel pot very often has a different Citadel pot as its own closest. So the reverse link at the bottom of every chart page goes to a genuinely different table, not to this one upside down.</p>
+
+<h2>Both directions of the conversions people actually ask for</h2>
+
+<p>Counted from the same catalogue the charts are built from, so this table cannot quietly disagree with the pages it describes. <em>Colours</em> is the number of rows on that chart. <em>Answered</em> is how many land within &Delta;E 5, the distance at which a substitution stops being obvious on a model. <em>Interchangeable</em> is the stricter count, within &Delta;E 2. <em>Typical</em> is where the middle row sits.</p>
+
+{{with .Switch}}
+<table class="scale">
+  <tr><th>Chart</th><th>Colours</th><th>Answered</th><th>Interchangeable</th><th>Typical &Delta;E</th></tr>
+  {{range .}}<tr><td><b>{{.From}}</b> to {{.To}}</td><td>{{.Total}}</td><td>{{.Usable}}</td><td>{{.Near}}</td><td>{{printf "%.1f" .Median}}</td></tr>{{end}}
+</table>
+{{end}}
+
+<p>Read the rows in pairs. Four of the six answer each other by clearly different amounts, and two of those are not close at all: Citadel against P3, and Tamiya against Vallejo. The other two &mdash; Citadel against Scale75, The Army Painter against Vallejo &mdash; come out roughly even. Nothing on either chart tells you which kind you are looking at. Only opening both does.</p>
+
+<h2>The range you are switching <em>to</em> sets the ceiling</h2>
+
+<p>Follow Citadel down the table as a source. It is answered best by the largest range it is set against, then by the next largest, and worst by the smallest, in that order, with no exceptions. Do the same with Vallejo as a source and the ordering holds again. That is the main effect, and it is nearly boring: a range with more colours in it has more chances to be near yours. The advice that falls out is uncomfortable but simple. Moving into a larger range is the cheap direction; moving into a smaller one is the expensive one. Someone leaving Vallejo for Citadel will hit a wall on a quarter of their palette, and the chart said so before they bought anything.</p>
+
+<p>Size is not the whole of it, and the table shows where it breaks. Compare what Tamiya answers of Vallejo against what Citadel answers of Vallejo: Tamiya does distinctly worse than the difference in their sizes would predict. Its chart says why in its own summary &mdash; the gaps are concentrated in the oranges. Tamiya's catalogue is built for armour and aircraft, and a palette organised around a subject is dense where that subject is dense and simply absent elsewhere. It is the same effect that lets <a href="/guides/craft-paint-on-miniatures/">an artist range with no interest in miniatures</a> out-answer a miniature one.</p>
+
+<h2>Eshin Grey has to be thirty-one paints</h2>
+
+<p>Coverage percentages are abstract. Here is the same fact in a form you can feel. On the Vallejo to Citadel chart, <a href="/paint/citadel/eshin-grey/">Eshin Grey</a> &mdash; one Layer paint &mdash; is the closest Citadel colour for thirty-one different Vallejo pots. <a href="/paint/citadel/khemri-brown/">Khemri Brown</a> answers twenty-six more, and Khemri Brown is a <em>Foundation (discontinued)</em> paint, so the second-busiest stand-in in that table is a pot Citadel stopped making. Run the chart the other way and the hardest-working Vallejo colour on it covers seven. Thirty-one against seven, same distance function, same day.</p>
+
+<p>That is what a small target range looks like from the inside. When the library runs out, the nearest neighbour does not go missing &mdash; it repeats. Every row still gets a name and a number, and a painter reading one row at a time never sees it happen.</p>
+
+<p>In the corners the target does not reach at all, it stops being repetitive and starts being wrong. <a href="/paint/citadel/carroburg-crimson/">Carroburg Crimson</a>, a Shade, is the best Citadel answer for eight Vallejo colours, several of them pinks and magentas sitting nine, eleven, twelve &Delta;E away &mdash; <a href="/paint/vallejo/coral-rose/">Coral Rose</a> and <a href="/paint/vallejo/light-magenta/">Light Magenta</a> among them. Two failures at once: the number is far past anything usable, and the pot being offered is <a href="/guides/washes-and-shades/">a wash rather than a paint</a>. Neither is a bug in the match. It is a range with no bright pinks in it, being asked for bright pinks, answering as honestly as it can.</p>
+
+<h2>&ldquo;Has an equivalent&rdquo; is not &ldquo;is the same colour&rdquo;</h2>
+
+<p>The <em>Answered</em> column is the generous reading, and it is the one every conversion chart on the internet quotes. &Delta;E 5 means the substitution is not obvious &mdash; not that it is invisible, and not that the two pots are the same. <a href="/guides/how-close-is-close-enough/">Under 2 you can swap without thinking; between 2 and 5 you can swap where nothing sits next to the original.</a></p>
+
+<p>So look at the <em>Interchangeable</em> column, which is a fraction of the generous count on every row of the table and on some rows a small one. A chart answering nine colours in ten is answering perhaps a third of them outright. Replacing one pot in the middle of a model, the generous column is the one that matters. Moving an army's recipe across so this year's batch matches last year's, the strict one is, and it is far smaller than the headline. The <em>Typical</em> column is the fastest check of the three: where it sits above 5, the middle row of that chart is already a miss.</p>
+
+<h2>The gaps are not spread evenly</h2>
+
+<p>Most chart pages here end their summary by naming the hue that misses most &mdash; yellows on one, blues on another, oranges on a third. That sentence is worth more than the percentage above it. A missing quarter spread evenly across the spectrum is an annoyance; a missing quarter concentrated in one corner is a shopping list, and it names the shelf you will still be buying from after the switch. Two ranges can post the same coverage and fail in different places: a missing corner of oranges costs a rust-and-armour painter dearly and a cold-palette sci-fi painter nothing at all.</p>
+
+<h2>Five rules for switching ranges</h2>
+
+<ol>
+  <li><strong>Open both charts before you decide anything.</strong> The reverse link is at the bottom of every chart page. One click, and it is the only way to see the asymmetry your decision turns on.</li>
+  <li><strong>Judge the move by the range you are moving into.</strong> Coverage is a property of the target, not of the range you are leaving. If you are moving into a smaller one, expect the shortfall and find out where it is first.</li>
+  <li><strong>Read the strict column, not the headline.</strong> If your recipes have to be repeatable across years and batches, &Delta;E 2 is your budget and the generous count is not describing your problem.</li>
+  <li><strong>Price the missing hue.</strong> The gaps cluster. Find the corner your new range does not reach, and if you paint anything living there, plan on keeping a few pots from the old maker rather than pretending the switch was clean.</li>
+  <li><strong>Convert the colours you use, not the range.</strong> Nobody replaces four hundred pots. Write down the fifteen or twenty in your recipes and look those up one at a time; the chart-wide percentage was only ever a guess at what that shorter list would look like.</li>
+</ol>
+
+<h2>Using this site for it</h2>
+
+<p>Start at the <a href="/charts/">chart index</a>, which prints the answered count beside every link, so you can see which pairings are worth opening and which are mostly gaps. Open the one you want, read the summary at the top, click the reverse link and read that one too. Two paragraphs, and you know more about the move than any percentage on a forum post will tell you.</p>
+
+<p>Then go colour by colour. Each paint's own page ranks every range against it rather than only the one you had in mind, which regularly turns up a closer answer in a range you already own, and every row carries <a href="/guides/paint-ranges-explained/">the range label of what it is offering</a> &mdash; your only warning that the suggestion is a wash, an airbrush pot or a metallic. <a href="/guides/substituting-a-paint/">Choosing a substitute</a> is the order to make those decisions in, one pot at a time. And when both charts agree a colour has no equivalent worth the name, that is a result rather than a failed search: mix it, or keep one pot of the old range for that one job. A table of nearest neighbours can tell you a colour is not there. It cannot invent it.</p>
+{{end}}
