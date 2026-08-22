@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"tintaequivalente/internal/catalog"
+	"tintaequivalente/internal/color"
 )
 
 // guide is one written article. Everything else on this site is generated: a
@@ -102,6 +103,13 @@ var guides = []guide{{
 	Heading:   "Switching brands",
 	Lede:      "Citadel to Vallejo and Vallejo to Citadel look like the same chart read from either end. They are two different answers, and the gap between them decides which way is worth moving.",
 	Published: "2026-08-21",
+}, {
+	Slug:      "how-the-matching-works",
+	Title:     "How the matching works: where the colour values come from and what happens to them",
+	Desc:      "Where this site's colour values come from, which rows never reach a page, how two of them become a ΔE, and what the site's own answers add up to.",
+	Heading:   "How the matching works",
+	Lede:      "Every page here ends in a number. This is the whole path that number takes, from a sampled colour value to the word printed beside it — and what gets dropped on the way.",
+	Published: "2026-08-22",
 }}
 
 const guideAuthor = "Paulo Salum"
@@ -325,6 +333,92 @@ func (g *Generator) craftSizes() []rangeCount {
 	return rows
 }
 
+// bandCount is one of the perceptual bands this site prints beside a match, and
+// how many of its colours have their own best answer inside that band.
+type bandCount struct {
+	Name string
+	// Span is the stretch of distance the band covers, formatted from the
+	// thresholds below rather than typed into the column, so the label on a row
+	// cannot say one thing while the counting behind it does another.
+	Span  string
+	N     int
+	Share float64
+}
+
+// qualityBands are the bands color.Quality names, in order, each with the
+// distance it runs up to; the last one is open-ended and carries no bound. The
+// thresholds are a second copy of the ones inside that function, because a
+// switch cannot be asked where its own edges are, and
+// TestQualityBandsMatchTheScale is what keeps the two copies from drifting.
+var qualityBands = []struct {
+	Name  string
+	Upper float64
+}{
+	{"indistinguishable", 1},
+	{"near-perfect", 2},
+	{"very close", 3.5},
+	{"close", 5},
+	{"similar", 10},
+	{"far", 0},
+}
+
+// answerBands measures what this site actually answers with: for every colour
+// published here, how good the nearest colour in any other maker's range is.
+// It is the one figure no other page can carry, because every other page is
+// about a single paint, and it is the only claim a page about the method really
+// has to support — not that the arithmetic is standard, but what comes out of
+// it.
+//
+// The bucketing asks color.Quality instead of comparing against the thresholds
+// in the table above, so a colour lands in the row its own page would put it in.
+func (g *Generator) answerBands() []bandCount {
+	n := map[string]int{}
+	total := 0
+	for _, t := range g.tables {
+		// A single-brand catalogue would answer nothing, and dividing by that
+		// total below is how it would show up.
+		if len(t.Cross) == 0 {
+			continue
+		}
+		n[color.Quality(t.Cross[0].Best[0].DE)]++
+		total++
+	}
+	if total == 0 {
+		return nil
+	}
+	rows := make([]bandCount, 0, len(qualityBands))
+	lo := 0.0
+	for _, b := range qualityBands {
+		span := fmt.Sprintf("%g to %g", lo, b.Upper)
+		switch {
+		case lo == 0:
+			span = fmt.Sprintf("under %g", b.Upper)
+		case b.Upper == 0:
+			span = fmt.Sprintf("%g and over", lo)
+		}
+		rows = append(rows, bandCount{
+			Name:  b.Name,
+			Span:  span,
+			N:     n[b.Name],
+			Share: 100 * float64(n[b.Name]) / float64(total),
+		})
+		lo = b.Upper
+	}
+	return rows
+}
+
+// folded is how many catalogue rows this build merged into a page they share.
+// The guide that explains the merge prints it, for the reason the tables above
+// exist: the size of that fold is a fact about the current dataset, and a
+// number written into the sentence would keep its old value after the next one.
+func (g *Generator) folded() int {
+	n := 0
+	for _, p := range g.paints {
+		n += p.Folded
+	}
+	return n
+}
+
 // pairCover is one direction of one conversion chart. The brand-switching
 // guide prints both directions of a pair one under the other, because that is
 // the whole argument: they are different numbers, and a reader who has opened
@@ -380,6 +474,8 @@ func (g *Generator) guidePages() error {
 		Metal  []rangeCount
 		Craft  []rangeCount
 		Switch []pairCover
+		Bands  []bandCount
+		Folded int
 	}
 	sizes := g.rangeSizes()
 	washes := g.labelSizes(isWash)
@@ -387,6 +483,8 @@ func (g *Generator) guidePages() error {
 	metal := g.labelSizes(isMetal)
 	craft := g.craftSizes()
 	pairs := g.switchCoverage()
+	bands := g.answerBands()
+	folded := g.folded()
 	// Each of these guides is built around its table and reads as an argument
 	// with its evidence removed without it. {{with}} over an empty slice is
 	// silence, so a dataset that stops carrying those labels — or a wiring
@@ -406,6 +504,9 @@ func (g *Generator) guidePages() error {
 	if len(pairs) == 0 {
 		return fmt.Errorf("no popular pair has charts in both directions: the brand-switching guide would publish without its table")
 	}
+	if len(bands) == 0 {
+		return fmt.Errorf("no paint has a match outside its own brand: the guide to the method would publish without its table")
+	}
 	for _, gd := range guides {
 		path := "/guides/" + gd.Slug + "/"
 		article := fmt.Sprintf(
@@ -418,7 +519,7 @@ func (g *Generator) guidePages() error {
 				JSONLD: graph(g.crumbList("Guides", "/guides/", gd.Heading), article),
 			},
 			Guide: gd, Ranges: sizes, Washes: washes, Air: air, Metal: metal, Craft: craft,
-			Switch: pairs,
+			Switch: pairs, Bands: bands, Folded: folded,
 		})
 		if err != nil {
 			return err

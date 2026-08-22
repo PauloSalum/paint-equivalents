@@ -36,7 +36,9 @@ func TestEveryGuideRendersItsOwnBody(t *testing.T) {
 			Metal  []rangeCount
 			Craft  []rangeCount
 			Switch []pairCover
-		}{common{Title: gd.Title, Path: "/guides/" + gd.Slug + "/"}, gd, nil, nil, nil, nil, nil, nil}
+			Bands  []bandCount
+			Folded int
+		}{common{Title: gd.Title, Path: "/guides/" + gd.Slug + "/"}, gd, nil, nil, nil, nil, nil, nil, nil, 0}
 		if err := tp.ExecuteTemplate(&buf, "layout", data); err != nil {
 			t.Errorf("guide %q: %v", gd.Slug, err)
 			continue
@@ -72,7 +74,7 @@ func TestPagesLinkToGuidesThatExist(t *testing.T) {
 	for _, gd := range guides {
 		have["/guides/"+gd.Slug+"/"] = true
 	}
-	names := []string{"tmpl/paint.html", "tmpl/chart.html", "tmpl/home.html", "tmpl/find.html", "tmpl/guide.html"}
+	names := []string{"tmpl/paint.html", "tmpl/chart.html", "tmpl/home.html", "tmpl/find.html", "tmpl/guide.html", "tmpl/about.html"}
 	// The guides cite each other, so a rename breaks its siblings' bodies too —
 	// the same failure, one directory over, and just as invisible until verify().
 	for _, gd := range guides {

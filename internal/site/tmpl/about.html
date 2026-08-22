@@ -8,6 +8,7 @@
 <h2>How the matching works</h2>
 <p>Each paint's sRGB value is converted to CIELAB under a D65 white point, then compared with <strong>CIEDE2000</strong> (CIE 142:2001) — the current standard colour-difference formula. The implementation is verified against the 34-pair acceptance set from Sharma, Wu &amp; Dalal (2005), which exists precisely to catch implementations that get the hue-band and rotation terms wrong.</p>
 <p>This matters because the obvious alternative — comparing RGB numbers directly — does not match human vision. Two greens that differ by the same RGB distance as two blues do not look equally different. CIEDE2000 corrects for that.</p>
+<p class="pairlink"><a href="/guides/how-the-matching-works/">The whole pipeline, step by step</a> — which rows never reach a page, why duplicate colours share one, how the implementation is checked, and what the site's own answers add up to across the catalogue.</p>
 
 <h2>What it cannot tell you</h2>
 <p>A hex value describes a colour on a screen. A pot of paint also has pigment load, opacity, finish and behaviour under a wash, none of which survive the trip to six hex digits. Two paints that match at &Delta;E 0.8 can still behave differently on the model. Treat every match here as a shortlist to test, not a guarantee.</p>

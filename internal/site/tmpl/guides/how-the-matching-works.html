@@ -1,0 +1,73 @@
+{{define "body"}}
+<p>This site is a build, not a database with a search box in front of it: one command reads a file of colour values, ranks every colour against every other one, and writes the finished pages to disk. Every number on them came from the same rule, run over all {{.Site.PaintCount}} paints. The rules are the whole product, so here they are, in order.</p>
+
+<h2>Where the colour values come from</h2>
+
+<p>From one dataset, and it is not this site's. Paint names, manufacturer codes, range labels and colour values come from <a href="https://github.com/Arcturus5404/miniature-paints" rel="noopener">Arcturus5404/miniature-paints</a>, under the MIT licence; the <a href="/about/">about page</a> carries the licence text and the attribution it requires.</p>
+
+<p>Those values are <strong>community-sampled approximations, not manufacturer specifications</strong>. Nobody publishes instrument readings for every pot on the market; if anyone did, this site would use them. That single fact sets the ceiling on everything below it: sampled values are good enough to rank candidates and not good enough to reproduce a colour exactly.</p>
+
+<p>Each row arrives with a name, a maker, one or more range labels, a catalogue code, an sRGB value, and that value's CIELAB coordinate under a D65 white point &mdash; daylight, roughly a north-facing window. Lab is what the matching works from; the hex is only ever shown to you.</p>
+
+<h2>What never reaches a page</h2>
+
+<p>The catalogue is filtered before anything is compared, and the filter is deliberately stricter than it needs to be.</p>
+
+<ul>
+  <li><strong>Anything not from the MIT dataset.</strong> The source mixes rows that may be redistributed with rows harvested from retailer listings or contributed privately. Only the first kind is served.</li>
+  <li><strong>A handful of Brazilian ranges, excluded by name.</strong> They arrive carrying the same source label as everything else, but the attribution file they came with records the terms as personal, non-commercial use with redistribution refused. When two records of one licence disagree, the stricter one wins.</li>
+  <li><strong>Rows with no colour value</strong>, which are useless to a colour-matching site whatever their licence says.</li>
+  <li><strong>Colour standards.</strong> RAL and Pantone are reference systems rather than paints you can buy, and a match list full of them answers nothing at the bench.</li>
+</ul>
+
+<p>What survives is written to a file of its own, and the site is built from that rather than the original: a range added upstream under a licence this site cannot honour never reaches the build, because the build never reads the upstream file.</p>
+
+<p>Those excluded Brazilian ranges are a real gap. If you paint in Portuguese, <a href="https://zenital.art/" hreflang="pt-BR" rel="noopener">Zenital</a> runs the same colour engine over a catalogue that includes them, and works a mixing recipe out of the pots you own when no range carries the colour ready-made.</p>
+
+<h2>One colour under two labels gets one page</h2>
+
+<p>Makers sell the same paint in more than one line. Citadel's <a href="/paint/citadel/balthasar-gold/">Balthasar Gold</a> ships as a Base and as an Air pot at one recorded value, and it is no special case: <strong>{{.Folded}}</strong> rows in the current dataset are a colour already published under another label. Each folds into the page it shares, which lists every label the paint ships under in its header, so nothing is hidden by the fold.</p>
+
+<p>Published apart they would be two pages of one colour, each offering the other as an equivalent at &Delta;E 0.0 &mdash; an answer to nothing &mdash; and splitting whatever standing "balthasar gold equivalent" earns between two competing URLs. Only rows of identical colour fold: a name a maker reuses for a different pigment is a different paint and keeps its own page. The URL the fold empties is not deleted either, but keeps a page whose canonical points at the paint that absorbed it.</p>
+
+<h2>Two colours, one number</h2>
+
+<p>The distance is <strong>CIEDE2000</strong> (CIE 142:2001), computed on the Lab coordinates. It is the current standard for exactly this question &mdash; whether two samples are the same colour. Why it is not simply the gap between two hex codes, and what the number is worth on a model, is <a href="/guides/how-close-is-close-enough/">a guide of its own</a>.</p>
+
+<p>What belongs here is how the implementation is checked, because CIEDE2000 is easy to get almost right. It carries four hue bands and a rotation term that only bite in the blues, so a version with the rotation wired wrong agrees with a correct one across most of colour space and disagrees exactly where a painter keeps their blues. This one is tested against the 34-pair acceptance set Sharma, Wu and Dalal published in 2005 for that trap, and has to reproduce every pair to four decimal places &mdash; including the two pairs that are the same colours in opposite order, which prove the answer does not depend on which pot you name first.</p>
+
+<h2>Every colour against every other one</h2>
+
+<p>There is no curated conversion table anywhere on this site and no hand-picked pairs. Every colour is compared against all the others, the nearest is kept for each of the {{.Site.BrandCount}} makers, and the makers are ordered by how good their best answer is &mdash; so the top block of a paint page holds the closest colour that exists anywhere, not one from a brand somebody chose to feature. Ties break on the paint's name, which sounds like housekeeping and is not: two builds of the same data give the same pages, so a change in the output is a change in the input.</p>
+
+<p>The method has no opinion about what you want and cannot be given one. It does not know whether you need something opaque, something still in production, or something a shop near you stocks: it will offer a <a href="/guides/washes-and-shades/">wash</a>, a <a href="/guides/metallic-paints/">metallic</a>, a <a href="/guides/contrast-speedpaint-xpress/">one-coat paint</a> or a <a href="/guides/craft-paint-on-miniatures/">bottle from the art aisle</a> to anybody whose colour it fits. That is why every match row prints <a href="/guides/paint-ranges-explained/">the range label of what it is offering</a> &mdash; the only warning on the page that the closest colour may be the wrong product.</p>
+
+<p>The one place any of this runs while you watch is <a href="/find/">the colour finder</a>, which ports the same formula and ranks the catalogue in your browser.</p>
+
+<h2>What that produces, across the whole catalogue</h2>
+
+<p>Every other page here is about one paint. This is the one measurement about the method: for each colour on the site, the band its <em>best</em> answer anywhere else falls into, counted by the build that wrote the pages.</p>
+
+{{with .Bands}}
+<table class="scale">
+  <tr><th>Best answer anywhere</th><th>&Delta;E</th><th>Colours</th><th>Share</th></tr>
+  {{range .}}<tr><td>{{.Name}}</td><td>{{.Span}}</td><td>{{.N}}</td><td>{{printf "%.1f" .Share}}%</td></tr>{{end}}
+</table>
+{{end}}
+
+<h2>The good number is not the number you need</h2>
+
+<p>More than eight colours in ten have a stand-in somewhere at &Delta;E 2 or better, and the bottom row is empty: nothing here is unanswered outright. Before that reads as a boast, it does not measure the quality of the matching. It measures density. {{.Site.PaintCount}} colours from {{.Site.BrandCount}} makers cover the space thickly enough that <em>the nearest colour anywhere</em> is nearly always excellent &mdash; and "anywhere" is not a constraint anybody paints under.</p>
+
+<p>Put the constraint you really have back in &mdash; one range, one shop, one shelf &mdash; and the figure drops hard. A <a href="/charts/">conversion chart</a> between two named ranges answers a good deal less, and how much less depends on the range you are moving into and even on <a href="/guides/switching-brands/">which direction you read the chart in</a>. The table above is the ceiling; every real question you bring here is asked below it.</p>
+
+<p>The bottom two rows are worth a look for the opposite reason. Those colours are not obscure paints in forgotten ranges; their colour is not really a colour. The least-answered pot in the catalogue is <a href="/paint/scale75/acid-pink/">Scale75 Acid Pink</a>, an FX-range fluorescent, and behind it come <a href="/paint/warcolours/metallic-ultramarine/">Warcolours Metallic Ultramarine</a> and a phosphorescent green. Fluorescent, phosphorescent, metallic: three ways of being a surface effect rather than a pigment colour, which one Lab coordinate summarises poorly. The method runs out on the pots that were never describable by <a href="/guides/what-a-hex-code-misses/">six hex digits</a> in the first place.</p>
+
+<h2>What none of this fixes</h2>
+
+<p>The pipeline is careful about what a pipeline can be careful about: licensing, duplicates, dead URLs, the arithmetic, reproducibility. None of it touches the two limits that matter most. The input is sampled rather than measured, so a value can be wrong before anything here has a chance to be right; and a colour value describes a colour, while a pot also has opacity, finish and behaviour under a wash, any of which can make a &Delta;E 0.8 match useless for the job in front of you. The honest description is therefore narrower than it looks: this site ranks candidates, it does not choose one. <a href="/guides/substituting-a-paint/">Choosing a substitute</a> is the order to make the rest of that decision in, and its last step is always a scrap of plastic under the light you paint in.</p>
+
+<h2>When it is wrong</h2>
+
+<p>A wrong colour value does not stay in one place: it becomes a wrong recommendation on every page that paint appears on, and it is most convincing when it is closest, because a confident &Delta;E 0.4 beside a name is what a reader stops checking. Corrections are worth more than compliments here, and the <a href="/about/#contact">about page</a> has the route &mdash; an issue on the repository that also holds this generator, so a report and its fix stay together.</p>
+{{end}}
