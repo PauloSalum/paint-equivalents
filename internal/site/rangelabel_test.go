@@ -97,6 +97,7 @@ func TestMatchListsPrintTheRangeOfTheSuggestedPaint(t *testing.T) {
 		Detailed []match.BrandMatches
 		Rest     []match.BrandMatches
 		Charts     map[string]bool
+		Set        *setLink
 		CraftFirst bool
 	}{
 		common: common{Title: "Abaddon Black", Path: subject.URL()},

@@ -158,6 +158,7 @@ func TestPaintPageWarnsOnAirRangesWithoutStealingTheWashWarning(t *testing.T) {
 			Detailed []match.BrandMatches
 			Rest     []match.BrandMatches
 			Charts   map[string]bool
+			Set      *setLink
 			// Left false throughout: this test is about the three warnings that
 			// describe the pot, and the craft one describes the answer.
 			CraftFirst bool

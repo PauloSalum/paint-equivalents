@@ -140,6 +140,7 @@ func TestPaintPageWarnsOnWashesAndOnlyOnWashes(t *testing.T) {
 			Detailed []match.BrandMatches
 			Rest     []match.BrandMatches
 			Charts     map[string]bool
+			Set        *setLink
 			CraftFirst bool
 		}{
 			common: common{Title: "t", Path: "/paint/citadel/x/"},

@@ -401,6 +401,8 @@ func (g *Generator) paintPages() error {
 	bySize := append([]catalog.Brand(nil), g.brands...)
 	sort.Slice(bySize, func(i, j int) bool { return bySize[i].Count > bySize[j].Count })
 
+	boxed := boxedRanges(g.paints)
+
 	for i, p := range g.paints {
 		t := g.tables[i]
 		full := names.product(p)
@@ -425,6 +427,11 @@ func (g *Generator) paintPages() error {
 			Detailed []match.BrandMatches
 			Rest     []match.BrandMatches
 			Charts   map[string]bool
+			// Set is the boxed set behind the closest match, when there is one.
+			// It is the only link on this page worth more than a pot, and it
+			// belongs to the range the reader is being sent to rather than the
+			// one they already have open.
+			Set *setLink
 			// CraftFirst is the one warning on this page about the answer rather
 			// than about the paint: the block at the top of the list is a craft
 			// or fine-art range. It is decided here and not in the markup
@@ -432,9 +439,12 @@ func (g *Generator) paintPages() error {
 			CraftFirst bool
 		}
 		var buyBest, bestName string
+		var set *setLink
 		if len(t.Cross) > 0 {
-			bestName = names.product(*t.Cross[0].Best[0].Paint)
+			best := *t.Cross[0].Best[0].Paint
+			bestName = names.product(best)
 			buyBest = g.buy(bestName)
+			set = g.setFor(best, boxed)
 		}
 		desc := paintDesc(full, len(g.brands)-1, t.Cross)
 
@@ -466,7 +476,7 @@ func (g *Generator) paintPages() error {
 			},
 			Paint: p, Table: t, Detailed: detailed, Rest: rest,
 			Name: strings.TrimPrefix(full, p.Brand+" "),
-			Buy:  g.buy(full), BuyBest: buyBest, BestName: bestName,
+			Buy:  g.buy(full), BuyBest: buyBest, BestName: bestName, Set: set,
 			Summary: summarise(p, t), FAQ: faq, Charts: charted[p.BrandSlug],
 			// Not on the craft pages themselves, where the nearest range is
 			// usually another craft one and the reader is already in the aisle.
@@ -1304,9 +1314,66 @@ func (g *Generator) brandSets(b catalog.Brand, own []catalog.Paint) []setLink {
 	}
 	sets := make([]setLink, 0, len(ranges))
 	for _, r := range ranges {
-		sets = append(sets, setLink{Name: b.Name + " " + r, URL: g.buySet(b.Name, r)})
+		sets = append(sets, setLink{Name: setName(b.Name, r), URL: g.buySet(b.Name, r)})
 	}
 	return sets
+}
+
+// setName is the button text for a boxed set. The markup follows it with the
+// word "set", and two of The Army Painter's labels are called Speedpaint Set,
+// which came out as "Speedpaint Set set". Only the label the reader sees is
+// cleaned: the search keeps the words the store files the product under, and
+// dropping one of them there would return a different shelf.
+func setName(brand, label string) string {
+	return strings.TrimSpace(brand + " " + strings.TrimSpace(strings.Replace(label, " Set", "", 1)))
+}
+
+// brandRange names one label of one brand, which is the unit a boxed set is
+// sold as: a box is somebody's Game Color, never Game Color on its own and
+// never a brand entire. Both halves are the key for that reason.
+type brandRange struct{ Brand, Range string }
+
+// boxedRanges is every label with a real box behind it, by the same rule
+// brandSets applies on a brand page: sellable, and big enough to clear
+// setMinimum. A paint page needs the answer for *another* brand's range, so it
+// is computed once over the whole catalogue rather than rescanned nine
+// thousand times.
+func boxedRanges(paints []catalog.Paint) map[brandRange]bool {
+	byBrand := map[string][]catalog.Paint{}
+	for _, p := range paints {
+		byBrand[p.Brand] = append(byBrand[p.Brand], p)
+	}
+	boxed := map[brandRange]bool{}
+	for brand, own := range byBrand {
+		for r, n := range subRanges(own, sellable) {
+			if n >= setMinimum {
+				boxed[brandRange{brand, r}] = true
+			}
+		}
+	}
+	return boxed
+}
+
+// setFor is the set link a paint page offers, and it is deliberately about the
+// closest match rather than the paint in the title: someone reading this page
+// has the paint at the top already and is deciding whether to buy into the
+// range that answers it. Offering the box of the range they came in with would
+// be selling them their own shelf.
+//
+// A paint ships under several labels and only some of them are boxed, so the
+// first label with a box wins. When none has one the page keeps the pot links
+// and nothing else — a brand-wide fallback would put "Golden kit" on thousands
+// of pages, and a search with nothing behind it spends the click for nothing.
+func (g *Generator) setFor(p catalog.Paint, boxed map[brandRange]bool) *setLink {
+	if g.cfg.AmazonTag == "" {
+		return nil
+	}
+	for _, r := range labelsOf(p, sellable) {
+		if boxed[brandRange{p.Brand, r}] {
+			return &setLink{Name: setName(p.Brand, r), URL: g.buySet(p.Brand, r)}
+		}
+	}
+	return nil
 }
 
 // disclosure returns the sentence the operating agreement of that marketplace

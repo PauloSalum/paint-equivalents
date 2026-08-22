@@ -29,6 +29,7 @@
 <p class="buy">
   <a href="{{.Buy}}" rel="nofollow sponsored noopener" target="_blank">Shop {{.Paint.Brand}} {{.Paint.Name}}</a>
   {{if .BuyBest}}<a href="{{.BuyBest}}" rel="nofollow sponsored noopener" target="_blank">Shop {{.BestName}}</a>{{end}}
+  {{with .Set}}<a href="{{.URL}}" rel="nofollow sponsored noopener" target="_blank">Shop {{.Name}} set</a>{{end}}
 </p>
 {{end}}
 
