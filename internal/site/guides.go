@@ -18,8 +18,11 @@ import (
 // "body". A slug with no file fails in New(), and a body that links to a page
 // that does not exist fails in verify(), so neither mistake can ship.
 type guide struct {
-	Slug      string
-	Title     string
+	Slug  string
+	Title string
+	// Desc goes nowhere but the meta description and the Article JSON-LD, so its
+	// only reader is the search result: write it to descRunes or Google cuts it
+	// off mid-word. TestGuideDescFitsTheSnippet is what says so.
 	Desc      string
 	Heading   string
 	Lede      string
@@ -29,7 +32,7 @@ type guide struct {
 var guides = []guide{{
 	Slug:    "how-close-is-close-enough",
 	Title:   "How close is close enough? What ΔE means at the workbench",
-	Desc:    "Why subtracting two hex codes gives the wrong answer, what CIEDE2000 measures instead, and how close a paint match has to be before it survives on a painted model.",
+	Desc:    "Why subtracting two hex codes gives the wrong answer, what CIEDE2000 measures instead, and how close a paint match has to be to survive on a model.",
 	Heading: "How close is close enough?",
 	Lede:    "Every match on this site carries a number. This is what it measures, and what it cannot see.",
 	// The date the article was written. It is not a build timestamp: rebuilding
@@ -39,35 +42,34 @@ var guides = []guide{{
 }, {
 	Slug:      "substituting-a-paint",
 	Title:     "Substituting a paint: choosing a replacement that survives the model",
-	Desc:      "How to replace a discontinued or unavailable miniature paint: name the job the pot is doing, set the tolerance from that, search the same range before you cross brands, and test before you commit.",
+	Desc:      "How to replace a discontinued or unavailable miniature paint: name the job the pot is doing, set the tolerance from that, and test before you commit.",
 	Heading:   "Substituting a paint",
 	Lede:      "The nearest colour is rarely the whole answer. This is the order to decide things in when the pot is discontinued, out of stock, or simply not the range you own.",
 	Published: "2026-08-18",
 }, {
 	Slug:      "what-a-hex-code-misses",
 	Title:     "What a hex code misses: opacity, finish, metallics and the drift as it dries",
-	Desc:      "A colour value cannot tell you whether a paint covers, how its finish shifts the colour, why metallics need more than one measurement, or why two matching pots come apart under a different lamp. What to check instead.",
+	Desc:      "What a hex code cannot tell you: whether a paint covers, how its finish shifts the colour, or why two matching pots come apart under a different lamp.",
 	Heading:   "What a hex code misses",
 	Lede:      "Six digits record how a colour looked once, on a flat dry sample, under one light. This is everything about the pot that never reaches them.",
 	Published: "2026-08-18",
 }, {
 	Slug:      "contrast-speedpaint-xpress",
 	Title:     "Contrast, Speedpaint and Xpress: the one-coat paints, and what a match between them is worth",
-	Desc:      "How Citadel Contrast, Army Painter Speedpaint, Vallejo Xpress Color and Scale75 Instant Colors work, why a transparent paint's colour depends on the undercoat under it, and why a close match between two one-coat ranges promises less than the same match between two opaque paints.",
+	Desc:      "How Citadel Contrast, Army Painter Speedpaint, Vallejo Xpress Color and Scale75 Instant Colors work, and what a close match between two of them is worth.",
 	Heading:   "Contrast, Speedpaint and Xpress",
 	Lede:      "Three ranges sell the same trick: base coat and shadow in one pass. That trick is also why a colour distance between two of them promises less than the same number anywhere else on this site.",
 	Published: "2026-08-19",
 }, {
 	Slug:      "paint-ranges-explained",
 	Title:     "Paint ranges explained: what Base, Layer, Air, Contrast and the rest are for",
-	Desc:      "What a paint range actually is — consistency, pigment load, chemistry and the job the pot is built for — and what Citadel, Vallejo, The Army Painter and Mr. Hobby put in each of theirs. The half of a paint's name that a colour match cannot read.",
+	Desc:      "What a paint range is — consistency, pigment load and the job the pot is built for — and what Citadel, Vallejo and The Army Painter put in theirs.",
 	Heading:   "Paint ranges explained",
 	Lede:      "A brand is not one paint. It is several different products wearing the same logo, and the range is the word that tells them apart. A colour distance cannot read it, so you have to.",
 	Published: "2026-08-19",
 }, {
-	Slug:  "washes-and-shades",
-	Title: "Washes and shades: why the nearest colour to a wash is usually the wrong pot",
-	// Short enough to survive Google's snippet, which the five above are not.
+	Slug:      "washes-and-shades",
+	Title:     "Washes and shades: why the nearest colour to a wash is usually the wrong pot",
 	Desc:      "Why a wash's recorded colour describes how it was sampled more than what it does, and how to choose a substitute for one on this site.",
 	Heading:   "Washes and shades",
 	Lede:      "A wash is not painted onto a surface. It is let into the recesses, and most of it ends up somewhere you did not put it. That changes what the number beside it is comparing.",

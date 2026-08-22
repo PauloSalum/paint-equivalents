@@ -49,6 +49,20 @@ func TestEveryGuideRendersItsOwnBody(t *testing.T) {
 	}
 }
 
+// A guide's Desc is written by hand, and an overlong one is the mistake nothing
+// else catches: the page validates, the build passes, and the only place it goes
+// wrong is the search result, where Google cuts the sentence off mid-word and the
+// reader decides whether to click on half a promise. Every generated page on this
+// site already keeps to descRunes — paintDesc counts against it — so the written
+// articles are the only descriptions that can drift past it.
+func TestGuideDescFitsTheSnippet(t *testing.T) {
+	for _, gd := range guides {
+		if n := len([]rune(gd.Desc)); n > descRunes {
+			t.Errorf("guide %q: description is %d runes, over the %d Google shows:\n%s", gd.Slug, n, descRunes, gd.Desc)
+		}
+	}
+}
+
 // The two templates that carry 9,000-odd pages link to a guide by a slug typed
 // into the markup. Renaming the guide would leave every one of those pages
 // pointing at nothing, and the only thing that catches it today is verify() at
